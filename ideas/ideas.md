@@ -12,3 +12,11 @@ A IMPLEMENTER
 - Transférer la connaissance du MLP sur un MLP plus fin et plus long. (FITNETS)
 - Deep AutoEncoder sur KDD, afin de pouvoir l'utiliser comme point de départ pour un générateur (BAGAN). Tester si WGAN est implémentable directement.
 
+
+
+Feuille de route
+
+**9-12 Avril 2019**
+
+
+
