@@ -13,6 +13,16 @@ def plotLoss(epoch, dLosses, gLosses):
     plt.legend()
     plt.savefig('images/gan_loss_epoch_%d.png' % epoch)
     
+def plotingLosses(m,f,g,d):
+    plt.plot(m, label="malveillance")
+    plt.plot(f, label="fooling")
+    plt.plot(g, label="generator loss")
+    plt.plot(d, label="disc loss")
+    plt.legend()
+    plt.show()
+    plt.close()
+    return True
+    
 
 def plotLossUNS(epoch, dLosses, gLosses):
     plt.figure(figsize=(10, 8))
@@ -26,7 +36,7 @@ def plotLossUNS(epoch, dLosses, gLosses):
 # Create a wall of generated MNIST images
 
 
-def plotGeneratedImages(epoch, generator, randomDim, examples=100, dim=(10, 10), figsize=(10, 10)):
+def plotGeneratedImages(epoch, generator, randomDim, examples=100, dim=(10, 10), figsize=(10, 10), save_mode=False):
     noise = np.random.normal(0, 1, size=[examples, randomDim])
     generatedImages = generator.predict(noise)
     generatedImages = generatedImages.reshape(examples, 28, 28)
@@ -37,7 +47,11 @@ def plotGeneratedImages(epoch, generator, randomDim, examples=100, dim=(10, 10),
         plt.imshow(generatedImages[i], interpolation='nearest', cmap='gray_r')
         plt.axis('off')
     plt.tight_layout()
-    plt.savefig('images/gan_generated_image_epoch_%d.png' % epoch)
+    if save_mode:
+        plt.savefig('images/gan_generated_image_epoch_%d.png' % epoch)
+        plt.show()
+    else:
+        plt.show()
     return True
     
     
