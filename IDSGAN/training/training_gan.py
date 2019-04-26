@@ -23,7 +23,7 @@ def train_gan(disc, gen, GAN,
         print('-'*15, 'Epoch %d' % e, '-'*15)
         for _ in tqdm(range(int(batchCount))):
             # Get a random set of input noise and images
-            index = random.choices(list(x_train.index), k=batchSize)
+            index = [np.random.randint(0, x_train.shape[0], size=batchSize)]
             real_data = x_train[index]
             fake_data = generation_fake_data(generator=gen, number=batchSize, random_dim=random_dim)
             X = np.concatenate([real_data, fake_data])

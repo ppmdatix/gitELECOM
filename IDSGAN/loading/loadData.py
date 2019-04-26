@@ -4,10 +4,11 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 
 
-def loadData(path_data="/Users/ppx/Desktop/gitELECOM/IDSGAN/data/UNSW-NB15_1.csv",
-             path_features="/Users/ppx/Desktop/gitELECOM/IDSGAN/data/NUSW-NB15_features.csv",
+def loadData(path_data="/home/peseux/Downloads/UNSW-NB15/UNSW-NB15_1.csv",
+             path_features="/home/peseux/Downloads/UNSW-NB15/NUSW-NB15_features.csv",
              nrows=100,
-             test_size=0.2):
+             test_size=0.2,
+             attacks=True):
 
     def turnNanOk(x):
         if x!= x:
@@ -41,9 +42,12 @@ def loadData(path_data="/Users/ppx/Desktop/gitELECOM/IDSGAN/data/UNSW-NB15_1.csv
     # attacks = list(df.attack_cat.unique())
 
     # Keeping DOS attacks and benign ones
-    df_dos = df[(df.attack_cat == "Ok") | (df.attack_cat == "DoS")]
+    if attacks:
+        df_dos = df[(df.attack_cat == "Ok") | (df.attack_cat == "DoS")]
+    else:
+        df_dos = df[df.attack_cat == "DoS"]
 
-    df_dos_float = df_dos[name_float + int_cat_to_use ]
+    df_dos_float = df_dos[name_float + int_cat_to_use]
 
     # Scaling
     scaler = StandardScaler()
@@ -61,7 +65,7 @@ def loadData(path_data="/Users/ppx/Desktop/gitELECOM/IDSGAN/data/UNSW-NB15_1.csv
     y_te = test[["Label"]]
     x_te = test.drop("Label", axis=1)
 
-    return x_tr, y_tr, x_te, y_te
+    return x_tr.values, y_tr.values, x_te.values, y_te.values
 
 
 
