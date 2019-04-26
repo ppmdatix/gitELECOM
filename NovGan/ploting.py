@@ -36,10 +36,37 @@ def plotLossUNS(epoch, dLosses, gLosses):
 # Create a wall of generated MNIST images
 
 
-def plotGeneratedImages(epoch, generator, randomDim, examples=100, dim=(10, 10), figsize=(10, 10), save_mode=False):
+def generateImages(generator, randomDim, examples):
     noise = np.random.normal(0, 1, size=[examples, randomDim])
     generatedImages = generator.predict(noise)
     generatedImages = generatedImages.reshape(examples, 28, 28)
+    return generatedImages
+
+
+def plotImages(generatedImages, dim=(10,10), title="title"):
+    plt.figure(figsize=dim)
+    plt.title(title)
+    for i in range(generatedImages.shape[0]):
+        plt.subplot(dim[0], dim[1], i+1)
+        plt.imshow(generatedImages[i], interpolation='nearest', cmap='gray_r')
+        plt.axis('off')
+    plt.tight_layout()
+    plt.show()
+    plt.close()
+
+
+def plotMalveillance(malveilllance, title="title"):
+    plt.figure(figsize=(5,5))
+    plt.plot(malveilllance)
+    plt.ylim([-0.1, 2])
+    plt.title(title)
+    plt.show()
+    plt.close()
+    return True
+
+
+def plotGeneratedImages(epoch, generator, randomDim, examples=100, dim=(10, 10), figsize=(10, 10), save_mode=False):
+    generateImages(generator, randomDim, examples)
 
     plt.figure(figsize=figsize)
     for i in range(generatedImages.shape[0]):
