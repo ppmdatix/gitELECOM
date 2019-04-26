@@ -1,0 +1,174 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 46,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Once deleted, variables cannot be recovered. Proceed (y/[n])? y\n"
+     ]
+    }
+   ],
+   "source": [
+    "%reset"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>.container { width:100% !important; }</style>"
+      ],
+      "text/plain": [
+       "<IPython.core.display.HTML object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "from IPython.core.display import display, HTML\n",
+    "display(HTML(\"<style>.container { width:100% !important; }</style>\"))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import warnings\n",
+    "warnings.filterwarnings(\"ignore\")\n",
+    "import random\n",
+    "from copy import deepcopy as dp\n",
+    "\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "\n",
+    "from keras.preprocessing.image import ImageDataGenerator\n",
+    "from keras.models import Sequential, model_from_json, Model\n",
+    "from keras.layers import Conv2D, MaxPooling2D, BatchNormalization\n",
+    "from keras.layers import Activation, Dropout, Flatten, Dense, Input, Reshape\n",
+    "from keras.layers.advanced_activations import LeakyReLU\n",
+    "from keras.optimizers import Adam, RMSprop\n",
+    "from keras import backend as K\n",
+    "from keras.preprocessing import image\n",
+    "from keras.callbacks import EarlyStopping, TensorBoard\n",
+    "from keras.initializers import RandomNormal as RN\n",
+    "from keras.utils.vis_utils import model_to_dot\n",
+    "\n",
+    "\n",
+    "\n",
+    "from utils import *\n",
+    "\n",
+    "\n",
+    "from tqdm import *\n",
+    "import os \n",
+    "from os import system\n",
+    "from PIL import Image\n",
+    "from IPython.display import SVG\n",
+    "from matplotlib import pyplot as plt\n",
+    "from datetime import datetime\n",
+    "from sklearn.metrics import accuracy_score, f1_score\n",
+    "from termcolor import colored"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "metadata": {
+    "collapsed": true
+   },
+   "outputs": [],
+   "source": [
+    "size = 128\n",
+    "data_train_path_target = \"data_airbus_defi/train/\"\n",
+    "data_test_path = \"data_airbus_defi/test/\"\n",
+    "input_shape = (size, size, 3)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 50,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Input data shape\n",
+      "(20002, 128, 128, 3)\n",
+      "Data mélangée!\n"
+     ]
+    }
+   ],
+   "source": [
+    "XTRAIN, train_label1, x_test = loadDATA(PATH=os.getcwd(),full=False, some=False, little=10000)\n",
+    "system('say Data chargée!')\n",
+    "print(\"Input data shape\")\n",
+    "print(XTRAIN.shape)\n",
+    "XTRAIN, train_labels = unison_shuffled_copies(XTRAIN,train_label1)\n",
+    "system('say Data mélangée!')\n",
+    "print(\"Data mélangée!\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class GAN(object):\n",
+    "    def __init__(self, width = size, height=size, channels =3):\n",
+    "        self.WIDTH = width\n",
+    "        self.HEIGHT = height\n",
+    "        self.CHANNELS = channels\n",
+    "        self.SHAPE = (self.WIDTH, self.HEIGHT, self.CHANNELS)\n",
+    "        self.OPTIMIZER = Adam(lr=0.0002, decay=8e-9)\n",
+    "        self.noise_gen = np.random.normal(0,1,(100,))\n",
+    "        self.G = self.generator()\n",
+    "        self.G.compile(loss='binary_crossentropy', optimizer=self.OPTIMIZER)\n",
+    "        self.D = self.discriminator()\n",
+    "        self.D.compile(loss='binary_crossentropy', optimizer=self.OPTIMIZER, metrics=['accuracy'] )\n",
+    "        self.stacked_G_D = self.stacked_G_D()\n",
+    "        self.stacked_G_D.compile(loss='binary_crossentropy', optimizer=self.OPTIMIZER)\n",
+    "    def generator(self):\n",
+    "        model = Sequential()\n",
+    "        model.add(Dense(256, input_shape=(100,)))\n",
+    "        ## 256\n",
+    "        model.add(LeakyReLU(alpha=0.2))\n",
+    "        model.add(BatchNormalization(momentum=0.8))\n",
+    "        model.add(Dense(512))\n",
+    "        ## 512\n",
+    "        model.add(LeakyReLU(alpha=0.2))\n",
+    "        model.add(BatchNormalization(momentum=0.8))\n",
+    "        model.add(Dense(1024))\n",
+    "        ## 1024\n",
+    "        model.add(LeakyReLU(alpha=0.2))\n",
+    "        model.add(BatchNormalization(momentum=0.8))\n",
+    "        model.add(Dense(self.WIDTH * self.HEIGHT * self.CHANNELS, activation='tanh'))\n",
+    "        model.add(Reshape((self.WIDTH, self.HEIGHT, self.CHANNELS)))    \n",
+    "        print(colored(\"Generator Model\"),\"blue\")\n",
+    "        model.summary()\n",
+    "        return model\n",
+    "    def discriminator(self):\n",
+    "        model = Sequential()\n",
+    "        model.add(Flatten(input_shape=self.SHAPE))\n",
+    "        model.add(Dense((12), input_shape=self.SHAPE))\n",
+    "        ## self.WIDTH * self.HEIGHT * self.CHANNELS\n",
+    "        model.add(LeakyReLU(alpha=0.2))\n",
+    "        model.add(Dense(12))\n",
+    "        ## int((self.WIDTH * self.HEIGHT * self.CHANNELS)/2)\n",
+    "        model.add(LeakyReLU(alpha=0.2))\n",
+    "        model.add(Dense(1, activation='sigmoid'))\n",
+    "        print(colored(\"Discriminator Model\"),\"blue\")\n",
+
