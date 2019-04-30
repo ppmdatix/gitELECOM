@@ -60,10 +60,9 @@ def train_gan(disc, gen, GAN,
     # Plot losses from every epoch
     if to_be_trusted:
         # plotLoss(e, dLosses=dL, gLosses=gL)
-        return True
+        return True, dL, gL
     else:
         print("=========ERROR=========")
         print("The Disc-Loss goesssssssssss ZERO friend")
-        return False
-
+        return False, [], []
 

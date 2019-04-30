@@ -55,6 +55,18 @@ def plotImages(generatedImages, dim=(10,10), title="title"):
     plt.close()
 
 
+def saveImages(generatedImages, dim=(10,10), title="title", save_name="image"):
+    plt.figure(figsize=dim)
+    plt.title(title)
+    for i in range(generatedImages.shape[0]):
+        plt.subplot(dim[0], dim[1], i+1)
+        plt.imshow(generatedImages[i], interpolation='nearest', cmap='gray_r')
+        plt.axis('off')
+    plt.tight_layout()
+    plt.savefig("images/" + save_name + ".png")
+    plt.close()
+
+
 def plotMalveillance(malveilllance, title="title"):
     plt.figure(figsize=(5,5))
     plt.plot(malveilllance)

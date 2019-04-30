@@ -7,6 +7,7 @@ from keras import backend as K
 from keras import initializers
 import numpy as np
 
+
 # Custom Loss
 def customLossAcceleration(intermediate_output, alpha=.1, offset=5):
 	def lossFunction(y_true,y_pred):
@@ -20,7 +21,43 @@ def customLossAcceleration(intermediate_output, alpha=.1, offset=5):
 	return lossFunction
 
 
-def load_GAN(offset, alpha, randomDim=50):
+def customLossExponential(intermediate_output):
+	def lossFunction(y_true,y_pred):
+		# On veut des gros chiffres
+
+		L = - K.log(y_pred)
+		L_bis = K.mean(K.abs(( intermediate_output + 1)/2))
+		loss = L * L_bis + (1-L_bis) * K.exp(L)
+		return loss
+
+	return lossFunction
+
+
+def customLossPow(intermediate_output, power):
+	def lossFunction(y_true,y_pred):
+		# On veut des gros chiffres
+
+		L = - K.log(y_pred)
+		L_bis = K.mean(K.abs(( intermediate_output + 1)/2))
+		loss = L * L_bis + (1-L_bis) * K.pow(x=L, a=power)
+		return loss
+
+	return lossFunction
+
+
+def customLossSum(intermediate_output, mult=1, sqrt=2):
+	def lossFunction(y_true,y_pred):
+		# On veut des gros chiffres
+
+		L = - K.log(y_pred)
+		L_bis = K.mean(K.abs(( -intermediate_output + 1)/2))
+		loss = L + mult * K.pow(L_bis, float(1/sqrt))
+		return loss
+
+	return lossFunction
+
+
+def load_GAN(offset=0., alpha=1, randomDim=50, loss_mode="alpha", power=1, mult=1, sqrt=1):
 
 	adam = Adam(lr=0.0002, beta_1=0.5)
 
@@ -53,13 +90,24 @@ def load_GAN(offset, alpha, randomDim=50):
 	x = generator(ganInput)
 	ganOutput = discriminator(x)
 	gan = Model(inputs=ganInput, outputs=ganOutput)
-	gan.compile(loss=customLossAcceleration(x, offset=offset, alpha=alpha), optimizer=adam)
+	assert loss_mode in ["alpha", "exp", "pow", "sum"], "Loss function not supported, please use alpha, exp or pow"
+	if loss_mode == "alpha":
+		loss = customLossAcceleration(intermediate_output=x, offset=offset, alpha=alpha)
+	elif loss_mode == "exp":
+		loss = customLossExponential(intermediate_output=x)
+	elif loss_mode == "pow":
+		loss = customLossPow(intermediate_output=x, power=power)
+	elif loss_mode == "sum":
+		loss = customLossSum(intermediate_output=x, mult=mult, sqrt=sqrt)
+
+
+	gan.compile(loss=loss, optimizer=adam)
 
 	return generator, discriminator, gan
 
 
 def malveillance(image):
-	return np.mean(np.abs(- image +np.ones(784))/2)
+	return np.mean(np.abs(image + np.ones(784))/2)
 
 
 def evaluateGeneratedImagesMalveillance(generator, randomDim, examples=10):
@@ -124,8 +172,8 @@ def trainGAN(disc, gen, GAN, X_train,
 		mL.append(evaluateGeneratedImagesMalveillance(generator=gen, randomDim=randomDim, examples=10))
 
 	if toBeTrusted:
-		return True, mL
+		return True, mL, gL
 	else:
 		print("=========ERROR=========")
 		print("The Disc-Loss goesssssssssss friend")
-		return False, []
+		return False, [], []

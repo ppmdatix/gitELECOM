@@ -3,6 +3,7 @@ from loading.loadIDS import loadIDS, trainIDS
 from loading.loadGAN import load_gan
 from generation.generation import generation_fake_data
 from training.training_gan import train_gan
+from matplotlib import pyplot as plt
 
 # Parameters
 random_dim = 20
@@ -27,8 +28,9 @@ ids = loadIDS(mode="RandomForest")
 trainIDS(ids, x_train=x_train, y_train=y_train)
 
 # GAN
+epochs = 200
 generator, discriminator, gan = load_gan(data_dim=data_dim, random_dim=random_dim)
-train_gan(disc=discriminator, gen=generator, GAN=gan, random_dim=random_dim, epochs=2, x_train=x_train[zero_index_train])
+gan_to_be_used, discriminator_loss, generator_loss = train_gan(disc=discriminator, gen=generator, GAN=gan, random_dim=random_dim, epochs=epochs, x_train=x_train[zero_index_train])
 
 # Training GAN
 
@@ -38,5 +40,13 @@ number = 100
 fake_data = generation_fake_data(generator=generator, number=number, random_dim=random_dim)
 prediction = ids.predict(fake_data)
 
-ids.
 
+plt.hist(prediction)
+plt.show()
+plt.close()
+
+plt.plot(discriminator_loss, label="disc")
+plt.plot(generator_loss, label="gen")
+plt.legend()
+plt.show()
+plt.close()
