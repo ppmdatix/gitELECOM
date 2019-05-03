@@ -25,7 +25,7 @@ X_train, y_train = X_train[:size], y_train[:size]
 
 epochs = 100
 alphas = [1., 2., 5., 10.]
-offsets = [0., 0.1, 1.2, 2.1, 10.1]
+offsets = [0., 0.1, 1.2, 2.1, 10.2]
 
 historique_malveillance = {"alpha": dict(), "offset": dict(), "exp": dict(), "pow": dict(), "sum": dict()}
 
@@ -42,7 +42,7 @@ for alpha in alphas:
                                         epochs=epochs,
                                         batchSize=128,
                                         dLossLimit=0.1,
-                                        randomDim=randomDim)
+                                        randomDim=randomDim, save_mode=True)
     historique_malveillance["alpha"][str(alpha)] = dict()
     historique_malveillance["alpha"][str(alpha)]["malveillance"] = malveillance
     historique_malveillance["alpha"][str(alpha)]["GANloss"] = GANloss
@@ -68,7 +68,7 @@ for offset in offsets:
                                         epochs=epochs,
                                         batchSize=128,
                                         dLossLimit=0.1,
-                                        randomDim=randomDim)
+                                        randomDim=randomDim, save_mode=True)
     historique_malveillance["offset"][str(offset)] = dict()
     historique_malveillance["offset"][str(offset)]["malveillance"] = malveillance
     historique_malveillance["offset"][str(offset)]["GANloss"] = GANloss

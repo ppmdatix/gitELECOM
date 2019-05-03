@@ -7,4 +7,5 @@ def save_loss_evolution(malveillance, GANloss, title="title", save_name="image")
     plt.plot(GANloss, label="GANloss")
     plt.legend()
     plt.savefig("images/" + save_name + ".png")
+    plt.close()
     return True
