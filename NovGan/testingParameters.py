@@ -169,7 +169,7 @@ def trainGAN(disc, gen, GAN, X_train,
             toBeTrusted = False
             break
 
-        if save_mode and (epochs == 1 or epochs % 20 == 0):
+        if save_mode and (e == 1 or e % 20 == 0):
             title, save_name = str(e), "tmp/" + str(e)
             saveImages(generateImages(generator=gen, randomDim=randomDim, examples=100).reshape(100, 28, 28), title=title, save_name=save_name)
         # Store loss of most recent batch from this epoch
