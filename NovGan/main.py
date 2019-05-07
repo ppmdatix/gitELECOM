@@ -42,7 +42,7 @@ for alpha in alphas:
                                         epochs=epochs,
                                         batchSize=128,
                                         dLossLimit=0.1,
-                                        randomDim=randomDim, save_mode=True)
+                                        randomDim=randomDim, save_mode=False)
     historique_malveillance["alpha"][str(alpha)] = dict()
     historique_malveillance["alpha"][str(alpha)]["malveillance"] = malveillance
     historique_malveillance["alpha"][str(alpha)]["GANloss"] = GANloss
