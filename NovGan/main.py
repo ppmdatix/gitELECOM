@@ -76,8 +76,8 @@ for offset in offsets:
                                                                               randomDim=randomDim,
                                                                               examples=100)
     save_data(dico=historique_malveillance["offset"][str(offset)],
-              title="offset "+str(offset),
-              save_name="offset"+str(offset),
+              title="INVERToffset "+str(offset),
+              save_name="INVERToffset"+str(offset),
               generator=generator, X_train=X_train, randomDim=randomDim)
 
 

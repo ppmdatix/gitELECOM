@@ -16,7 +16,7 @@ def customLossAcceleration(intermediate_output, alpha=.1, offset=5):
         # On veut des gros chiffres
 
         L = - K.log(y_pred)
-        L_bis = K.mean(K.abs(( intermediate_output + 1)/2))
+        L_bis = K.mean(K.abs(( - intermediate_output + 1)/2))
         loss = L * L_bis + (1-L_bis) * (alpha*L + offset)
         return loss
 
