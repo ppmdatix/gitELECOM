@@ -3,63 +3,14 @@ from keras.models import Model, Sequential
 from keras.layers.core import Reshape, Dense, Dropout, Flatten
 from keras.layers.advanced_activations import LeakyReLU
 from keras.optimizers import Adam
-from keras import backend as K
 from keras import initializers
 import numpy as np
 from ploting import saveImages
 from ploting import generateImages
+from losses.losses import custom_loss
 
 
-# Custom Loss
-def customLossAcceleration(intermediate_output, alpha=.1, offset=5):
-    def lossFunction(y_true,y_pred):
-        # On veut des gros chiffres
-
-        L = - K.log(y_pred)
-        L_bis = K.mean(K.abs(( - intermediate_output + 1)/2))
-        loss = L * L_bis + (1-L_bis) * (alpha*L + offset)
-        return loss
-
-    return lossFunction
-
-
-def customLossExponential(intermediate_output):
-    def lossFunction(y_true,y_pred):
-        # On veut des gros chiffres
-
-        L = - K.log(y_pred)
-        L_bis = K.mean(K.abs(( intermediate_output + 1)/2))
-        loss = L * L_bis + (1-L_bis) * K.exp(L)
-        return loss
-
-    return lossFunction
-
-
-def customLossPow(intermediate_output, power):
-    def lossFunction(y_true,y_pred):
-        # On veut des gros chiffres
-
-        L = - K.log(y_pred)
-        L_bis = K.mean(K.abs(( intermediate_output + 1)/2))
-        loss = L * L_bis + (1-L_bis) * K.pow(x=L, a=power)
-        return loss
-
-    return lossFunction
-
-
-def customLossSum(intermediate_output, mult=1, sqrt=2):
-    def lossFunction(y_true,y_pred):
-        # On veut des gros chiffres
-
-        L = - K.log(y_pred)
-        L_bis = K.mean(K.abs(( -intermediate_output + 1)/2))
-        loss = L + mult * K.pow(L_bis, float(1/sqrt))
-        return loss
-
-    return lossFunction
-
-
-def load_GAN(offset=0., alpha=1, randomDim=50, loss_mode="alpha", power=1, mult=1, sqrt=1):
+def load_GAN(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=1, sqrt=1, loss_base="Goodfellow"):
 
     adam = Adam(lr=0.0002, beta_1=0.5)
 
@@ -92,16 +43,16 @@ def load_GAN(offset=0., alpha=1, randomDim=50, loss_mode="alpha", power=1, mult=
     x = generator(ganInput)
     ganOutput = discriminator(x)
     gan = Model(inputs=ganInput, outputs=ganOutput)
-    assert loss_mode in ["alpha", "exp", "pow", "sum"], "Loss function not supported, please use alpha, exp or pow"
-    if loss_mode == "alpha":
-        loss = customLossAcceleration(intermediate_output=x, offset=offset, alpha=alpha)
-    elif loss_mode == "exp":
-        loss = customLossExponential(intermediate_output=x)
-    elif loss_mode == "pow":
-        loss = customLossPow(intermediate_output=x, power=power)
-    elif loss_mode == "sum":
-        loss = customLossSum(intermediate_output=x, mult=mult, sqrt=sqrt)
-
+    assert link_mode in ["alpha", "exp", "pow", "sum"], "Loss function not supported, please use alpha, exp or pow"
+    assert loss_base in ["Goodfellow", "Wasserstein", "Pearson"], "This loss is not supported"
+    loss = custom_loss(intermediate_output=x,
+                       power=power,
+                       alpha=alpha,
+                       offset=offset,
+                       mult=mult,
+                       sqrt=sqrt,
+                       loss_base=loss_base,
+                       link_mode=link_mode)
 
     gan.compile(loss=loss, optimizer=adam)
 
@@ -125,7 +76,8 @@ def trainGAN(disc, gen, GAN, X_train,
              batchSize=128,
              dLossLimit=0.1,
              randomDim=50,
-             save_mode=False):
+             save_mode=False,
+             save_title="test"):
     dL = []
     gL = []
     mL = []
@@ -170,7 +122,7 @@ def trainGAN(disc, gen, GAN, X_train,
             break
 
         if save_mode and (e == 1 or e % 20 == 0):
-            title, save_name = str(e), "tmp/" + str(e)
+            title, save_name = str(e), "tmp/" + save_title + str(e)
             saveImages(generateImages(generator=gen, randomDim=randomDim, examples=100).reshape(100, 28, 28), title=title, save_name=save_name)
         # Store loss of most recent batch from this epoch
         dL.append(dloss)

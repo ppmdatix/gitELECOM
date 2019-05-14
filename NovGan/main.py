@@ -23,11 +23,37 @@ X_test = X_test.reshape(10000, 784)
 size = 40000
 X_train, y_train = X_train[:size], y_train[:size]
 
-epochs = 100
+epochs = 50
 alphas = [1., 2., 5., 10.]
 offsets = [0., 0.1, 1.2, 2.1, 10.2]
+powers = [2, 5, 10]
 
-historique_malveillance = {"alpha": dict(), "offset": dict(), "exp": dict(), "pow": dict(), "sum": dict()}
+dico_link = {"alpha": [{"alpha": 1.,
+                        "offset": 0,
+                        "malveillance": None,
+                        "GANloss": None,
+                        "images": None
+                        }],
+             "exp": [{"malveillance": None,
+                      "GANloss": None,
+                      "images": None
+                      }],
+             "pow": [{"power": 1.,
+                      "malveillance": None,
+                      "GANloss": None,
+                      "images": None
+                      }],
+             "sum": [{"mult": 1.,
+                      "sqrt": 1.,
+                      "malveillance": None,
+                      "GANloss": None,
+                      "images": None
+                      }]}
+
+historique = {"Goodfellow": dico_link,
+              "Wasserstein": dico_link,
+              "Pearson": dico_link
+              }
 
 print("TESTING ALPHAS")
 print("=====================================================================")
@@ -36,131 +62,107 @@ print("=====================================================================")
 print("=====================================================================")
 print("=====================================================================")
 
-for alpha in alphas:
-    generator, discriminator, GAN = load_GAN(alpha=alpha, offset=0., loss_mode="alpha")
+for alpha, offset in zip(alphas, offsets):
+    #==================#
+    #    Goodfellow    #
+    #==================#
+    loss_base = "Goodfellow"
+    link_mode = "alpha"
+
+    generator, discriminator, GAN = load_GAN(alpha=alpha,
+                                             offset=0.,
+                                             link_mode=link_mode,
+                                             loss_base=loss_base)
     _, malveillance, GANloss = trainGAN(discriminator, generator, GAN, X_train=X_train,
                                         epochs=epochs,
                                         batchSize=128,
                                         dLossLimit=0.1,
-                                        randomDim=randomDim, save_mode=False)
-    historique_malveillance["alpha"][str(alpha)] = dict()
-    historique_malveillance["alpha"][str(alpha)]["malveillance"] = malveillance
-    historique_malveillance["alpha"][str(alpha)]["GANloss"] = GANloss
-    historique_malveillance["alpha"][str(alpha)]["images"] = generateImages(generator=generator,
-                                                                            randomDim=randomDim,
-                                                                            examples=100)
-    save_data(dico=historique_malveillance["alpha"][str(alpha)],
-              title="alpha "+str(alpha),
-              save_name="alpha"+str(alpha),
+                                        randomDim=randomDim,
+                                        save_mode=True,
+                                        save_title=loss_base+"alpha" + str(alpha) + "and_offset" + str(offset))
+    g_images = generateImages(generator=generator,
+                              randomDim=randomDim,
+                              examples=100)
+    dic = {"alpha": alpha,
+           "offset": offset,
+           "malveillance": malveillance,
+           "GANloss": GANloss,
+           "images": g_images
+           }
+
+    historique[loss_base][link_mode].append(dic)
+    save_data(dico=dic,
+              title="alpha " + str(alpha) + "and offset " + str(offset),
+              save_name="alpha" + str(alpha) + "and_offset" + str(offset),
               generator=generator, X_train=X_train, randomDim=randomDim)
 
 
-print("TESTING OFFSETS")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
+    #==================#
+    #    Wasserstein   #
+    #==================#
+    loss_base = "Wasserstein"
+    link_mode = "alpha"
 
-for offset in offsets:
-    generator, discriminator, GAN = load_GAN(alpha=1., offset=offset)
+    generator, discriminator, GAN = load_GAN(alpha=alpha,
+                                             offset=0.,
+                                             link_mode=link_mode,
+                                             loss_base=loss_base)
     _, malveillance, GANloss = trainGAN(discriminator, generator, GAN, X_train=X_train,
                                         epochs=epochs,
                                         batchSize=128,
                                         dLossLimit=0.1,
-                                        randomDim=randomDim, save_mode=True)
-    historique_malveillance["offset"][str(offset)] = dict()
-    historique_malveillance["offset"][str(offset)]["malveillance"] = malveillance
-    historique_malveillance["offset"][str(offset)]["GANloss"] = GANloss
-    historique_malveillance["offset"][str(offset)]["images"] = generateImages(generator=generator,
-                                                                              randomDim=randomDim,
-                                                                              examples=100)
-    save_data(dico=historique_malveillance["offset"][str(offset)],
-              title="INVERToffset "+str(offset),
-              save_name="INVERToffset"+str(offset),
+                                        randomDim=randomDim,
+                                        save_mode=True,
+                                        save_title=loss_base+"alpha" + str(alpha) + "and_offset" + str(offset))
+    g_images = generateImages(generator=generator,
+                              randomDim=randomDim,
+                              examples=100)
+    dic = {"alpha": alpha,
+           "offset": offset,
+           "malveillance": malveillance,
+           "GANloss": GANloss,
+           "images": g_images
+           }
+
+    historique[loss_base][link_mode].append(dic)
+    save_data(dico=dic,
+              title="alpha " + str(alpha) + "and offset " + str(offset),
+              save_name=loss_base+ "/" +"alpha" + str(alpha) + "and_offset" + str(offset),
               generator=generator, X_train=X_train, randomDim=randomDim)
 
+    #==================#
+    #    Pearson   #
+    #==================#
+    loss_base = "Pearson"
+    link_mode = "alpha"
 
-print("TESTING POWERS")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
-power = 3
-generator_excess, discriminator_excess, GAN_excess = load_GAN(loss_mode="pow", power=power)
-to_be_used_excess, malveillance_excess, GANloss_excess = trainGAN(discriminator_excess, generator_excess, GAN_excess,
-                                                                  X_train=X_train,
-                                                                  epochs=epochs,
-                                                                  batchSize=128,
-                                                                  dLossLimit=0.1,
-                                                                  randomDim=randomDim)
-historique_malveillance["pow"][str(power)] = dict()
-historique_malveillance["pow"][str(power)]["malveillance"] = malveillance_excess
-historique_malveillance["pow"][str(power)]["GANloss"] = GANloss_excess
-historique_malveillance["pow"][str(power)]["images"] = generateImages(generator=generator_excess,
-                                                                      randomDim=randomDim,
-                                                                      examples=100)
-save_data(dico=historique_malveillance["pow"][str(power)],
-          title="pow "+str(power),
-          save_name="power"+str(power),
-          generator=generator_excess, X_train=X_train, randomDim=randomDim)
+    generator, discriminator, GAN = load_GAN(alpha=alpha,
+                                             offset=0.,
+                                             link_mode=link_mode,
+                                             loss_base=loss_base)
+    _, malveillance, GANloss = trainGAN(discriminator, generator, GAN, X_train=X_train,
+                                        epochs=epochs,
+                                        batchSize=128,
+                                        dLossLimit=0.1,
+                                        randomDim=randomDim,
+                                        save_mode=True,
+                                        save_title=loss_base+"alpha" + str(alpha) + "and_offset" + str(offset))
+    g_images = generateImages(generator=generator,
+                              randomDim=randomDim,
+                              examples=100)
+    dic = {"alpha": alpha,
+           "offset": offset,
+           "malveillance": malveillance,
+           "GANloss": GANloss,
+           "images": g_images
+           }
 
+    historique[loss_base][link_mode].append(dic)
+    save_data(dico=dic,
+              title="alpha " + str(alpha) + "and offset " + str(offset),
+              save_name=loss_base+ "/" +"alpha" + str(alpha) + "and_offset" + str(offset),
+              generator=generator, X_train=X_train, randomDim=randomDim)
 
-print("TESTING EXP")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
-
-generator_excess, discriminator_excess, GAN_excess = load_GAN(loss_mode="exp")
-_, malveillance_excess, GANloss_excess = trainGAN(discriminator_excess, generator_excess, GAN_excess,
-                                                  X_train=X_train,
-                                                  epochs=epochs,
-                                                  batchSize=128,
-                                                  dLossLimit=0.1,
-                                                  randomDim=randomDim)
-
-historique_malveillance["exp"]["1"] = dict()
-historique_malveillance["exp"]["1"]["malveillance"] = malveillance_excess
-historique_malveillance["exp"]["1"]["GANloss"] = GANloss_excess
-historique_malveillance["exp"]["1"]["images"] = generateImages(generator=generator_excess,
-                                                               randomDim=randomDim,
-                                                               examples=100)
-save_data(dico=historique_malveillance["exp"]["1"],
-          title="exp",
-          save_name="exp",
-          generator=generator_excess, X_train=X_train, randomDim=randomDim)
-
-
-print("TESTING SUM")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
-print("=====================================================================")
-
-generator_sum, discriminator_sum, GAN_sum = load_GAN(loss_mode="sum", offset=0.)
-to_be_used_sum, malveillance_sum, GANloss_sum = trainGAN(discriminator_sum, generator_sum, GAN_sum, X_train=X_train,
-                                                         epochs=epochs,
-                                                         batchSize=128,
-                                                         dLossLimit=0.1,
-                                                         randomDim=randomDim)
-
-
-historique_malveillance["sum"]["1"] = dict()
-historique_malveillance["sum"]["1"]["malveillance"] = malveillance_sum
-historique_malveillance["sum"]["1"]["GANloss"] = GANloss_sum
-historique_malveillance["sum"]["1"]["images"] = generateImages(generator=generator_sum,
-                                                               randomDim=randomDim,
-                                                               examples=100)
-
-
-save_data(dico=historique_malveillance["sum"]["1"],
-          title="sum",
-          save_name="sum",
-          generator=generator_sum, X_train=X_train, randomDim=randomDim)
 
 print("LETS GO TO SLEEP")
 print("LETS GO TO SLEEP")
