@@ -5,9 +5,9 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.optimizers import Adam
 from keras import initializers
 from keras.initializers import glorot_uniform
-
-
-
+import sys
+sys.path.insert(0, '/home/peseux/Desktop/gitELECOM/IDSGAN/losses/')
+from gan_loss import custom_loss
 
 def load_gan(data_dim, random_dim=50):
 
@@ -42,15 +42,18 @@ def load_gan(data_dim, random_dim=50):
     x = generator(ganInput)
     ganOutput = discriminator(x)
     gan = Model(inputs=ganInput, outputs=ganOutput)
-    #gan.compile(loss=customLossAcceleration(x, offset=offset, alpha=alpha), optimizer =adam)
-    #gan.compile(loss=customLoss(x, lamda), optimizer =adam)
+    # gan.compile(loss=customLossAcceleration(x, offset=offset, alpha=alpha), optimizer =adam)
+    # gan.compile(loss=customLoss(x, lamda), optimizer =adam)
     gan.compile(loss="binary_crossentropy", optimizer=adam)
 
     return generator, discriminator, gan
 
 
-def load_gan_kdd(data_dim, random_dim=32, slope_relu=.1):
-
+def load_gan_kdd(data_dim, random_dim=32, slope_relu=.1,
+                 offset=0., alpha=1, link_mode="alpha",
+                 power=1, mult=1, sqrt=1, loss_base="Goodfellow"):
+    assert link_mode in ["alpha", "exp", "pow", "sum", "hurting"], "Loss function not supported, please use alpha, exp or pow"
+    assert loss_base in ["Goodfellow", "Wasserstein", "Pearson"], "This loss is not supported"
     adam = Adam(lr=0.0002, beta_1=0.5)
     print("Chosen Optimizer is ADAM")
     generator = Sequential()
@@ -77,7 +80,15 @@ def load_gan_kdd(data_dim, random_dim=32, slope_relu=.1):
     x = generator(ganInput)
     ganOutput = discriminator(x)
     gan = Model(inputs=ganInput, outputs=ganOutput)
-    gan.compile(loss="binary_crossentropy", optimizer=adam)
+    loss = custom_loss(intermediate_output=x,
+                       power=power,
+                       alpha=alpha,
+                       offset=offset,
+                       mult=mult,
+                       sqrt=sqrt,
+                       loss_base=loss_base,
+                       link_mode=link_mode)
+    gan.compile(loss=loss, optimizer=adam)
     print("Compiled GAN")
 
     return generator, discriminator, gan

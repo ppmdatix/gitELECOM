@@ -4,17 +4,25 @@ from loading.loadingKDD import loadingKDD
 from generation.generation import generation_fake_data
 from training.training_gan import train_gan, train_gan_kdd
 from matplotlib import pyplot as plt
+import numpy as np
 
 # Parameters
-random_dim = 20
 
 # DATA
 # x_train, y_train, x_test, y_test = loadData(nrows=100000, attacks=True)
-X, Y = loadingKDD(nrows=50000, attack_mode=None, attack=None)
+X, Y, colnames = loadingKDD(nrows=100000, attack_mode=None, attack=None)
+assert len(colnames) == 122, "You did not load enough data"
 x_test, y_test = X[:3000], Y[:3000]
 x_train, y_train = X[:-3000], Y[:-3000]
 zero_index_train = [i for y, i in zip(y_train, range(len(y_train))) if y == 0]
 zero_index_test = [i for y, i in zip(y_test, range(len(y_test))) if y == 0]
+one_index_train = [i for y, i in zip(y_train, range(len(y_train))) if y == 1]
+one_index_test = [i for y, i in zip(y_test, range(len(y_test))) if y == 1]
+balanced_size = len(one_index_train)
+x_balanced_train = np.concatenate((x_train[zero_index_train][:balanced_size],
+                                   x_train[one_index_train][:balanced_size]))
+y_balanced_train = np.concatenate((y_train[zero_index_train][:balanced_size],
+                                   y_train[one_index_train][:balanced_size]))
 
 """
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -28,14 +36,19 @@ data_dim = x_train.shape[1]
 
 # IDS
 ids = loadIDS(mode="RandomForest", n_estimators=200,max_depth=15)
-trainIDS(ids, x_train=x_train, y_train=y_train)
+trainIDS(ids, x_train=x_balanced_train, y_train=y_balanced_train)
 
 # GAN
-epochs = 1
+epochs = 50
 random_dim = 32
-generator, discriminator, gan = load_gan_kdd(data_dim=data_dim, random_dim=random_dim)
+generator, discriminator, gan = load_gan_kdd(data_dim=data_dim,
+                                             random_dim=random_dim,
+                                             offset=5,
+                                             alpha=5,
+                                             link_mode="alpha")
 # Training GAN
 gan_to_be_used, discriminator_loss, generator_loss = train_gan_kdd(disc=discriminator,
+                                                                   dLossLimit=-1000,
                                                                    gen=generator,
                                                                    GAN=gan,
                                                                    random_dim=random_dim,
@@ -43,12 +56,10 @@ gan_to_be_used, discriminator_loss, generator_loss = train_gan_kdd(disc=discrimi
                                                                    x_train=x_train[zero_index_train])
 
 
-
-
 # Testing IDS
 number = 100
 fake_data = generation_fake_data(generator=generator, number=number, random_dim=random_dim)
-real_data = x_test[zero_index_test][:100]
+real_data = x_test[zero_index_test][:number]
 prediction = ids.predict_proba(fake_data)
 prediction = [p[0] for p in prediction]
 prediction_real = ids.predict_proba(real_data)

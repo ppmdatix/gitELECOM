@@ -42,4 +42,5 @@ def loadingKDD(path=Data_path+File_name, nrows=Nrows, attack_mode=True,
 
     X = df_scaled * 2 - 1
     Y = df.attack_type.values
-    return X, Y
+    columns = df_numerical.columns.to_list() + df_one_hot_encoding.columns.to_list()
+    return X, Y, columns
