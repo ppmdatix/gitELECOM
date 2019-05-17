@@ -46,6 +46,9 @@ generator, discriminator, gan = load_gan_kdd(data_dim=data_dim,
                                              offset=5,
                                              alpha=5,
                                              link_mode="alpha")
+
+number = 100
+fake_data_first = generation_fake_data(generator=generator, number=number, random_dim=random_dim)
 # Training GAN
 gan_to_be_used, discriminator_loss, generator_loss = train_gan_kdd(disc=discriminator,
                                                                    dLossLimit=-1000,
@@ -74,6 +77,13 @@ plt.close()
 
 plt.plot(discriminator_loss, label="disc")
 plt.plot(generator_loss, label="gen")
+plt.legend()
+plt.show()
+plt.close()
+
+
+plt.hist([f[0] for f in fake_data], label="duration")
+plt.hist([f[0] for f in fake_data_first], label="duration first")
 plt.legend()
 plt.show()
 plt.close()
