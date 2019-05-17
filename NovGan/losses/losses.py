@@ -52,3 +52,21 @@ def custom_loss(intermediate_output,
 
     return lossFunction
 
+
+def custom_loss_discriminator(loss_base="Goodfellow"):
+
+    if loss_base == "Goodfellow":
+        def loss_function_base(y, y_true):
+            return K.mean(- K.log((1-y_true) + (2*y_true - 1)*y))
+    elif loss_base == "Wasserstein":
+        def loss_function_base(y, y_true):
+            return K.mean(- y * (2*y_true - 1))
+    elif loss_base == "Pearson":
+        def loss_function_base(y, y_true):
+            return K.mean((1 - 2*y_true) * K.pow(y-y_true, 2))
+
+    def lossFunction(y_true,y_pred):
+        L = loss_function_base(y_pred, y_true)
+        return L
+
+    return lossFunction

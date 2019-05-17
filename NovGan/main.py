@@ -20,10 +20,10 @@ X_test = (X_test.astype(np.float32) - 127.5)/127.5
 X_train = X_train.reshape(60000, 784)
 X_test = X_test.reshape(10000, 784)
 
-size = 40000
+size = 60000
 X_train, y_train = X_train[:size], y_train[:size]
 
-epochs = 50
+epochs = 40
 alphas = [1., 2., 5., 10.]
 offsets = [0., 0.1, 1.2, 2.1, 10.2]
 powers = [2, 5, 10]

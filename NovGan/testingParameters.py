@@ -7,10 +7,12 @@ from keras import initializers
 import numpy as np
 from ploting import saveImages
 from ploting import generateImages
-from losses.losses import custom_loss
+from losses.losses import custom_loss, custom_loss_discriminator
 
 
 def load_GAN(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=1, sqrt=1, loss_base="Goodfellow"):
+    assert link_mode in ["alpha", "exp", "pow", "sum"], "Loss function not supported, please use alpha, exp or pow"
+    assert loss_base in ["Goodfellow", "Wasserstein", "Pearson"], "This loss is not supported"
 
     adam = Adam(lr=0.0002, beta_1=0.5)
 
@@ -35,7 +37,8 @@ def load_GAN(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=
     discriminator.add(LeakyReLU(0.2))
     discriminator.add(Dropout(0.3))
     discriminator.add(Dense(1, activation='sigmoid'))
-    discriminator.compile(loss='binary_crossentropy', optimizer=adam)
+    discriminator_loss = custom_loss_discriminator(loss_base=loss_base)
+    discriminator.compile(loss=discriminator_loss, optimizer=adam)
 
     # Combined network
     discriminator.trainable = False
@@ -43,8 +46,6 @@ def load_GAN(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=
     x = generator(ganInput)
     ganOutput = discriminator(x)
     gan = Model(inputs=ganInput, outputs=ganOutput)
-    assert link_mode in ["alpha", "exp", "pow", "sum"], "Loss function not supported, please use alpha, exp or pow"
-    assert loss_base in ["Goodfellow", "Wasserstein", "Pearson"], "This loss is not supported"
     loss = custom_loss(intermediate_output=x,
                        power=power,
                        alpha=alpha,
