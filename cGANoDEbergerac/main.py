@@ -34,3 +34,12 @@ print(x_test)
 
 data_dim = x_train.shape[1]
 cgan = Cgan(data_dim=data_dim)
+cgan.train(x_train=x_balanced_train,
+           y_train=y_balanced_train,
+           epochs=1000)
+conf_matrix = cgan.evaluate_discriminator(x_test=x_test, y_test=y_test)
+
+print(conf_matrix)
+
+generator, discriminator, combined = cgan.return_models()
+
