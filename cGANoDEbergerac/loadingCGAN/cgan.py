@@ -159,13 +159,11 @@ class Cgan(object):
     def return_models(self):
         return self.generator, self.discriminator, self.combined
 
-    def evaluate_discriminator(self, x_test, y_test):
+    def predict(self, x_test):
         ones = np.ones((x_test.shape[0], 1))
         zeros = np.zeros((x_test.shape[0], 1))
         y_pred_ones = self.discriminator.predict([x_test, ones])
         y_pred_zeros = self.discriminator.predict([x_test, zeros])
         y_pred = [false_or_true([y0[0], y1[0]]) for y0, y1 in zip(y_pred_zeros, y_pred_ones)]
-        conf_matrix = confusion_matrix(y_pred=y_pred, y_true=y_test)
-        print(sum(y_pred) / len(y_pred))
-        return conf_matrix
+        return y_pred
 

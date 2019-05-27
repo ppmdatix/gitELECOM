@@ -1,4 +1,6 @@
 from loadingCGAN.cgan import Cgan
+from loadingCGAN.mlp import Mlp
+from evaluation.evaluation import evaluate
 import numpy as np
 import sys
 sys.path.insert(0, '/home/peseux/Desktop/gitELECOM/IDSGAN/')
@@ -29,17 +31,34 @@ elif attack_mode is False:
 elif attack_mode:
     x_balanced_train = x_train[one_index_train]
     y_balanced_train = y_train[one_index_train]
-print(x_test)
+print(x_balanced_train.shape)
 
 
 data_dim = x_train.shape[1]
+
+########
+# CGAN #
+########
 cgan = Cgan(data_dim=data_dim)
 cgan.train(x_train=x_balanced_train,
            y_train=y_balanced_train,
            epochs=1000)
-conf_matrix = cgan.evaluate_discriminator(x_test=x_test, y_test=y_test)
 
-print(conf_matrix)
-
+result_cgan = evaluate(y_true=y_test, y_pred=cgan.predict(x_test=x_test))
 generator, discriminator, combined = cgan.return_models()
 
+cgan.ge
+#############
+# Classical #
+#############
+mlp = Mlp(data_dim=data_dim)
+mlp.train(x_train=x_balanced_train,
+          y_train=y_balanced_train,
+          epochs=10000)
+
+result_mlp = evaluate(y_true=y_test, y_pred=mlp.predict(x_test=x_test))
+
+
+print(result_cgan)
+
+print(result_mlp)
