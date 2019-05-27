@@ -3,16 +3,17 @@ from loadingCGAN.mlp import Mlp
 from evaluation.evaluation import evaluate
 import numpy as np
 import sys
-sys.path.insert(0, '/home/peseux/Desktop/gitELECOM/IDSGAN/')
+sys_path = "/Users/ppx/Desktop/gitELECOM/IDSGAN"
+# sys_path = "/home/peseux/Desktop/gitELECOM/IDSGAN/"
+sys.path.insert(0, sys_path)
 from loading.loadingKDD import loadingKDD
 
 # Parameters
 attack_mode = None
 test_size = 3000
-# DATA
-# x_train, y_train, x_test, y_test = loadData(nrows=100000, attacks=True)
 
-X, Y, colnames = loadingKDD(nrows=100000, attack_mode=attack_mode, attack=None)
+# DATA
+X, Y, colnames = loadingKDD(nrows=10000000, attack_mode=attack_mode, attack=None)
 x_test, y_test = X[:test_size], Y[:test_size]
 x_train, y_train = X[:-test_size], Y[:-test_size]
 zero_index_train = [i for y, i in zip(y_train, range(len(y_train))) if y == 0]
@@ -44,10 +45,15 @@ cgan.train(x_train=x_balanced_train,
            y_train=y_balanced_train,
            epochs=1000)
 
+cgan = Cgan(data_dim=data_dim)
+cv_loss, d_loss, g_loss = cgan.train(x_train=x_balanced_train,
+                                     y_train=y_balanced_train,
+                                     epochs=100)
+
+
 result_cgan = evaluate(y_true=y_test, y_pred=cgan.predict(x_test=x_test))
 generator, discriminator, combined = cgan.return_models()
 
-cgan.ge
 #############
 # Classical #
 #############

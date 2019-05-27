@@ -6,6 +6,11 @@ from keras.models import Sequential, Model
 from keras.optimizers import Adam
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix as confusion_matrix
+from sklearn.metrics import roc_curve as roc_curve
+from sklearn.metrics import f1_score, precision_score, recall_score
+from sklearn.model_selection import train_test_split
+
+from matplotlib import pyplot as plt
 import numpy as np
 
 
@@ -19,11 +24,21 @@ def zero_or_one(x):
 def false_or_true(x):
     if x[0] > x[1]:
         return 0
-    elif [0] > x[1]:
+    elif x[0] == x[1]:
         print("FUCK")
         return 1
     else:
         return 1
+
+
+def proba_choice(x):
+    if x[0] > x[1]:
+        return 1 - x[0]
+    elif x[0] == x[1]:
+        print("FUCK")
+        return 1
+    else:
+        return x[1]
 
 
 class Cgan(object):
@@ -106,9 +121,8 @@ class Cgan(object):
         traffic = Input(shape=(self.data_dim,))
         label = Input(shape=(1,), dtype='int32')
 
-
         label_embedding = Flatten()(Embedding(self.num_classes, self.data_dim)(label))
-        #flat_traffic = Flatten()(traffic)
+        # flat_traffic = Flatten()(traffic)
 
         model_input = multiply([traffic, label_embedding])
 
@@ -116,54 +130,75 @@ class Cgan(object):
 
         return Model([traffic, label], validity)
 
-    def train(self, x_train, y_train, epochs, batch_size=128, sample_interval=50):
+    def train(self, x_train, y_train, epochs, batch_size=128, cv_size=.2, print_recap=True):
+        """
+
+        :param x_train:
+        :param y_train:
+        :param epochs:
+        :param batch_size:
+        :param cv_size:
+        :return: cv_loss
+        """
+        cv_loss, d_loss, g_loss = list(), list(), list()
+        x_trainCV, x_testCV, y_trainCV, y_testCV = train_test_split(x_train, y_train, test_size=cv_size)
 
         # Adversarial ground truths
         valid = np.ones((batch_size, 1))
         fake = np.zeros((batch_size, 1))
 
-        for epoch in tqdm(range(epochs)):
-
-            # ---------------------
+        for _ in tqdm(range(epochs)):
             #  Train Discriminator
-            # ---------------------
-
             # Select a random half batch of images
-            idx = np.random.randint(0, x_train.shape[0], batch_size)
-            real_traffic, labels = x_train[idx], y_train[idx]
-
+            idx = np.random.randint(0, x_trainCV.shape[0], batch_size)
+            real_traffic, labels = x_trainCV[idx], y_trainCV[idx]
             # Sample noise as generator input
             noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
-
             # Generate a half batch of new images
             generated_traffic = self.generator.predict([noise, labels])
-
-            # Train the discriminator
             d_loss_real = self.discriminator.train_on_batch([real_traffic, labels], valid)
             d_loss_fake = self.discriminator.train_on_batch([generated_traffic, labels], fake)
-            d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
-
-            # ---------------------
+            d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
             #  Train Generator
-            # ---------------------
-
             # Condition on labels
             sampled_labels = np.random.randint(0, self.num_classes, batch_size).reshape(-1, 1)
+            g_l = self.combined.train_on_batch([noise, sampled_labels], valid)
+            ones = np.ones((x_testCV.shape[0], 1))
+            cv_l = np.mean(self.discriminator.evaluate(x=[x_testCV, y_testCV], y=ones, verbose=False))
 
-            # Train the generator
-            g_loss = self.combined.train_on_batch([noise, sampled_labels], valid)
-
-            # Plot the progress
-            # print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100*d_loss[1], g_loss))
+            cv_loss.append(cv_l)
+            d_loss.append(d_l)
+            g_loss.append(g_l)
+        if print_recap:
+            plt.figure(figsize=(10, 5))
+            plt.plot(cv_loss, label="CV SCORE")
+            plt.plot(d_loss, label="discriminator loss")
+            plt.plot(g_loss, label="generator loss")
+            plt.legend()
+            plt.show()
+            plt.close()
+        return cv_loss, d_loss, g_loss
 
     def return_models(self):
         return self.generator, self.discriminator, self.combined
 
-    def predict(self, x_test):
-        ones = np.ones((x_test.shape[0], 1))
-        zeros = np.zeros((x_test.shape[0], 1))
-        y_pred_ones = self.discriminator.predict([x_test, ones])
-        y_pred_zeros = self.discriminator.predict([x_test, zeros])
+    def predict(self, x):
+        ones = np.ones((x.shape[0], 1))
+        zeros = np.zeros((x.shape[0], 1))
+        y_pred_ones = self.discriminator.predict([x, ones])
+        y_pred_zeros = self.discriminator.predict([x, zeros])
         y_pred = [false_or_true([y0[0], y1[0]]) for y0, y1 in zip(y_pred_zeros, y_pred_ones)]
-        return y_pred
+        return np.array(y_pred)
+
+    def predict_proba(self, x):
+        ones = np.ones((x.shape[0], 1))
+        zeros = np.zeros((x.shape[0], 1))
+        y_pred_ones = self.discriminator.predict([x, ones])
+        y_pred_zeros = self.discriminator.predict([x, zeros])
+        y_proba = [proba_choice([y0[0], y1[0]]) for y0, y1 in zip(y_pred_zeros, y_pred_ones)]
+        return np.array(y_proba)
+
+
+
+
 
