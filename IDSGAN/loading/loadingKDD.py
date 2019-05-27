@@ -11,12 +11,16 @@ def turn_attack(x):
 
 
 def loadingKDD(path=Data_path+File_name, nrows=Nrows, attack_mode=True,
-               numerical_columns=Numerical_columns, columns=Columns, attack=Attack):
+               numerical_columns=Numerical_columns, columns=Columns, attack=Attack,
+               force_cat_col=None):
 
     df = pd.read_csv(path, names=columns, nrows=nrows)
 
     if attack_mode is None:
-        pass
+        if attack is None:
+            pass
+        else:
+            df = df[(df.attack_type == attack) | (df.attack_type != "normal")]
     elif attack_mode:
         if attack is None:
             df = df[(df.attack_type != "normal")]
@@ -35,6 +39,15 @@ def loadingKDD(path=Data_path+File_name, nrows=Nrows, attack_mode=True,
     df_one_hot_encoding = df[categorical_columns]
     df_one_hot_encoding = pd.get_dummies(df_one_hot_encoding)
     df_one_hot_encoding.reset_index(drop=True, inplace=True)
+    if force_cat_col is not None:
+        cat_col = df_one_hot_encoding.columns.to_list()
+        for col in force_cat_col:
+            if col not in cat_col:
+                df_one_hot_encoding[col] = 0
+        df_one_hot_encoding = df_one_hot_encoding[force_cat_col]
+        cat_col = force_cat_col
+    else:
+        cat_col = df_one_hot_encoding.columns.to_list()
 
     scaler = MinMaxScaler()
     df_to_scale = pd.merge(df_numerical, df_one_hot_encoding, left_index=True, right_index=True)
@@ -42,5 +55,4 @@ def loadingKDD(path=Data_path+File_name, nrows=Nrows, attack_mode=True,
 
     X = df_scaled * 2 - 1
     Y = df.attack_type.values
-    columns = df_numerical.columns.to_list() + df_one_hot_encoding.columns.to_list()
-    return X, Y, columns
+    return X, Y, cat_col

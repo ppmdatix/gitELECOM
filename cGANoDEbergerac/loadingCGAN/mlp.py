@@ -65,8 +65,8 @@ class Mlp(object):
     def return_models(self):
         return self.mlp
 
-    def predict(self, x_test):
-        y_pred = self.mlp.predict(x_test)
+    def predict(self, x):
+        y_pred = self.mlp.predict(x)
         y_p = [zero_or_one(y) for y in y_pred]
         return y_p
 

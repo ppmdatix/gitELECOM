@@ -47,7 +47,7 @@ Data_path = "/home/peseux/Desktop/gitELECOM/NSL-KDD/"
 File_name = "KDDTrain+.txt"
 
 Nrows = 100
-Attack = "neptune"
+Attack = None
 
 
 Numerical_columns = ["duration", "src_bytes", "dst_bytes", "wrong_fragment", "urgent", "hot", "num_failed_logins","num_compromised","num_root",

@@ -138,7 +138,8 @@ class Cgan(object):
         :param epochs:
         :param batch_size:
         :param cv_size:
-        :return: cv_loss
+        :param print_recap:
+        :return: cv_loss, d_loss, g_loss
         """
         cv_loss, d_loss, g_loss = list(), list(), list()
         x_trainCV, x_testCV, y_trainCV, y_testCV = train_test_split(x_train, y_train, test_size=cv_size)
