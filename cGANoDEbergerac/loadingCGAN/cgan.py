@@ -38,6 +38,14 @@ def proba_choice(x):
         return x[1]
 
 
+def past_labeling(traffics, lab):
+    output = []
+    size = len(lab)
+    for i in range(size):
+        label = lab[i]
+        output.append(traffics[str(int(label))][i])
+    return np.array(output)
+
 class Cgan(object):
     def __init__(self, data_dim=28, num_classes=2, latent_dim=32, batch_size=128):
         # Input shape
@@ -62,8 +70,9 @@ class Cgan(object):
         self.combined = None
         self.build_combined(optimizer=optimizer)
 
-        self.past_images_zero = self.generate(number=self.batch_size, labels=np.zeros(self.batch_size))
-        self.past_images_one = self.generate(number=self.batch_size, labels=np.ones(self.batch_size))
+        self.past_images = dict()
+        for i in range(self.num_classes):
+            self.past_images[str(i)] = self.generate(number=self.batch_size, labels=np.full((self.batch_size, 1), i))
 
     def build_generator(self):
 
@@ -123,7 +132,6 @@ class Cgan(object):
         self.combined.compile(loss=['binary_crossentropy'],
                               optimizer=optimizer)
 
-
     def generate(self, number, labels):
         noise = np.random.normal(0, 1, (number, self.latent_dim))
         generated_traffic = self.generator.predict([noise, labels])
@@ -154,17 +162,17 @@ class Cgan(object):
         for _ in tqdm(range(epochs)):
             # Reload past images
             if np.random.random() > reload_images_p:
-                self.past_images_zero = self.generate(number=self.batch_size, labels=np.zeros(self.batch_size))
-                self.past_images_one = self.generate(number=self.batch_size, labels=np.ones(self.batch_size))
+                for i in range(self.num_classes):
+                    self.past_images[str(i)] = self.generate(number=self.batch_size,
+                                                             labels=np.full((self.batch_size, 1), i))
 
             #  Train Discriminator
             # Select a random half batch of images
             idx = np.random.randint(0, x_trainCV.shape[0], batch_size)
             real_traffic, labels = x_trainCV[idx], y_trainCV[idx]
             if np.random.random() > show_past_p:
-                lab = int(labels.sum())
-                generated_traffic = np.concatenate((self.past_images_one[:lab],
-                                                   self.past_images_zero[lab:]))
+                generated_traffic = past_labeling(traffics=self.past_images,
+                                                  lab=labels)
             else:
                 generated_traffic = self.generate(number=batch_size, labels=labels)
             noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
