@@ -16,6 +16,8 @@ def loadingKDD(path=Data_path+File_name, nrows=Nrows, attack_mode=True,
 
     df = pd.read_csv(path, names=columns, nrows=nrows)
 
+
+    list_of_attacks = list(set(list(df.attack_type)))
     if attack_mode is None:
         if attack is None:
             pass
@@ -35,7 +37,7 @@ def loadingKDD(path=Data_path+File_name, nrows=Nrows, attack_mode=True,
     df_numerical = df[nc]
     df_numerical.reset_index(drop=True, inplace=True)
 
-    categorical_columns = ["protocol_type","flag", "service", "su_attempted"]
+    categorical_columns = ["protocol_type", "flag", "service", "su_attempted"]
     df_one_hot_encoding = df[categorical_columns]
     df_one_hot_encoding = pd.get_dummies(df_one_hot_encoding)
     df_one_hot_encoding.reset_index(drop=True, inplace=True)
