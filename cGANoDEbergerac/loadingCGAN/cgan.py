@@ -5,9 +5,6 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
 from tqdm import tqdm
-from sklearn.metrics import confusion_matrix as confusion_matrix
-from sklearn.metrics import roc_curve as roc_curve
-from sklearn.metrics import f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 
 from matplotlib import pyplot as plt
@@ -42,15 +39,15 @@ def proba_choice(x):
 
 
 class Cgan(object):
-    def __init__(self, data_dim=28, num_classes=2, latent_dim=32):
+    def __init__(self, data_dim=28, num_classes=2, latent_dim=32, batch_size=128):
         # Input shape
         self.data_dim = data_dim
         self.num_classes = num_classes
         self.latent_dim = latent_dim
+        self.batch_size = batch_size
 
         optimizer = Adam(0.0002, 0.5)
-
-        print("CHOSEN OPTIMIZER IS ADMA")
+        print("CHOSEN OPTIMIZER IS ADAM")
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
@@ -61,25 +58,12 @@ class Cgan(object):
 
         # Build the generator
         self.generator = self.build_generator()
-
-        # The generator takes noise and the target label as input
-        # and generates the corresponding digit of that label
-        noise = Input(shape=(self.latent_dim,))
-        label = Input(shape=(1,))
-        traffic = self.generator([noise, label])
-
-        # For the combined model we will only train the generator
         self.discriminator.trainable = False
+        self.combined = None
+        self.build_combined(optimizer=optimizer)
 
-        # The discriminator takes generated image as input and determines validity
-        # and the label of that image
-        valid = self.discriminator([traffic, label])
-
-        # The combined model  (stacked generator and discriminator)
-        # Trains generator to fool discriminator
-        self.combined = Model([noise, label], valid)
-        self.combined.compile(loss=['binary_crossentropy'],
-                              optimizer=optimizer)
+        self.past_images_zero = self.generate(number=self.batch_size, labels=np.zeros(self.batch_size))
+        self.past_images_one = self.generate(number=self.batch_size, labels=np.ones(self.batch_size))
 
     def build_generator(self):
 
@@ -130,17 +114,36 @@ class Cgan(object):
 
         return Model([traffic, label], validity)
 
-    def train(self, x_train, y_train, epochs, batch_size=128, cv_size=.2, print_recap=True):
-        """
+    def build_combined(self, optimizer):
+        noise = Input(shape=(self.latent_dim,))
+        label = Input(shape=(1,))
+        traffic = self.generator([noise, label])
+        valid = self.discriminator([traffic, label])
+        self.combined = Model([noise, label], valid)
+        self.combined.compile(loss=['binary_crossentropy'],
+                              optimizer=optimizer)
 
+
+    def generate(self, number, labels):
+        noise = np.random.normal(0, 1, (number, self.latent_dim))
+        generated_traffic = self.generator.predict([noise, labels])
+        return generated_traffic
+
+    def train(self, x_train, y_train, epochs,
+              batch_size=128, cv_size=.2, print_recap=True,
+              reload_images_p=.8, show_past_p=.9):
+        """
         :param x_train:
         :param y_train:
         :param epochs:
         :param batch_size:
         :param cv_size:
         :param print_recap:
-        :return: cv_loss, d_loss, g_loss
+        :param reload_images_p:
+        :param show_past_p:
+        :return:
         """
+        self.batch_size = batch_size
         cv_loss, d_loss, g_loss = list(), list(), list()
         x_trainCV, x_testCV, y_trainCV, y_testCV = train_test_split(x_train, y_train, test_size=cv_size)
 
@@ -149,14 +152,22 @@ class Cgan(object):
         fake = np.zeros((batch_size, 1))
 
         for _ in tqdm(range(epochs)):
+            # Reload past images
+            if np.random.random() > reload_images_p:
+                self.past_images_zero = self.generate(number=self.batch_size, labels=np.zeros(self.batch_size))
+                self.past_images_one = self.generate(number=self.batch_size, labels=np.ones(self.batch_size))
+
             #  Train Discriminator
             # Select a random half batch of images
             idx = np.random.randint(0, x_trainCV.shape[0], batch_size)
             real_traffic, labels = x_trainCV[idx], y_trainCV[idx]
-            # Sample noise as generator input
+            if np.random.random() > show_past_p:
+                lab = int(labels.sum())
+                generated_traffic = np.concatenate((self.past_images_one[:lab],
+                                                   self.past_images_zero[lab:]))
+            else:
+                generated_traffic = self.generate(number=batch_size, labels=labels)
             noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
-            # Generate a half batch of new images
-            generated_traffic = self.generator.predict([noise, labels])
             d_loss_real = self.discriminator.train_on_batch([real_traffic, labels], valid)
             d_loss_fake = self.discriminator.train_on_batch([generated_traffic, labels], fake)
             d_l = 0.5 * np.add(d_loss_real, d_loss_fake)

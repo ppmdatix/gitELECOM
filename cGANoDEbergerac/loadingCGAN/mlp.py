@@ -49,18 +49,22 @@ class Mlp(object):
         return model
 
     def train(self, x_train, y_train, epochs, batch_size=128):
+        """
+
+        :param x_train:
+        :param y_train:
+        :param epochs:
+        :param batch_size:
+        :return: d_loss
+        """
 
         for epoch in tqdm(range(epochs)):
-
-            # ---------------------
-            #  Train Discriminator
-            # ---------------------
-
             # Select a random half batch of images
             idx = np.random.randint(0, x_train.shape[0], batch_size)
             real_traffic, labels = x_train[idx], y_train[idx]
             # Train the discriminator
             d_loss = self.mlp.train_on_batch(real_traffic, labels)
+            return d_loss
 
     def return_models(self):
         return self.mlp
