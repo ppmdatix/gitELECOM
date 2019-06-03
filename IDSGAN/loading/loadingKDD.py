@@ -10,6 +10,10 @@ def turn_attack(x):
         return 1.
 
 
+def turn_attack_label(x, liste):
+    return liste.index(liste)
+
+
 def loadingKDD(path=Data_path+File_name, nrows=Nrows, attack_mode=True,
                numerical_columns=Numerical_columns, columns=Columns, attack=Attack,
                force_cat_col=None):
