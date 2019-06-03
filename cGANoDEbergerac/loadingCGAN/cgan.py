@@ -46,6 +46,23 @@ def past_labeling(traffics, lab):
         output.append(traffics[str(int(label))][i])
     return np.array(output)
 
+
+def switching_gans(list_of_gans):
+    print("Let's switch the GANs")
+    length = len(list_of_gans)
+    sigma = np.random.permutation(length)
+    generators, discriminators = list(), list()
+    for i in range(length):
+        generators.append(list_of_gans[i].generator)
+        discriminators.append(list_of_gans[i].discriminator)
+    for i in range(length):
+        list_of_gans[i].generator = generators[sigma[i]]
+        list_of_gans[i].discriminator = discriminators[sigma[i]]
+        list_of_gans[i].build_combined()
+    print("GANs switched")
+    return True
+
+
 class Cgan(object):
     def __init__(self, data_dim=28, num_classes=2, latent_dim=32, batch_size=128):
         # Input shape
@@ -53,22 +70,21 @@ class Cgan(object):
         self.num_classes = num_classes
         self.latent_dim = latent_dim
         self.batch_size = batch_size
-
-        optimizer = Adam(0.0002, 0.5)
+        self.optimizer = Adam(0.0002, 0.5)
         print("CHOSEN OPTIMIZER IS ADAM")
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
 
         self.discriminator.compile(loss=['binary_crossentropy'],
-                                   optimizer=optimizer,
+                                   optimizer=self.optimizer,
                                    metrics=['accuracy'])
 
         # Build the generator
         self.generator = self.build_generator()
         self.discriminator.trainable = False
         self.combined = None
-        self.build_combined(optimizer=optimizer)
+        self.build_combined()
 
         self.past_images = dict()
         for i in range(self.num_classes):
@@ -123,14 +139,14 @@ class Cgan(object):
 
         return Model([traffic, label], validity)
 
-    def build_combined(self, optimizer):
+    def build_combined(self):
         noise = Input(shape=(self.latent_dim,))
         label = Input(shape=(1,))
         traffic = self.generator([noise, label])
         valid = self.discriminator([traffic, label])
         self.combined = Model([noise, label], valid)
         self.combined.compile(loss=['binary_crossentropy'],
-                              optimizer=optimizer)
+                              optimizer=self.optimizer)
 
     def generate(self, number, labels):
         noise = np.random.normal(0, 1, (number, self.latent_dim))

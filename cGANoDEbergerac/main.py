@@ -1,4 +1,4 @@
-from loadingCGAN.cgan import Cgan
+from loadingCGAN.cgan import Cgan, switching_gans
 from loadingCGAN.mlp import Mlp
 from evaluation.evaluation import evaluate
 import numpy as np
@@ -7,7 +7,9 @@ from load_data.load_data import load_data
 
 # Parameters
 attack_mode = None
-epochs = 100
+epochs = 10
+number_of_gans = 5
+number_of_switch = 5
 
 # DATA
 x_train, y_train, x_balanced_train, y_balanced_train, x_test, y_test = load_data()
@@ -21,6 +23,26 @@ print("\n  \n \n "*2)
 ########
 # CGAN #
 ########
+
+
+cgans = [Cgan(data_dim=data_dim) for _ in range(number_of_gans)]
+for _ in range(number_of_switch):
+    for cgan in cgans:
+        cgan.train(x_train=x_balanced_train,
+                   y_train=y_balanced_train,
+                   epochs=epochs,
+                   print_recap=False,
+                   reload_images_p=.95,
+                   show_past_p=.98)
+    switching_gans(cgans)
+
+
+cgan = cgans[0]
+
+
+
+
+"""
 cgan = Cgan(data_dim=data_dim)
 cv_loss, d_loss, g_loss = cgan.train(x_train=x_balanced_train,
                                      y_train=y_balanced_train,
@@ -29,7 +51,7 @@ cv_loss, d_loss, g_loss = cgan.train(x_train=x_balanced_train,
                                      reload_images_p=.95,
                                      show_past_p=.98)
 
-
+"""
 result_cgan = evaluate(y_true=y_test, y_pred=cgan.predict(x=x_test))
 generated_one = cgan.generate(number=100, labels=np.ones(100))
 generated_zero = cgan.generate(number=100, labels=np.zeros(100))
@@ -37,7 +59,7 @@ generated_zero = cgan.generate(number=100, labels=np.zeros(100))
 # Classical #
 #############
 mlp = Mlp(data_dim=data_dim)
-d_loss_classical = mlp.train(x_train=x_balanced_train, y_train=y_balanced_train, epochs=epochs)
+d_loss_classical = mlp.train(x_train=x_balanced_train, y_train=y_balanced_train, epochs=epochs*number_of_switch)
 
 result_mlp = evaluate(y_true=y_test, y_pred=mlp.predict(x=x_test))
 result_mlp_fooling = evaluate(y_true=np.zeros(100+100), y_pred=mlp.predict(np.concatenate((generated_one, generated_zero))))
