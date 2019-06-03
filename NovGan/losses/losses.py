@@ -5,16 +5,16 @@ def hurting(image):
     return K.mean(K.abs((- image + 1)/2))
 
 
-def linking_loss(link_mode,power=1,alpha=1,offset=0,mult=1,sqrt=2):
-    def link(L, L_bis):
+def linking_loss(link_mode, power=1, alpha=1, offset=0, mult=1, sqrt=2):
+    def link(l, l_bis):
         if link_mode == "alpha":
-            return L * L_bis + (1-L_bis) * (alpha*L + offset)
+            return l * l_bis + (1 - l_bis) * (alpha * l + offset)
         elif link_mode == "exp":
-            return L * L_bis + (1-L_bis) * K.exp(L)
+            return l * l_bis + (1 - l_bis) * K.exp(l)
         elif link_mode == "pow":
-            return L * L_bis + (1-L_bis) * K.pow(x=L, a=power)
+            return l * l_bis + (1 - l_bis) * K.pow(x=l, a=power)
         elif link_mode == "sum":
-            return L + mult * K.pow(L_bis, float(1/sqrt))
+            return l + mult * K.pow(l_bis, float(1 / sqrt))
     return link
 
 
@@ -44,10 +44,10 @@ def custom_loss(intermediate_output,
                           mult=mult,
                           sqrt=sqrt,)
 
-    def lossFunction(y_true,y_pred):
-        L = loss_function_base(y_pred)
-        L_bis = hurting(intermediate_output)
-        loss = link_f(L=L, L_bis=L_bis)
+    def lossFunction(y_pred, y_true):
+        l = loss_function_base(y_pred)
+        l_bis = hurting(intermediate_output)
+        loss = link_f(l=l, l_bis=l_bis)
         return loss
 
     return lossFunction
@@ -56,17 +56,17 @@ def custom_loss(intermediate_output,
 def custom_loss_discriminator(loss_base="Goodfellow"):
 
     if loss_base == "Goodfellow":
-        def loss_function_base(y, y_true):
-            return K.mean(- K.log((1-y_true) + (2*y_true - 1)*y))
+        def loss_function_base(y_true, y_pred):
+            return K.mean(- K.log((1-y_true) + (2*y_true - 1)*y_pred))
     elif loss_base == "Wasserstein":
-        def loss_function_base(y, y_true):
-            return K.mean(- y * (2*y_true - 1))
+        def loss_function_base(y_true, y_pred):
+            return K.mean(- y_pred * (2*y_true - 1))
     elif loss_base == "Pearson":
-        def loss_function_base(y, y_true):
-            return K.mean((1 - 2*y_true) * K.pow(y-y_true, 2))
+        def loss_function_base(y_true, y_pred):
+            return K.mean((1 - 2*y_true) * K.pow(y_pred-y_true, 2))
 
-    def lossFunction(y_true,y_pred):
-        L = loss_function_base(y_pred, y_true)
+    def lossFunction(y_pred, y_true):
+        L = loss_function_base(y_true, y_pred)
         return L
 
     return lossFunction

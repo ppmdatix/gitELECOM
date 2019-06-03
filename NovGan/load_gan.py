@@ -8,8 +8,9 @@ from losses.losses import custom_loss, custom_loss_discriminator
 
 
 def load_gan(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=1, sqrt=1, loss_base="Goodfellow"):
-    assert link_mode in ["alpha", "exp", "pow", "sum"], "Loss function not supported, please use alpha, exp or pow"
-    assert loss_base in ["Goodfellow", "Wasserstein", "Pearson"], "This loss is not supported"
+    assert link_mode in ["alpha", "exp", "pow", "sum"], \
+        "Loss function: " + link_mode + " not supported, please use alpha, exp, pow"
+    assert loss_base in ["Goodfellow", "Wasserstein", "Pearson"], "This loss: " + loss_base + " is not supported"
 
     adam = Adam(lr=0.0002, beta_1=0.5)
 
@@ -35,7 +36,7 @@ def load_gan(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=
     discriminator.add(Dropout(0.3))
     discriminator.add(Dense(1, activation='sigmoid'))
     discriminator_loss = custom_loss_discriminator(loss_base=loss_base)
-    discriminator.compile(loss=discriminator_loss, optimizer=adam)
+    discriminator.compile(loss='binary_crossentropy', optimizer=adam)
 
     # Combined network
     discriminator.trainable = False
@@ -52,6 +53,6 @@ def load_gan(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=
                        loss_base=loss_base,
                        link_mode=link_mode)
 
-    gan.compile(loss=loss, optimizer=adam)
+    gan.compile(loss='binary_crossentropy', optimizer=adam)
 
     return generator, discriminator, gan
