@@ -6,7 +6,7 @@ from load_data.load_data import load_data
 
 # Parameters
 attack_mode = None
-epochs = 5
+epochs = 2
 number_of_gans = 2
 number_of_switch = 2
 
@@ -24,11 +24,11 @@ print("\n  \n \n "*2)
 ########
 
 
-cgans = [Cgan(data_dim=data_dim) for _ in range(number_of_gans)]
+cgans = [Cgan(data_dim=data_dim, spectral_normalisation=True) for _ in range(number_of_gans)]
 for _ in range(number_of_switch):
     for cgan in cgans:
-        cgan.train(x_train=x_train,#x_balanced_train,
-                   y_train=y_train,#y_balanced_train,
+        cgan.train(x_train=x_train, # x_balanced_train,
+                   y_train=y_train, # y_balanced_train,
                    epochs=epochs,
                    print_recap=False,
                    reload_images_p=.95,

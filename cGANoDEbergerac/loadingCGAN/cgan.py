@@ -11,6 +11,12 @@ from sklearn.model_selection import train_test_split
 from matplotlib import pyplot as plt
 import numpy as np
 
+import sys
+#sys_path = "/Users/ppx/Desktop/gitELECOM/IDSGAN"
+sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
+sys.path.insert(0, sys_path)
+from dense_spectral_normalisation import DenseSN
+
 
 def zero_or_one(x):
     if x < .5:
@@ -70,7 +76,7 @@ def switching_gans(list_of_gans):
 
 class Cgan(object):
     def __init__(self, data_dim=28, num_classes=2,
-                 latent_dim=32, batch_size=128, leaky_relu=.02, dropout=.4):
+                 latent_dim=32, batch_size=128, leaky_relu=.02, dropout=.4, spectral_normalisation=False):
         # Input shape
         self.data_dim = data_dim
         self.num_classes = num_classes
@@ -80,6 +86,7 @@ class Cgan(object):
         print("CHOSEN OPTIMIZER IS ADAM")
         self.leaky_relu = leaky_relu
         self.dropout = dropout
+        self.spectral_normalisation = spectral_normalisation
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
 
@@ -100,16 +107,20 @@ class Cgan(object):
         self.history = {"cv_loss": [], "d_loss": [], "g_loss": []}
 
     def build_generator(self):
+        if self.spectral_normalisation:
+            dense = DenseSN
+        else:
+            dense = Dense
 
         model = Sequential()
 
-        model.add(Dense(12, input_dim=self.latent_dim, kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+        model.add(dense(12, input_dim=self.latent_dim, kernel_initializer=initializers.RandomNormal(stddev=0.02)))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(18))
+        model.add(dense(18))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(self.data_dim, activation='tanh'))
+        model.add(dense(self.data_dim, activation='tanh'))
         model.summary()
 
         noise = Input(shape=(self.latent_dim,))
@@ -121,18 +132,22 @@ class Cgan(object):
         return Model([noise, label], img)
 
     def build_discriminator(self):
+        if self.spectral_normalisation:
+            dense = DenseSN
+        else:
+            dense = Dense
 
         model = Sequential()
 
-        model.add(Dense(18, input_dim=np.prod(self.data_dim)))
+        model.add(dense(18, input_dim=np.prod(self.data_dim)))
         model.add(LeakyReLU(alpha=self.leaky_relu))
-        model.add(Dense(12))
-        model.add(LeakyReLU(alpha=self.leaky_relu))
-        model.add(Dropout(self.dropout))
-        model.add(Dense(10))
+        model.add(dense(12))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(Dropout(self.dropout))
-        model.add(Dense(1, activation='sigmoid'))
+        model.add(dense(10))
+        model.add(LeakyReLU(alpha=self.leaky_relu))
+        model.add(Dropout(self.dropout))
+        model.add(dense(1, activation='sigmoid'))
 
         traffic = Input(shape=(self.data_dim,))
         label = Input(shape=(1,), dtype='int32')
