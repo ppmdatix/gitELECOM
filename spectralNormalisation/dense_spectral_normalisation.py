@@ -39,15 +39,15 @@ class DenseSN(Dense):
             _u = _l2normalize(K.dot(_v, W))
             return _u, _v
         W_shape = self.kernel.shape.as_list()
-        #Flatten the Tensor
+        # Flatten the Tensor
         W_reshaped = K.reshape(self.kernel, [-1, W_shape[-1]])
         _u, _v = power_iteration(W_reshaped, self.u)
-        #Calculate Sigma
+        # Calculate Sigma
         sigma=K.dot(_v, W_reshaped)
         sigma=K.dot(sigma, K.transpose(_u))
-        #normalize it
+        # normalize it
         W_bar = W_reshaped / sigma
-        #reshape weight tensor
+        # reshape weight tensor
         if training in {0, False}:
             W_bar = K.reshape(W_bar, W_shape)
         else:

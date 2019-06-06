@@ -16,8 +16,10 @@ A IMPLEMENTER
 
 Feuille de route
 
-**9-12 Avril 2019**
+GANs tricks :
 
-
-**15-17 Avril 2019**
-
+- remontrer le passé
+- Normalisation Spectrale
+- Early stopping
+- Batch
+- smoothing label

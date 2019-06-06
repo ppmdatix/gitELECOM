@@ -6,7 +6,7 @@ sys.path.insert(0, sys_path)
 from loading.loadingKDD import loadingKDD
 
 
-def load_data(attack_mode=None, nrows=10000000, attack=None, verbose=True):
+def load_data(attack_mode=None, nrows=10000000, attack=None, verbose=True, shuffle=False):
 
     # DATA
     x_train, y_train, cat_col = loadingKDD(nrows=nrows, attack_mode=attack_mode,
@@ -15,6 +15,9 @@ def load_data(attack_mode=None, nrows=10000000, attack=None, verbose=True):
                                    attack_mode=attack_mode, attack=attack,
                                    path="/home/peseux/Desktop/gitELECOM/NSL-KDD/KDDTest+.txt",
                                    force_cat_col=cat_col)
+    if shuffle:
+        idx = np.random.permutation(x_train.shape[0])
+        x_train, y_train = x_train[idx], y_train[idx]
 
     zero_index_train = [i for y, i in zip(y_train, range(len(y_train))) if y == 0]
     one_index_train = [i for y, i in zip(y_train, range(len(y_train))) if y == 1]

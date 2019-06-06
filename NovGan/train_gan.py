@@ -52,7 +52,7 @@ def train_gan(disc, gen, gan, x_train,
             disc.trainable = False
             gloss += gan.train_on_batch(noise, yGen)
 
-        if dloss < d_loss_limit:
+        if dloss < d_loss_limit and e > epochs/10:
             to_be_trusted = False
             break
 

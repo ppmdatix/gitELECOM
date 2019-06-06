@@ -36,14 +36,14 @@ def load_gan(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=
     discriminator.add(Dropout(0.3))
     discriminator.add(Dense(1, activation='sigmoid'))
     discriminator_loss = custom_loss_discriminator(loss_base=loss_base)
-    discriminator.compile(loss='binary_crossentropy', optimizer=adam)
+    discriminator.compile(loss=discriminator_loss, optimizer=adam)
 
     # Combined network
     discriminator.trainable = False
-    ganInput = Input(shape=(randomDim,))
-    x = generator(ganInput)
-    ganOutput = discriminator(x)
-    gan = Model(inputs=ganInput, outputs=ganOutput)
+    gan_input = Input(shape=(randomDim,))
+    x = generator(gan_input)
+    gan_output = discriminator(x)
+    gan = Model(inputs=gan_input, outputs=gan_output)
     loss = custom_loss(intermediate_output=x,
                        power=power,
                        alpha=alpha,
@@ -53,6 +53,7 @@ def load_gan(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=
                        loss_base=loss_base,
                        link_mode=link_mode)
 
-    gan.compile(loss='binary_crossentropy', optimizer=adam)
+    gan.compile(loss=loss, optimizer=adam)
 
     return generator, discriminator, gan
+

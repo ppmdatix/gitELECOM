@@ -6,7 +6,6 @@ from train_gan import train_gan
 from evaluation import evaluation
 from keras.datasets import mnist
 
-
 os.environ["KERAS_BACKEND"] = "tensorflow"
 
 (x_train, _), (x_test, _) = mnist.load_data()
@@ -19,7 +18,7 @@ epochs = 100
 randomDim = 50
 batchSize = 128
 examples = 100
-cases = load_cases()
+cases = load_cases(loss_bases=["Wasserstein", "Goodfellow", "Pearson"],)
 for case in cases:
     print(case)
     save_name = load_save_name(case)
@@ -38,7 +37,7 @@ for case in cases:
                                                             x_train=x_train,
                                                             epochs=epochs,
                                                             batch_size=batchSize,
-                                                            d_loss_limit=0.1,
+                                                            d_loss_limit=0.05,
                                                             randomDim=randomDim)
     if to_be_trusted:
         location = "results/" + case["loss_base"] + "/" + case["link_mode"] + "/" + save_name
@@ -47,3 +46,5 @@ for case in cases:
                    location=location,
                    examples=examples, title=save_name,
                    hurting=hurting, gen_loss=gen_loss, disc_loss=disc_loss, x_test=x_test[:examples*examples])
+
+print("LETS GO TO SLEEP \n "*10)

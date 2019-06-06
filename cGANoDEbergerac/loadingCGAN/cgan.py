@@ -90,9 +90,8 @@ class Cgan(object):
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
 
-        self.discriminator.compile(loss=['binary_crossentropy'],
-                                   optimizer=self.optimizer,
-                                   metrics=['accuracy'])
+        self.discriminator.compile(loss='binary_crossentropy',
+                                   optimizer=self.optimizer)
 
         # Build the generator
         self.generator = self.build_generator()
@@ -121,6 +120,7 @@ class Cgan(object):
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(BatchNormalization(momentum=0.8))
         model.add(dense(self.data_dim, activation='tanh'))
+        print("\n \n Generator Architecture ")
         model.summary()
 
         noise = Input(shape=(self.latent_dim,))
@@ -154,6 +154,7 @@ class Cgan(object):
         label_embedding = Flatten()(Embedding(self.num_classes, self.data_dim)(label))
         model_input = multiply([traffic, label_embedding])
         validity = model(model_input)
+        print("\n \n Discriminator Architecture ")
         model.summary()
         return Model([traffic, label], validity)
 
@@ -163,7 +164,7 @@ class Cgan(object):
         traffic = self.generator([noise, label])
         valid = self.discriminator([traffic, label])
         self.combined = Model([noise, label], valid)
-        self.combined.compile(loss=['binary_crossentropy'],
+        self.combined.compile(loss='binary_crossentropy',
                               optimizer=self.optimizer)
 
     def generate(self, number, labels):
@@ -171,27 +172,24 @@ class Cgan(object):
         generated_traffic = self.generator.predict([noise, labels])
         return generated_traffic
 
-    def train(self, x_train, y_train, epochs,
-              batch_size=128, cv_size=.2, print_recap=True,
+    def train(self, x_train, y_train, epochs, cv_size=.2, print_recap=True,
               reload_images_p=.8, show_past_p=.9):
         """
         :param x_train:
         :param y_train:
         :param epochs:
-        :param batch_size:
         :param cv_size:
         :param print_recap:
         :param reload_images_p:
         :param show_past_p:
         :return: cv_loss, d_loss, g_loss
         """
-        self.batch_size = batch_size
         cv_loss, d_loss, g_loss = list(), list(), list()
         x_trainCV, x_testCV, y_trainCV, y_testCV = train_test_split(x_train, y_train, test_size=cv_size)
 
         # Adversarial ground truths
-        valid = np.ones((batch_size, 1))
-        fake = np.zeros((batch_size, 1))
+        valid = np.ones((self.batch_size, 1))
+        fake = np.zeros((self.batch_size, 1))
 
         for _ in tqdm(range(epochs)):
             # Reload past images
@@ -202,20 +200,20 @@ class Cgan(object):
 
             #  Train Discriminator
             # Select a random half batch of images
-            idx = np.random.randint(0, x_trainCV.shape[0], batch_size)
+            idx = np.random.randint(0, x_trainCV.shape[0], self.batch_size)
             real_traffic, labels = x_trainCV[idx], y_trainCV[idx]
             if np.random.random() > show_past_p:
                 generated_traffic = past_labeling(traffics=self.past_images,
                                                   lab=labels)
             else:
-                generated_traffic = self.generate(number=batch_size, labels=labels)
-            noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
+                generated_traffic = self.generate(number=self.batch_size, labels=labels)
+            noise = np.random.normal(0, 1, (self.batch_size, self.latent_dim))
             d_loss_real = self.discriminator.train_on_batch([real_traffic, labels], valid)
             d_loss_fake = self.discriminator.train_on_batch([generated_traffic, labels], fake)
             d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
             #  Train Generator
             # Condition on labels
-            sampled_labels = np.random.randint(0, self.num_classes, batch_size).reshape(-1, 1)
+            sampled_labels = np.random.randint(0, self.num_classes, self.batch_size).reshape(-1, 1)
             g_l = self.combined.train_on_batch([noise, sampled_labels], valid)
             ones = np.ones((x_testCV.shape[0], 1))
             cv_l = np.mean(self.discriminator.evaluate(x=[x_testCV, y_testCV], y=ones, verbose=False))
