@@ -6,7 +6,7 @@ sys.path.insert(0, sys_path)
 from loading.loadingKDD import loadingKDD
 
 
-def load_data(attack_mode=None, test_size=3000, nrows=10000000, attack=None):
+def load_data(attack_mode=None, nrows=10000000, attack=None, verbose=True):
 
     # DATA
     x_train, y_train, cat_col = loadingKDD(nrows=nrows, attack_mode=attack_mode,
@@ -32,5 +32,8 @@ def load_data(attack_mode=None, test_size=3000, nrows=10000000, attack=None):
         y_balanced_train = y_train[one_index_train]
     else:
         raise Exception("attack_mode should be True, False or None")
+    if verbose:
+        print("Train data shape is " + str(x_train.shape))
+        print("Test data shape is " + str(x_test.shape))
 
     return x_train, y_train, x_balanced_train, y_balanced_train, x_test, y_test

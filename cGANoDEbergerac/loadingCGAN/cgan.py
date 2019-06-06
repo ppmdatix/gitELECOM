@@ -4,6 +4,7 @@ from keras.layers import BatchNormalization, Embedding
 from keras.layers.advanced_activations import LeakyReLU
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
+from keras import initializers
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 
@@ -19,7 +20,9 @@ def zero_or_one(x):
 
 
 def false_or_true(x):
-    if x[0] > x[1]:
+    if x[0] < .5 and x[1] < .5:
+        return 0
+    elif x[0] > x[1]:
         return 0
     elif x[0] == x[1]:
         print("FUCK")
@@ -51,6 +54,8 @@ def switching_gans(list_of_gans):
     print("Let's switch the GANs")
     length = len(list_of_gans)
     sigma = np.random.permutation(length)
+    fixed_points = sum([i == sigma[i] for i in range(length)])
+    print("There are "+str(fixed_points)+" fixed points")
     generators, discriminators = list(), list()
     for i in range(length):
         generators.append(list_of_gans[i].generator)
@@ -64,7 +69,8 @@ def switching_gans(list_of_gans):
 
 
 class Cgan(object):
-    def __init__(self, data_dim=28, num_classes=2, latent_dim=32, batch_size=128):
+    def __init__(self, data_dim=28, num_classes=2,
+                 latent_dim=32, batch_size=128, leaky_relu=.02, dropout=.4):
         # Input shape
         self.data_dim = data_dim
         self.num_classes = num_classes
@@ -72,7 +78,8 @@ class Cgan(object):
         self.batch_size = batch_size
         self.optimizer = Adam(0.0002, 0.5)
         print("CHOSEN OPTIMIZER IS ADAM")
-
+        self.leaky_relu = leaky_relu
+        self.dropout = dropout
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
 
@@ -90,24 +97,24 @@ class Cgan(object):
         for i in range(self.num_classes):
             self.past_images[str(i)] = self.generate(number=self.batch_size, labels=np.full((self.batch_size, 1), i))
 
+        self.history = {"cv_loss": [], "d_loss": [], "g_loss": []}
+
     def build_generator(self):
 
         model = Sequential()
 
-        model.add(Dense(12, input_dim=self.latent_dim))
-        model.add(LeakyReLU(alpha=0.2))
+        model.add(Dense(12, input_dim=self.latent_dim, kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+        model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(BatchNormalization(momentum=0.8))
         model.add(Dense(18))
-        model.add(LeakyReLU(alpha=0.2))
+        model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(BatchNormalization(momentum=0.8))
         model.add(Dense(self.data_dim, activation='tanh'))
-
         model.summary()
 
         noise = Input(shape=(self.latent_dim,))
         label = Input(shape=(1,), dtype='int32')
         label_embedding = Flatten()(Embedding(self.num_classes, self.latent_dim)(label))
-
         model_input = multiply([noise, label_embedding])
         img = model(model_input)
 
@@ -118,25 +125,21 @@ class Cgan(object):
         model = Sequential()
 
         model.add(Dense(18, input_dim=np.prod(self.data_dim)))
-        model.add(LeakyReLU(alpha=0.2))
+        model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(Dense(12))
-        model.add(LeakyReLU(alpha=0.2))
-        model.add(Dropout(0.4))
+        model.add(LeakyReLU(alpha=self.leaky_relu))
+        model.add(Dropout(self.dropout))
         model.add(Dense(10))
-        model.add(LeakyReLU(alpha=0.2))
-        model.add(Dropout(0.4))
+        model.add(LeakyReLU(alpha=self.leaky_relu))
+        model.add(Dropout(self.dropout))
         model.add(Dense(1, activation='sigmoid'))
-        model.summary()
+
         traffic = Input(shape=(self.data_dim,))
         label = Input(shape=(1,), dtype='int32')
-
         label_embedding = Flatten()(Embedding(self.num_classes, self.data_dim)(label))
-        # flat_traffic = Flatten()(traffic)
-
         model_input = multiply([traffic, label_embedding])
-
         validity = model(model_input)
-
+        model.summary()
         return Model([traffic, label], validity)
 
     def build_combined(self):
@@ -165,7 +168,7 @@ class Cgan(object):
         :param print_recap:
         :param reload_images_p:
         :param show_past_p:
-        :return:
+        :return: cv_loss, d_loss, g_loss
         """
         self.batch_size = batch_size
         cv_loss, d_loss, g_loss = list(), list(), list()
@@ -213,6 +216,9 @@ class Cgan(object):
             plt.legend()
             plt.show()
             plt.close()
+        self.history["cv_loss"] = self.history["cv_loss"] + cv_loss
+        self.history["d_loss"] = self.history["d_loss"] + d_loss
+        self.history["g_loss"] = self.history["g_loss"] + g_loss
         return cv_loss, d_loss, g_loss
 
     def return_models(self):
@@ -233,6 +239,15 @@ class Cgan(object):
         y_pred_zeros = self.discriminator.predict([x, zeros])
         y_proba = [proba_choice([y0[0], y1[0]]) for y0, y1 in zip(y_pred_zeros, y_pred_ones)]
         return np.array(y_proba)
+
+    def plot_learning(self):
+        plt.plot(self.history["cv_loss"], label="cv_loss")
+        plt.plot(self.history["d_loss"], label="discriminator loss")
+        plt.plot(self.history["g_loss"], label="generator loss")
+        plt.legend()
+        plt.show()
+        plt.close()
+        return True
 
 
 

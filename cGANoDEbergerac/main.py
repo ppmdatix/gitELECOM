@@ -2,14 +2,13 @@ from loadingCGAN.cgan import Cgan, switching_gans
 from loadingCGAN.mlp import Mlp
 from evaluation.evaluation import evaluate
 import numpy as np
-import sys
 from load_data.load_data import load_data
 
 # Parameters
 attack_mode = None
-epochs = 10
-number_of_gans = 5
-number_of_switch = 5
+epochs = 5
+number_of_gans = 2
+number_of_switch = 2
 
 # DATA
 x_train, y_train, x_balanced_train, y_balanced_train, x_test, y_test = load_data()
@@ -28,8 +27,8 @@ print("\n  \n \n "*2)
 cgans = [Cgan(data_dim=data_dim) for _ in range(number_of_gans)]
 for _ in range(number_of_switch):
     for cgan in cgans:
-        cgan.train(x_train=x_balanced_train,
-                   y_train=y_balanced_train,
+        cgan.train(x_train=x_train,#x_balanced_train,
+                   y_train=y_train,#y_balanced_train,
                    epochs=epochs,
                    print_recap=False,
                    reload_images_p=.95,
@@ -38,7 +37,7 @@ for _ in range(number_of_switch):
 
 
 cgan = cgans[0]
-
+cgan.plot_learning()
 
 
 
