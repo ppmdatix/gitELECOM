@@ -5,17 +5,23 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
 from keras import initializers
+from keras.models import model_from_json
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 
 from matplotlib import pyplot as plt
 import numpy as np
+from evaluation.evaluation import evaluate
 
 import sys
 #sys_path = "/Users/ppx/Desktop/gitELECOM/IDSGAN"
 sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
 sys.path.insert(0, sys_path)
 from dense_spectral_normalisation import DenseSN
+
+sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
+sys.path.insert(0, sys_path)
+from weight_clipping import WeightClip
 
 
 def zero_or_one(x):
@@ -76,17 +82,25 @@ def switching_gans(list_of_gans):
 
 class Cgan(object):
     def __init__(self, data_dim=28, num_classes=2,
-                 latent_dim=32, batch_size=128, leaky_relu=.02, dropout=.4, spectral_normalisation=False):
+                 latent_dim=32, batch_size=128, leaky_relu=.02,
+                 dropout=.4, spectral_normalisation=False,
+                 weight_clipping=False,
+                 weight_clip=1,
+                 verbose=False):
         # Input shape
         self.data_dim = data_dim
         self.num_classes = num_classes
         self.latent_dim = latent_dim
         self.batch_size = batch_size
+        self.verbose = verbose
         self.optimizer = Adam(0.0002, 0.5)
-        print("CHOSEN OPTIMIZER IS ADAM")
+        if self.verbose:
+            print("CHOSEN OPTIMIZER IS ADAM")
         self.leaky_relu = leaky_relu
         self.dropout = dropout
         self.spectral_normalisation = spectral_normalisation
+        self.weight_clipping = weight_clipping
+        self.weight_clip = weight_clip
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
 
@@ -110,18 +124,30 @@ class Cgan(object):
             dense = DenseSN
         else:
             dense = Dense
+        if self.weight_clipping:
+            W_constraint = WeightClip(self.weight_clip)
+        else:
+            W_constraint = None
 
         model = Sequential()
 
-        model.add(dense(12, input_dim=self.latent_dim, kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+        model.add(dense(12, input_dim=self.latent_dim,
+                        kernel_initializer=initializers.RandomNormal(stddev=0.02),
+                        W_constraint=W_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(dense(18))
+        model.add(dense(18,
+                        kernel_initializer=initializers.RandomNormal(stddev=0.02),
+                        W_constraint=W_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(dense(self.data_dim, activation='tanh'))
-        print("\n \n Generator Architecture ")
-        model.summary()
+        model.add(dense(self.data_dim,
+                        kernel_initializer=initializers.RandomNormal(stddev=0.02),
+                        W_constraint=W_constraint,
+                        activation='tanh'))
+        if self.verbose:
+            print("\n \n Generator Architecture ")
+            model.summary()
 
         noise = Input(shape=(self.latent_dim,))
         label = Input(shape=(1,), dtype='int32')
@@ -136,26 +162,33 @@ class Cgan(object):
             dense = DenseSN
         else:
             dense = Dense
+        if self.weight_clipping:
+            W_constraint = WeightClip(self.weight_clip)
+        else:
+            W_constraint = None
 
         model = Sequential()
 
-        model.add(dense(18, input_dim=np.prod(self.data_dim)))
+        model.add(dense(18, input_dim=np.prod(self.data_dim), W_constraint=W_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
-        model.add(dense(12))
-        model.add(LeakyReLU(alpha=self.leaky_relu))
-        model.add(Dropout(self.dropout))
-        model.add(dense(10))
+        model.add(dense(12,W_constraint=W_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(Dropout(self.dropout))
-        model.add(dense(1, activation='sigmoid'))
+        model.add(dense(10,W_constraint=W_constraint))
+        model.add(LeakyReLU(alpha=self.leaky_relu))
+        model.add(Dropout(self.dropout))
+        model.add(dense(1,
+                        W_constraint=W_constraint,
+                        activation='sigmoid'))
 
         traffic = Input(shape=(self.data_dim,))
         label = Input(shape=(1,), dtype='int32')
         label_embedding = Flatten()(Embedding(self.num_classes, self.data_dim)(label))
         model_input = multiply([traffic, label_embedding])
         validity = model(model_input)
-        print("\n \n Discriminator Architecture ")
-        model.summary()
+        if self.verbose:
+            print("\n \n Discriminator Architecture ")
+            model.summary()
         return Model([traffic, label], validity)
 
     def build_combined(self):
@@ -217,6 +250,8 @@ class Cgan(object):
             g_l = self.combined.train_on_batch([noise, sampled_labels], valid)
             ones = np.ones((x_testCV.shape[0], 1))
             cv_l = np.mean(self.discriminator.evaluate(x=[x_testCV, y_testCV], y=ones, verbose=False))
+            # evaluation = evaluate(y_true=y_testCV, y_pred=self.predict(x=x_testCV))
+            # cv_l = evaluation["f1_score"]
 
             cv_loss.append(cv_l)
             d_loss.append(d_l)
@@ -261,6 +296,53 @@ class Cgan(object):
         plt.show()
         plt.close()
         return True
+
+    def save_model(self, location="models/", model_name="test1.0"):
+        # generator
+        generator_json = self.generator.to_json()
+        generator_path = location + model_name + "GENERATOR"
+        with open(generator_path + ".json", "w") as json_file:
+            json_file.write(generator_json)
+        self.generator.save_weights(generator_path + ".h5")
+        print("Saved generator to disk")
+        # discriminator
+        discriminator_json = self.discriminator.to_json()
+        discriminator_path = location + model_name + "DISCRIMINATOR"
+        with open(discriminator_path + ".json", "w") as json_file:
+            json_file.write(discriminator_json)
+        self.discriminator.save_weights(discriminator_path + ".h5")
+        print("Saved discriminator to disk")
+        return True
+
+    def load_model(self, location, model_name):
+        # generator
+        generator_path = location + model_name + "GENERATOR"
+        generator_file = open(generator_path + ".json", 'r')
+        generator_file = open(generator_path + ".json", 'r')
+        loaded_model_json = generator_file.read()
+        generator_file.close()
+        self.generator = model_from_json(loaded_model_json)
+        # load weights into new model
+        self.generator.load_weights(generator_path + ".h5")
+        if self.verbose:
+            print("Loaded GENERATOR from disk")
+        # discriminator
+        discriminator_path = location + model_name + "DISCRIMINATOR"
+        discriminator_file = open(discriminator_path + ".json", 'r')
+        loaded_model_json = discriminator_file.read()
+        discriminator_file.close()
+        self.discriminator = model_from_json(loaded_model_json)
+        # load weights into new model
+        self.discriminator.load_weights(discriminator_path + ".h5")
+        if self.verbose:
+            print("Loaded DISCRIMINATOR from disk")
+
+        self.discriminator.compile(loss='binary_crossentropy',
+                                   optimizer=self.optimizer)
+        self.build_combined()
+        if self.verbose:
+            print("MODEL COMPILED")
+
 
 
 

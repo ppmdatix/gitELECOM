@@ -9,9 +9,9 @@ from loading.loadingKDD import loadingKDD
 def load_data(attack_mode=None, nrows=10000000, attack=None, verbose=True, shuffle=False):
 
     # DATA
-    x_train, y_train, cat_col = loadingKDD(nrows=nrows, attack_mode=attack_mode,
+    x_train, y_train, cat_col, _ = loadingKDD(nrows=nrows, attack_mode=attack_mode,
                                            attack=attack, force_cat_col=None)
-    x_test, y_test, _ = loadingKDD(nrows=nrows,
+    x_test, y_test, _, _ = loadingKDD(nrows=nrows,
                                    attack_mode=attack_mode, attack=attack,
                                    path="/home/peseux/Desktop/gitELECOM/NSL-KDD/KDDTest+.txt",
                                    force_cat_col=cat_col)
