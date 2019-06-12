@@ -14,7 +14,7 @@ import numpy as np
 from evaluation.evaluation import evaluate
 
 import sys
-#sys_path = "/Users/ppx/Desktop/gitELECOM/IDSGAN"
+# sys_path = "/Users/ppx/Desktop/gitELECOM/IDSGAN"
 sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
 sys.path.insert(0, sys_path)
 from dense_spectral_normalisation import DenseSN
@@ -22,44 +22,7 @@ from dense_spectral_normalisation import DenseSN
 sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 sys.path.insert(0, sys_path)
 from weight_clipping import WeightClip
-
-
-def zero_or_one(x):
-    if x < .5:
-        return 0
-    else:
-        return 1
-
-
-def false_or_true(x):
-    if x[0] < .5 and x[1] < .5:
-        return 0
-    elif x[0] > x[1]:
-        return 0
-    elif x[0] == x[1]:
-        print("FUCK")
-        return 1
-    else:
-        return 1
-
-
-def proba_choice(x):
-    if x[0] > x[1]:
-        return 1 - x[0]
-    elif x[0] == x[1]:
-        print("FUCK")
-        return 1
-    else:
-        return x[1]
-
-
-def past_labeling(traffics, lab):
-    output = []
-    size = len(lab)
-    for i in range(size):
-        label = lab[i]
-        output.append(traffics[str(int(label))][i])
-    return np.array(output)
+from utils_cgan import zero_or_one, false_or_true, proba_choice, past_labeling
 
 
 def switching_gans(list_of_gans):
@@ -86,13 +49,15 @@ class Cgan(object):
                  dropout=.4, spectral_normalisation=False,
                  weight_clipping=False,
                  weight_clip=1,
-                 verbose=False):
+                 verbose=False,
+                 activation="tanh"):
         # Input shape
         self.data_dim = data_dim
         self.num_classes = num_classes
         self.latent_dim = latent_dim
         self.batch_size = batch_size
         self.verbose = verbose
+        self.activation = activation
         self.optimizer = Adam(0.0002, 0.5)
         if self.verbose:
             print("CHOSEN OPTIMIZER IS ADAM")
@@ -125,26 +90,26 @@ class Cgan(object):
         else:
             dense = Dense
         if self.weight_clipping:
-            W_constraint = WeightClip(self.weight_clip)
+            kernel_constraint = WeightClip(self.weight_clip)
         else:
-            W_constraint = None
+            kernel_constraint = None
 
         model = Sequential()
 
         model.add(dense(12, input_dim=self.latent_dim,
                         kernel_initializer=initializers.RandomNormal(stddev=0.02),
-                        W_constraint=W_constraint))
+                        W_constraint=kernel_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(BatchNormalization(momentum=0.8))
         model.add(dense(18,
                         kernel_initializer=initializers.RandomNormal(stddev=0.02),
-                        W_constraint=W_constraint))
+                        W_constraint=kernel_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(BatchNormalization(momentum=0.8))
         model.add(dense(self.data_dim,
                         kernel_initializer=initializers.RandomNormal(stddev=0.02),
-                        W_constraint=W_constraint,
-                        activation='tanh'))
+                        W_constraint=kernel_constraint,
+                        activation=self.activation))
         if self.verbose:
             print("\n \n Generator Architecture ")
             model.summary()
@@ -163,23 +128,23 @@ class Cgan(object):
         else:
             dense = Dense
         if self.weight_clipping:
-            W_constraint = WeightClip(self.weight_clip)
+            kernel_constraint = WeightClip(self.weight_clip)
         else:
-            W_constraint = None
+            kernel_constraint = None
 
         model = Sequential()
 
-        model.add(dense(18, input_dim=np.prod(self.data_dim), W_constraint=W_constraint))
+        model.add(dense(18, input_dim=np.prod(self.data_dim), kernel_constraint=kernel_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
-        model.add(dense(12,W_constraint=W_constraint))
+        model.add(dense(12, kernel_constraint=kernel_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(Dropout(self.dropout))
-        model.add(dense(10,W_constraint=W_constraint))
+        model.add(dense(10, kernel_constraint=kernel_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(Dropout(self.dropout))
         model.add(dense(1,
-                        W_constraint=W_constraint,
-                        activation='sigmoid'))
+                        kernel_constraint=kernel_constraint,
+                        activation=self.activation))
 
         traffic = Input(shape=(self.data_dim,))
         label = Input(shape=(1,), dtype='int32')
@@ -218,7 +183,7 @@ class Cgan(object):
         :return: cv_loss, d_loss, g_loss
         """
         cv_loss, d_loss, g_loss = list(), list(), list()
-        x_trainCV, x_testCV, y_trainCV, y_testCV = train_test_split(x_train, y_train, test_size=cv_size)
+        x_train_cv, x_test_cv, y_train_cv, y_test_cv = train_test_split(x_train, y_train, test_size=cv_size)
 
         # Adversarial ground truths
         valid = np.ones((self.batch_size, 1))
@@ -233,8 +198,8 @@ class Cgan(object):
 
             #  Train Discriminator
             # Select a random half batch of images
-            idx = np.random.randint(0, x_trainCV.shape[0], self.batch_size)
-            real_traffic, labels = x_trainCV[idx], y_trainCV[idx]
+            idx = np.random.randint(0, x_train_cv.shape[0], self.batch_size)
+            real_traffic, labels = x_train_cv[idx], y_train_cv[idx]
             if np.random.random() > show_past_p:
                 generated_traffic = past_labeling(traffics=self.past_images,
                                                   lab=labels)
@@ -248,9 +213,9 @@ class Cgan(object):
             # Condition on labels
             sampled_labels = np.random.randint(0, self.num_classes, self.batch_size).reshape(-1, 1)
             g_l = self.combined.train_on_batch([noise, sampled_labels], valid)
-            ones = np.ones((x_testCV.shape[0], 1))
-            cv_l = np.mean(self.discriminator.evaluate(x=[x_testCV, y_testCV], y=ones, verbose=False))
-            # evaluation = evaluate(y_true=y_testCV, y_pred=self.predict(x=x_testCV))
+            ones = np.ones((x_test_cv.shape[0], 1))
+            cv_l = np.mean(self.discriminator.evaluate(x=[x_test_cv, y_test_cv], y=ones, verbose=False))
+            # evaluation = evaluate(y_true=y_test_cv, y_pred=self.predict(x=x_test_cv))
             # cv_l = evaluation["f1_score"]
 
             cv_loss.append(cv_l)
@@ -318,7 +283,6 @@ class Cgan(object):
         # generator
         generator_path = location + model_name + "GENERATOR"
         generator_file = open(generator_path + ".json", 'r')
-        generator_file = open(generator_path + ".json", 'r')
         loaded_model_json = generator_file.read()
         generator_file.close()
         self.generator = model_from_json(loaded_model_json)
@@ -342,9 +306,3 @@ class Cgan(object):
         self.build_combined()
         if self.verbose:
             print("MODEL COMPILED")
-
-
-
-
-
-

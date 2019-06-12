@@ -7,7 +7,7 @@ from load_data.load_data import load_data
 
 # Parameters
 attack_mode = None
-epochs = 30
+epochs = 32
 number_of_gans = 6
 number_of_switch = 6
 
