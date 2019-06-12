@@ -31,6 +31,7 @@ def train_gan(disc, gen, gan, x_train,
     past_images = generateImages(generator=gen, examples=batch_size, randomDim=randomDim, reshape=False)
 
     for e in tqdm(range(1, epochs+1)):
+        # for e in range(1, epochs+1):
         dloss, gloss, hurting = 0., 0., 0.
         for _ in (range(batch_count)):
             image_batch = x_train[np.random.randint(0, x_train.shape[0], size=batch_size)].reshape((batch_size, 28 * 28))
@@ -45,16 +46,17 @@ def train_gan(disc, gen, gan, x_train,
             hurting += np.mean([hurt(gi) for gi in generated_images])
             X = np.concatenate([image_batch, generated_images])
             yDis = np.zeros(2 * batch_size)
-            yDis[:batch_size] = 0.9
+            yDis[:batch_size] = 1.
             disc.trainable = True
             dloss += disc.train_on_batch(X, yDis)
             yGen = np.ones(batch_size)
             disc.trainable = False
             gloss += gan.train_on_batch(noise, yGen)
-
-        if dloss < d_loss_limit and e > epochs/10:
+        """
+        if (dloss/ batch_count) < d_loss_limit and e > epochs/50:
             to_be_trusted = False
             break
+        """
 
         dL.append(dloss / batch_count)
         gL.append(gloss / batch_count)

@@ -1,4 +1,5 @@
 from keras import backend as K
+import numpy as np
 
 
 def hurting(image):
@@ -57,13 +58,13 @@ def custom_loss_discriminator(loss_base="Goodfellow"):
 
     if loss_base == "Goodfellow":
         def loss_function_base(y_true, y_pred):
-            return K.mean(- K.log((1-y_true) + (2*y_true - 1)*y_pred))
+            return K.mean(- y_true * K.log(y_pred) + (1-y_true)* K.log(1-y_pred))
     elif loss_base == "Wasserstein":
         def loss_function_base(y_true, y_pred):
-            return K.mean(- y_pred * (2*y_true - 1))
+            return - K.mean(y_true * K.minimum(0., -1. + y_pred) + (1-y_true) * K.minimum(0., -1. - y_pred))
     elif loss_base == "Pearson":
         def loss_function_base(y_true, y_pred):
-            return K.mean((1 - 2*y_true) * K.pow(y_pred-y_true, 2))
+            return K.mean(- y_true * K.pow(y_pred - 1, 2) + (1-y_true) * K.pow(y_pred, 2))
 
     def lossFunction(y_pred, y_true):
         L = loss_function_base(y_true, y_pred)

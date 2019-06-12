@@ -18,7 +18,7 @@ epochs = 100
 randomDim = 50
 batchSize = 128
 examples = 100
-cases = load_cases(loss_bases=["Wasserstein", "Goodfellow", "Pearson"],)
+cases = load_cases(loss_bases=["Pearson", "Goodfellow", "Wasserstein"],)
 for case in cases:
     print(case)
     save_name = load_save_name(case)

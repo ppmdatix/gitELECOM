@@ -5,6 +5,7 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.optimizers import Adam
 from keras import initializers
 from losses.losses import custom_loss, custom_loss_discriminator
+from weight_clipping import WeightClip
 
 
 def load_gan(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=1, sqrt=1, loss_base="Goodfellow"):
@@ -14,27 +15,43 @@ def load_gan(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=
 
     adam = Adam(lr=0.0002, beta_1=0.5)
 
+    if loss_base == "Wasserstein":
+        W_constraint = WeightClip(1)
+    else:
+        W_constraint = None
     generator = Sequential()
-    generator.add(Dense(256, input_dim=randomDim, kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+    generator.add(Dense(256, input_dim=randomDim,
+                        kernel_initializer=initializers.RandomNormal(stddev=0.02),
+                        W_constraint=W_constraint))
     generator.add(LeakyReLU(0.2))
-    generator.add(Dense(512))
+    generator.add(Dense(512,
+                        W_constraint=W_constraint))
     generator.add(LeakyReLU(0.2))
-    generator.add(Dense(1024))
+    generator.add(Dense(1024,
+                        W_constraint=W_constraint))
     generator.add(LeakyReLU(0.2))
-    generator.add(Dense(784, activation='tanh'))
+    generator.add(Dense(784,
+                        W_constraint=W_constraint,
+                        activation='tanh'))
     generator.compile(loss="binary_crossentropy", optimizer=adam)
 
     discriminator = Sequential()
-    discriminator.add(Dense(1024, input_dim=784, kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+    discriminator.add(Dense(1024, input_dim=784,
+                            kernel_initializer=initializers.RandomNormal(stddev=0.02),
+                            W_constraint=W_constraint))
     discriminator.add(LeakyReLU(0.2))
     discriminator.add(Dropout(0.3))
-    discriminator.add(Dense(512))
+    discriminator.add(Dense(512,
+                            W_constraint=W_constraint))
     discriminator.add(LeakyReLU(0.2))
     discriminator.add(Dropout(0.3))
-    discriminator.add(Dense(256))
+    discriminator.add(Dense(256,
+                            W_constraint=W_constraint))
     discriminator.add(LeakyReLU(0.2))
     discriminator.add(Dropout(0.3))
-    discriminator.add(Dense(1, activation='sigmoid'))
+    discriminator.add(Dense(1,
+                            activation='sigmoid',
+                            W_constraint=W_constraint))
     discriminator_loss = custom_loss_discriminator(loss_base=loss_base)
     discriminator.compile(loss=discriminator_loss, optimizer=adam)
 
