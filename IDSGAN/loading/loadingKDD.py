@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from config import Numerical_columns, Columns, Data_path, File_name, Nrows, Attack
 from sklearn.preprocessing import MinMaxScaler
 
@@ -12,6 +13,10 @@ def turn_attack(x):
 
 def turn_attack_label(x, liste):
     return liste.index(liste)
+
+
+def logplus1(x):
+    return np.log(x+1)
 
 
 def loadingKDD(path=Data_path+File_name, nrows=Nrows, attack_mode=True,
@@ -35,13 +40,16 @@ def loadingKDD(path=Data_path+File_name, nrows=Nrows, attack_mode=True,
     else:
         df = df[df.attack_type == "normal"]
     df.attack_type = df.attack_type.apply(turn_attack)
+    for col in numerical_columns:
+        df[col] = df[col].apply(logplus1)
+
     nc = numerical_columns + ["land", "logged_in",
                               "root_shell",
-                              "is_host_login", "is_guest_login"]
+                              "is_host_login", "is_guest_login", "su_attempted"]
     df_numerical = df[nc]
     df_numerical.reset_index(drop=True, inplace=True)
 
-    categorical_columns = ["protocol_type", "flag", "service", "su_attempted"]
+    categorical_columns = ["protocol_type", "flag", "service"]
     df_one_hot_encoding = df[categorical_columns]
     df_one_hot_encoding = pd.get_dummies(df_one_hot_encoding)
     df_one_hot_encoding.reset_index(drop=True, inplace=True)
@@ -61,4 +69,5 @@ def loadingKDD(path=Data_path+File_name, nrows=Nrows, attack_mode=True,
 
     X = df_scaled * 2 - 1
     Y = df.attack_type.values
-    return X, Y, cat_col
+    colnames = nc + cat_col
+    return X, Y, cat_col, colnames
