@@ -2,13 +2,15 @@ from copy import deepcopy as deepcopy
 
 
 def load_cases(link_modes=["alpha", "exp", "pow", "sum"],
-               loss_bases=["Goodfellow", "Wasserstein", "Pearson"],
-               alphas=[1.,2.,3.,5.,10.],
-               offsets=[0.,1.,5.,7.5,10.],
+               loss_bases=None,
+               alphas=[1.,2.,3.,10.],
+               offsets=[0.,1.,7.5,10.],
                powers=[1,2,10],
-               mults=[1.,2.,10.],
-               sqrts=[1,2,3]):
+               mults=[1.,2.],
+               sqrts=[1,3]):
 
+    if loss_bases is None:
+        loss_bases = ["Goodfellow", "Wasserstein", "Pearson"]
     output = list()
     dico = {"link_mode": None,
             "loss_base": None,

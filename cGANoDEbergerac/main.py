@@ -8,9 +8,9 @@ from load_data.load_data import load_data
 
 # Parameters
 attack_mode = None
-epochs = 16
-number_of_gans = 10
-number_of_switch = 8
+epochs = 32
+number_of_gans = 6
+number_of_switch = 6
 
 # DATA
 x_train, x_train_cv, y_train, y_train_cv, x_balanced_train, y_balanced_train, x_test, y_test = load_data(cv_size=.05)
@@ -33,9 +33,7 @@ for i in range(number_of_gans):
     generators.append(cgans[i].generator)
     discriminators.append(cgans[i].discriminator)
 
-
-
-cgans = learning(cgans=cgans, x=x_train, y=y_train, x_cv=x_train_cv,
+cgans = learning(cgans=cgans, x=x_balanced_train, y=y_balanced_train, x_cv=x_train_cv,
                  y_cv=y_train_cv, number_of_gans=number_of_gans,
                  epochs=epochs, switches=2)
 
