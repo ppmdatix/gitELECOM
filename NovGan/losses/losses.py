@@ -45,7 +45,7 @@ def custom_loss(intermediate_output,
                           mult=mult,
                           sqrt=sqrt,)
 
-    def lossFunction(y_pred, y_true):
+    def lossFunction(y_true, y_pred):
         l = loss_function_base(y_pred)
         l_bis = hurting(intermediate_output)
         loss = link_f(l=l, l_bis=l_bis)
@@ -58,15 +58,15 @@ def custom_loss_discriminator(loss_base="Goodfellow"):
 
     if loss_base == "Goodfellow":
         def loss_function_base(y_true, y_pred):
-            return K.mean(- y_true * K.log(y_pred) + (1-y_true)* K.log(1-y_pred))
+            return -y_true*K.log(y_pred) - (1-y_true)*K.log(1-y_pred)
     elif loss_base == "Wasserstein":
         def loss_function_base(y_true, y_pred):
-            return - K.mean(y_true * K.minimum(0., -1. + y_pred) + (1-y_true) * K.minimum(0., -1. - y_pred))
+            return - y_true * K.minimum(0., -1. + y_pred) + (1-y_true) * K.minimum(0., -1. - y_pred)
     elif loss_base == "Pearson":
         def loss_function_base(y_true, y_pred):
-            return K.mean(- y_true * K.pow(y_pred - 1, 2) + (1-y_true) * K.pow(y_pred, 2))
+            return - y_true * K.pow(y_pred - 1, 2) + (1-y_true) * K.pow(y_pred, 2)
 
-    def lossFunction(y_pred, y_true):
+    def lossFunction(y_true, y_pred):
         L = loss_function_base(y_true, y_pred)
         return L
 
