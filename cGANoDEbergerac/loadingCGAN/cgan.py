@@ -14,12 +14,13 @@ import numpy as np
 from evaluation.evaluation import evaluate
 
 import sys
-# sys_path = "/Users/ppx/Desktop/gitELECOM/IDSGAN"
-sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
+sys_path = "/Users/ppx/Desktop/gitELECOM/spectralNormalisation"
+# sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
 sys.path.insert(0, sys_path)
 from dense_spectral_normalisation import DenseSN
 
-sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
+# sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
+sys_path = "/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 sys.path.insert(0, sys_path)
 from weight_clipping import WeightClip
 from utils_cgan import zero_or_one, false_or_true, proba_choice, past_labeling

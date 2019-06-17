@@ -13,7 +13,8 @@ number_of_gans = 6
 number_of_switch = 6
 
 # DATA
-x_train, x_train_cv, y_train, y_train_cv, x_balanced_train, y_balanced_train, x_test, y_test = load_data(cv_size=.05)
+x_train, x_train_cv, y_train, y_train_cv, x_balanced_train, y_balanced_train, x_test, y_test = load_data(place="home",
+                                                                                                         cv_size=.1)
 data_dim = x_train.shape[1]
 print("\n  \n \n "*2)
 print("Train data shape is {}".format(x_balanced_train.shape))
