@@ -36,11 +36,11 @@ def switching_gans(list_of_gans):
         generators.append(list_of_gans[i].generator)
         discriminators.append(list_of_gans[i].discriminator)
     for i in range(length):
-        list_of_gans[i].generator = generators[sigma[i]]
+        # list_of_gans[i].generator = generators[sigma[i]]
         list_of_gans[i].discriminator = discriminators[sigma[i]]
         list_of_gans[i].build_combined()
     print("GANs switched")
-    return True
+    return sigma
 
 
 class Cgan(object):
@@ -184,7 +184,7 @@ class Cgan(object):
         """
         cv_loss, d_loss, g_loss = list(), list(), list()
         x_train_cv, x_test_cv, y_train_cv, y_test_cv = train_test_split(x_train, y_train, test_size=cv_size)
-
+        ones = np.ones((x_test_cv.shape[0], 1))
         # Adversarial ground truths
         valid = np.ones((self.batch_size, 1))
         fake = np.zeros((self.batch_size, 1))
@@ -213,7 +213,7 @@ class Cgan(object):
             # Condition on labels
             sampled_labels = np.random.randint(0, self.num_classes, self.batch_size).reshape(-1, 1)
             g_l = self.combined.train_on_batch([noise, sampled_labels], valid)
-            ones = np.ones((x_test_cv.shape[0], 1))
+
             cv_l = np.mean(self.discriminator.evaluate(x=[x_test_cv, y_test_cv], y=ones, verbose=False))
             # evaluation = evaluate(y_true=y_test_cv, y_pred=self.predict(x=x_test_cv))
             # cv_l = evaluation["f1_score"]
@@ -233,6 +233,30 @@ class Cgan(object):
         self.history["d_loss"] = self.history["d_loss"] + d_loss
         self.history["g_loss"] = self.history["g_loss"] + g_loss
         return cv_loss, d_loss, g_loss
+
+    def evaluate(self, x, y, batch_size=None):
+        """
+
+        :param x:
+        :param y:
+        :param batch_size:
+        :return: d_l, g_l
+        """
+        if batch_size is None:
+            batch_size = self.batch_size
+        idx = np.random.randint(0, x.shape[0], batch_size)
+        real_traffic, labels = x[idx], y[idx]
+        generated_traffic = self.generate(number=batch_size, labels=labels)
+        noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
+        ones = np.ones((batch_size, 1))
+        zeros = np.zeros((batch_size, 1))
+        d_loss_real = np.mean(self.discriminator.evaluate(x=[real_traffic, labels], y=ones))
+        d_loss_fake = np.mean(self.discriminator.evaluate(x=[generated_traffic, labels], y=zeros))
+        d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
+        sampled_labels = np.random.randint(0, self.num_classes, batch_size).reshape(-1, 1)
+        valid = np.ones((batch_size, 1))
+        g_l = self.combined.evaluate(x=[noise, sampled_labels], y=valid)
+        return float(d_l), float(g_l)
 
     def return_models(self):
         return self.generator, self.discriminator, self.combined

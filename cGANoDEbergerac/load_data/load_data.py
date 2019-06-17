@@ -1,12 +1,14 @@
 import numpy as np
 import sys
+from sklearn.model_selection import train_test_split
 #sys_path = "/Users/ppx/Desktop/gitELECOM/IDSGAN"
 sys_path = "/home/peseux/Desktop/gitELECOM/IDSGAN/"
 sys.path.insert(0, sys_path)
 from loading.loadingKDD import loadingKDD
 
 
-def load_data(attack_mode=None, nrows=10000000, attack=None, verbose=True, shuffle=False):
+
+def load_data(attack_mode=None, nrows=10000000, attack=None, verbose=True, shuffle=False, cv_size=0.):
 
     # DATA
     x_train, y_train, cat_col, _ = loadingKDD(nrows=nrows, attack_mode=attack_mode,
@@ -38,5 +40,9 @@ def load_data(attack_mode=None, nrows=10000000, attack=None, verbose=True, shuff
     if verbose:
         print("Train data shape is " + str(x_train.shape))
         print("Test data shape is " + str(x_test.shape))
+    if cv_size == 0.:
+        return x_train, y_train, x_balanced_train, y_balanced_train, x_test, y_test
+    else:
+        x_train, x_train_cv, y_train, y_train_cv = train_test_split(x_train, y_train, test_size=cv_size)
 
-    return x_train, y_train, x_balanced_train, y_balanced_train, x_test, y_test
+        return x_train, x_train_cv, y_train, y_train_cv, x_balanced_train, y_balanced_train, x_test, y_test
