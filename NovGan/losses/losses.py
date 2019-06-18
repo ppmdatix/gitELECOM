@@ -33,7 +33,7 @@ def custom_loss(intermediate_output,
             return - K.log(K.maximum(y, 1e-9))
     elif loss_base == "Wasserstein":
         def loss_function_base(y):
-            return - y
+            return 1 - y
     elif loss_base == "Pearson":
         def loss_function_base(y):
             return K.pow(y-1, 2)
@@ -61,7 +61,8 @@ def custom_loss_discriminator(loss_base="Goodfellow"):
             return -y_true*K.log(K.maximum(y_pred, 1e-9)) - (1-y_true)*K.log(K.maximum(1-y_pred, 1e-9))
     elif loss_base == "Wasserstein":
         def loss_function_base(y_true, y_pred):
-            return - y_true * K.minimum(0., -1. + y_pred) + (1-y_true) * K.minimum(0., -1. - y_pred)
+            # return - y_true * K.minimum(0., -1. + y_pred) + (1-y_true) * K.minimum(0., -1. - y_pred)
+            return K.mean(1 + ((2 * y_true - 1) * y_pred))
     elif loss_base == "Pearson":
         def loss_function_base(y_true, y_pred):
             return - y_true * K.pow(y_pred - 1, 2) + (1-y_true) * K.pow(y_pred, 2)

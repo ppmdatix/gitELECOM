@@ -3,8 +3,8 @@ from copy import deepcopy as deepcopy
 
 def load_cases(link_modes=["alpha", "exp", "pow", "sum"],
                loss_bases=None,
-               alphas=[1.,2.,3.,10.],
-               offsets=[0.,1.,7.5,10.],
+               alphas=[1.,2.,10.],
+               offsets=[0.,1.,7.5],
                powers=[1,2,10],
                mults=[1.,2.],
                sqrts=[1,3]):

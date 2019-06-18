@@ -24,14 +24,15 @@ def loadingKDD(path=None, nrows=Nrows, attack_mode=True,
                force_cat_col=None,
                place="home",
                data_path_home=Data_path_home,
-               data_path_work=Data_path_work):
+               data_path_work=Data_path_work,
+               log_transform=True):
+    assert (place is None) or place in ["work", "home"], "place argument should be None work or home"
     if place == "home":
         path = data_path_home + File_name
     elif place == "work":
-        place == data_path_work + File_name
+        path = data_path_work + File_name
 
     df = pd.read_csv(path, names=columns, nrows=nrows)
-
 
     list_of_attacks = list(set(list(df.attack_type)))
     if attack_mode is None:
@@ -47,8 +48,9 @@ def loadingKDD(path=None, nrows=Nrows, attack_mode=True,
     else:
         df = df[df.attack_type == "normal"]
     df.attack_type = df.attack_type.apply(turn_attack)
-    for col in numerical_columns:
-        df[col] = df[col].apply(logplus1)
+    if log_transform:
+        for col in numerical_columns:
+            df[col] = df[col].apply(logplus1)
 
     nc = numerical_columns + ["land", "logged_in",
                               "root_shell",
@@ -75,13 +77,11 @@ def loadingKDD(path=None, nrows=Nrows, attack_mode=True,
             cat_col = df_one_hot_encoding.columns.to_list()
         except:
             cat_col = df_one_hot_encoding.columns.tolist()
-
-
     scaler = MinMaxScaler()
     df_to_scale = pd.merge(df_numerical, df_one_hot_encoding, left_index=True, right_index=True)
     df_scaled = scaler.fit_transform(df_to_scale)
 
-    X = df_scaled * 2 - 1
-    Y = df.attack_type.values
+    x_data = df_scaled * 2 - 1
+    y_data = df.attack_type.values
     colnames = nc + cat_col
-    return X, Y, cat_col, colnames
+    return x_data, y_data, cat_col, colnames

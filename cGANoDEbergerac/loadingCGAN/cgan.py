@@ -14,13 +14,13 @@ import numpy as np
 from evaluation.evaluation import evaluate
 
 import sys
-sys_path = "/Users/ppx/Desktop/gitELECOM/spectralNormalisation"
-# sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
+# sys_path = "/Users/ppx/Desktop/gitELECOM/spectralNormalisation"
+sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
 sys.path.insert(0, sys_path)
 from dense_spectral_normalisation import DenseSN
 
-# sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
-sys_path = "/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
+sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
+# sys_path = "/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 sys.path.insert(0, sys_path)
 from weight_clipping import WeightClip
 from utils_cgan import zero_or_one, false_or_true, proba_choice, past_labeling
@@ -41,7 +41,7 @@ def switching_gans(list_of_gans):
         list_of_gans[i].discriminator = discriminators[sigma[i]]
         list_of_gans[i].build_combined()
     print("GANs switched")
-    return sigma
+    return list_of_gans, sigma
 
 
 class Cgan(object):
@@ -235,9 +235,9 @@ class Cgan(object):
         self.history["g_loss"] = self.history["g_loss"] + g_loss
         return cv_loss, d_loss, g_loss
 
-    def evaluate(self, x, y, batch_size=None):
+    def evaluate(self, x, y, batch_size=None, mode_d_loss=True):
         """
-
+        :param mode_d_loss:
         :param x:
         :param y:
         :param batch_size:
@@ -251,9 +251,16 @@ class Cgan(object):
         noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
         ones = np.ones((batch_size, 1))
         zeros = np.zeros((batch_size, 1))
-        d_loss_real = np.mean(self.discriminator.evaluate(x=[real_traffic, labels], y=ones))
-        d_loss_fake = np.mean(self.discriminator.evaluate(x=[generated_traffic, labels], y=zeros))
-        d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
+        if mode_d_loss:
+            d_loss_real = np.mean(self.discriminator.evaluate(x=[real_traffic, labels], y=ones))
+            d_loss_fake = np.mean(self.discriminator.evaluate(x=[generated_traffic, labels], y=zeros))
+            d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
+        else:
+            y_pred_one = self.discriminator.predict(x=[real_traffic, labels])
+            y_pred_zero = self.discriminator.predict(x=[generated_traffic, labels])
+            eval_one, eval_zero = evaluate(y_true=ones, y_pred=y_pred_one), evaluate(y_true=zeros, y_pred=y_pred_zero)
+            d_l = - (eval_one["recall"] + eval_zero["f1_score"]) / 2
+
         sampled_labels = np.random.randint(0, self.num_classes, batch_size).reshape(-1, 1)
         valid = np.ones((batch_size, 1))
         g_l = self.combined.evaluate(x=[noise, sampled_labels], y=valid)
