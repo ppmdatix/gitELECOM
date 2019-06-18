@@ -51,7 +51,7 @@ class Cgan(object):
                  weight_clipping=False,
                  weight_clip=1,
                  verbose=False,
-                 activation="tanh"):
+                 activation="sigmoid"):
         # Input shape
         self.data_dim = data_dim
         self.num_classes = num_classes
@@ -101,8 +101,9 @@ class Cgan(object):
                         kernel_initializer=initializers.RandomNormal(stddev=0.02),
                         W_constraint=kernel_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
-        model.add(BatchNormalization(momentum=0.8))
-        model.add(dense(18,
+        model.add(Dropout(self.dropout))
+        # model.add(BatchNormalization(momentum=0.8))
+        model.add(dense(64,
                         kernel_initializer=initializers.RandomNormal(stddev=0.02),
                         W_constraint=kernel_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
@@ -258,7 +259,8 @@ class Cgan(object):
         else:
             y_pred_one = self.discriminator.predict(x=[real_traffic, labels])
             y_pred_zero = self.discriminator.predict(x=[generated_traffic, labels])
-            eval_one, eval_zero = evaluate(y_true=ones, y_pred=y_pred_one), evaluate(y_true=zeros, y_pred=y_pred_zero)
+            eval_one, eval_zero = evaluate(y_true=ones, y_pred=[int(y) for y in y_pred_one]), \
+                                  evaluate(y_true=zeros, y_pred=[int(y) for y in y_pred_zero])
             d_l = - (eval_one["recall"] + eval_zero["f1_score"]) / 2
 
         sampled_labels = np.random.randint(0, self.num_classes, batch_size).reshape(-1, 1)

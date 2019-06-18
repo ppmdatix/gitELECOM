@@ -15,7 +15,7 @@ def generateImages(generator,
 
 
 def hurt(image):
-    return np.mean(np.mean((( image + 1)/2)))
+    return np.mean(np.mean(((image + 1)/2)))
 
 
 def train_gan(disc, gen, gan, x_train,
@@ -44,14 +44,20 @@ def train_gan(disc, gen, gan, x_train,
             else:
                 generated_images = gen.predict(noise)
             hurting += np.mean([hurt(gi) for gi in generated_images])
+
             X = np.concatenate([image_batch, generated_images])
-            yDis = np.zeros(2 * batch_size)
-            yDis[:batch_size] = 1.
+
+            error = False
+            if error:
+                X = np.concatenate([generated_images, image_batch])
+
+            y_for_discriminator = np.zeros(2 * batch_size)
+            y_for_discriminator[:batch_size] = 0.95
             disc.trainable = True
-            dloss += disc.train_on_batch(X, yDis)
-            yGen = np.ones(batch_size)
+            dloss += disc.train_on_batch(X, y_for_discriminator)
             disc.trainable = False
-            gloss += gan.train_on_batch(noise, yGen)
+            y_for_generator = np.ones(batch_size)
+            gloss += gan.train_on_batch(noise, y_for_generator)
         """
         if (dloss/ batch_count) < d_loss_limit and e > epochs/50:
             to_be_trusted = False

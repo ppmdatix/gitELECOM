@@ -3,7 +3,9 @@ import numpy as np
 from keras.losses import binary_crossentropy
 
 
-def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs, switches=2, print_mode=False, mode_d_loss=False):
+def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
+             switches=2, print_mode=False, mode_d_loss=False,
+             reload_images_p=.8, show_past_p=.9):
 
     while number_of_gans > 1:
         cv_losses, d_losses, g_losses = list(), list(), list()
@@ -13,8 +15,8 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs, switches=2, print_
                                                  y_train=y,
                                                  epochs=epochs,
                                                  print_recap=False,
-                                                 reload_images_p=.99,
-                                                 show_past_p=.95)
+                                                 reload_images_p=reload_images_p,
+                                                 show_past_p=show_past_p)
             cv_losses.append(np.mean(cv_loss))
             d_losses.append(np.mean(d_loss))
             g_losses.append(np.mean(g_loss))
@@ -38,5 +40,4 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs, switches=2, print_
             cgans[g_to_delete].plot_learning()
         del cgans[g_to_delete]
         number_of_gans += -1
-        cgans, _ = switching_gans(cgans)
     return cgans

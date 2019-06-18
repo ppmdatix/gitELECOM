@@ -8,7 +8,8 @@ from losses.losses import custom_loss, custom_loss_discriminator
 from weight_clipping import WeightClip
 
 
-def load_gan(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=1, sqrt=1, loss_base="Goodfellow"):
+def load_gan(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=1, sqrt=1, loss_base="Goodfellow",
+             activation="tanh"):
     assert link_mode in ["alpha", "exp", "pow", "sum"], \
         "Loss function: " + link_mode + " not supported, please use alpha, exp, pow"
     assert loss_base in ["Goodfellow", "Wasserstein", "Pearson"], "This loss: " + loss_base + " is not supported"
@@ -32,7 +33,7 @@ def load_gan(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=
     generator.add(LeakyReLU(0.2))
     generator.add(Dense(784,
                         W_constraint=W_constraint,
-                        activation='tanh'))
+                        activation=activation))
     generator.compile(loss="binary_crossentropy", optimizer=adam)
 
     discriminator = Sequential()
@@ -50,7 +51,7 @@ def load_gan(offset=0., alpha=1, randomDim=50, link_mode="alpha", power=1, mult=
     discriminator.add(LeakyReLU(0.2))
     discriminator.add(Dropout(0.3))
     discriminator.add(Dense(1,
-                            activation='sigmoid',
+                            activation=activation,
                             W_constraint=W_constraint))
     discriminator_loss = custom_loss_discriminator(loss_base=loss_base)
     discriminator.compile(loss=discriminator_loss, optimizer=adam)
