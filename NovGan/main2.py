@@ -14,11 +14,11 @@ x_test = (x_test.astype(np.float32) - 127.5)/127.5
 x_train = x_train.reshape(60000, 784)
 x_test = x_test.reshape(10000, 784)
 
-epochs = 50
-randomDim = 16
+epochs = 100
+randomDim = 32
 batchSize = 128
 examples = 100
-cases = load_cases(loss_bases=["Wasserstein", "Goodfellow"])
+cases = load_cases(loss_bases=["Goodfellow"],alphas=[1.,2.,5.,7.5,10.],offsets=[0.,1.,2.,5.])
 
 for case in cases:
     print(case)

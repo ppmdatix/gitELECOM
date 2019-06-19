@@ -1,5 +1,4 @@
 from keras import backend as K
-import numpy as np
 
 
 def hurting(image):
@@ -9,7 +8,7 @@ def hurting(image):
 def linking_loss(link_mode, power=1, alpha=1, offset=0, mult=1, sqrt=2):
     def link(l, l_bis):
         if link_mode == "alpha":
-            return l # l * l_bis + (1 - l_bis) * (alpha * l + offset)
+            return l * l_bis + (1 - l_bis) * (alpha * l + offset)
         elif link_mode == "exp":
             return l * l_bis + (1 - l_bis) * K.exp(l)
         elif link_mode == "pow":
@@ -33,7 +32,7 @@ def custom_loss(intermediate_output,
             return - K.log(K.maximum((y+1)*.5, 1e-9))
     elif loss_base == "Wasserstein":
         def loss_function_base(y):
-            return K.maximum(0.05, K.minimum(0.95, 1 - (y+1)*.5))
+            return 1 - (y+1)*.5  # K.maximum(0.05, K.minimum(0.95, 1 - (y+1)*.5))
     elif loss_base == "Pearson":
         def loss_function_base(y):
             return K.pow((y+1)*.5-1, 2)
@@ -62,7 +61,7 @@ def custom_loss_discriminator(loss_base="Goodfellow"):
     elif loss_base == "Wasserstein":
         def loss_function_base(y_true, y_pred):
             # return - y_true * K.minimum(0., -1. + y_pred) + (1-y_true) * K.minimum(0., -1. - y_pred)
-            return (1 - (2 * y_true - 1) *y_pred) * .5
+            return (1 - (2 * y_true - 1) * y_pred) * .5
     elif loss_base == "Pearson":
         def loss_function_base(y_true, y_pred):
             return - y_true * K.pow(y_pred - 1, 2) + (1-y_true) * K.pow(y_pred, 2)
