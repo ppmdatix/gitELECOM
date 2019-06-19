@@ -4,37 +4,29 @@ from evaluation.evaluation import evaluate
 from learning import learning
 import numpy as np
 from load_data.load_data import load_data
-from utils.config import attack_mode, epochs, number_of_gans, switches, examples
-import pandas as pd
-
+from utils.config import attack_mode, epochs, number_of_gans, switches, examples, reload_images_p, show_past_p, smooth_zero, smooth_one
 
 # DATA
 x_train, x_train_cv, y_train, y_train_cv, x_balanced_train, y_balanced_train, x_test, y_test = load_data(place="work",
                                                                                                          cv_size=.1,
                                                                                                          log_transform=False)
 data_dim = x_train.shape[1]
-print("\n  \n \n "*2)
-print("Train data shape is {}".format(x_balanced_train.shape))
-print("\n  \n \n "*2)
-print(pd.DataFrame(x_train).head())
-print("\n  \n \n "*2)
-print(pd.DataFrame(y_train).head())
-print("\n  \n \n "*2)
+
 
 ########
 # CGAN #
 ########
-
-
 cgans = [Cgan(data_dim=data_dim,
               spectral_normalisation=False,
-              weight_clipping=False, verbose=True) for _ in range(number_of_gans)]
+              weight_clipping=False, verbose=True,
+              activation="sigmoid") for _ in range(number_of_gans)]
 
 
 cgans = learning(cgans=cgans, x=x_balanced_train, y=y_balanced_train, x_cv=x_train_cv,
                  y_cv=y_train_cv, number_of_gans=number_of_gans,
                  epochs=epochs, switches=switches, print_mode=False, mode_d_loss=False,
-                 reload_images_p=.85, show_past_p=.9)
+                 reload_images_p=reload_images_p, show_past_p=show_past_p,
+                 smooth_zero=smooth_zero, smooth_one=smooth_one)
 
 
 cgan = cgans[0]

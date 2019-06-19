@@ -5,7 +5,7 @@ from keras.losses import binary_crossentropy
 
 def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
              switches=2, print_mode=False, mode_d_loss=False,
-             reload_images_p=.8, show_past_p=.9):
+             reload_images_p=.9, show_past_p=.9, smooth_zero=.1, smooth_one=.9):
 
     while number_of_gans > 1:
         cv_losses, d_losses, g_losses = list(), list(), list()
@@ -16,7 +16,9 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
                                                  epochs=epochs,
                                                  print_recap=False,
                                                  reload_images_p=reload_images_p,
-                                                 show_past_p=show_past_p)
+                                                 show_past_p=show_past_p,
+                                                 smooth_zero=smooth_zero,
+                                                 smooth_one=smooth_one)
             cv_losses.append(np.mean(cv_loss))
             d_losses.append(np.mean(d_loss))
             g_losses.append(np.mean(g_loss))

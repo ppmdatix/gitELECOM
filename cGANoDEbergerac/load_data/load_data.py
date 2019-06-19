@@ -1,13 +1,16 @@
 import numpy as np
 import sys
 from sklearn.model_selection import train_test_split
+import pandas as pd
 # sys_path = "/Users/ppx/Desktop/gitELECOM/NSL-KDD"
 sys_path = "/home/peseux/Desktop/gitELECOM/NSL-KDD/"
 sys.path.insert(0, sys_path)
 from loading.loadingKDD import loadingKDD
 
 
-def load_data(attack_mode=None, nrows=10000000, attack=None, verbose=True, shuffle=False, cv_size=0., place="work", log_transform=True):
+def load_data(attack_mode=None, nrows=10000000, attack=None,
+              verbose=True, shuffle=False,
+              cv_size=0., place="work", log_transform=True):
 
     # DATA
     x_train, y_train, cat_col, _ = loadingKDD(nrows=nrows, attack_mode=attack_mode,
@@ -39,6 +42,13 @@ def load_data(attack_mode=None, nrows=10000000, attack=None, verbose=True, shuff
     if verbose:
         print("Train data shape is " + str(x_train.shape))
         print("Test data shape is " + str(x_test.shape))
+        print("\n  \n \n "*2)
+        print("Train data shape is {}".format(x_balanced_train.shape))
+        print("\n  \n \n "*2)
+        print(pd.DataFrame(x_train).head())
+        print("\n  \n \n "*2)
+        print(pd.DataFrame(y_train).head())
+        print("\n  \n \n "*2)
     if cv_size == 0.:
         return x_train, y_train, x_balanced_train, y_balanced_train, x_test, y_test
     else:

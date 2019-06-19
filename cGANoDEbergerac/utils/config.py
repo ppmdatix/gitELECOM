@@ -1,5 +1,9 @@
 attack_mode = None
-epochs = 24
+epochs = 20
 number_of_gans = 6
-switches = 4
+switches = 10
 examples = 100
+reload_images_p = .95
+show_past_p = .8
+smooth_zero = .1
+smooth_one = .9

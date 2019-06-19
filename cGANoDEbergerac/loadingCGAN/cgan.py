@@ -44,6 +44,11 @@ def switching_gans(list_of_gans):
     return list_of_gans, sigma
 
 
+def smoothing_y(y_to_smooth, smooth_one, smooth_zero):
+    output = [smooth_one * y * np.random.random() + smooth_zero * (1 - y) * np.random.random() for y in y_to_smooth]
+    return output
+
+
 class Cgan(object):
     def __init__(self, data_dim=28, num_classes=2,
                  latent_dim=32, batch_size=128, leaky_relu=.02,
@@ -173,7 +178,7 @@ class Cgan(object):
         return generated_traffic
 
     def train(self, x_train, y_train, epochs, cv_size=.2, print_recap=True,
-              reload_images_p=.8, show_past_p=.9):
+              reload_images_p=.8, show_past_p=.9, smooth_zero=.1, smooth_one=.9):
         """
         :param x_train:
         :param y_train:
@@ -208,13 +213,13 @@ class Cgan(object):
             else:
                 generated_traffic = self.generate(number=self.batch_size, labels=labels)
             noise = np.random.normal(0, 1, (self.batch_size, self.latent_dim))
-            d_loss_real = self.discriminator.train_on_batch([real_traffic, labels], valid)
-            d_loss_fake = self.discriminator.train_on_batch([generated_traffic, labels], fake)
+            d_loss_real = self.discriminator.train_on_batch([real_traffic, smoothing_y(labels)], valid)
+            d_loss_fake = self.discriminator.train_on_batch([generated_traffic, smoothing_y(labels)], fake)
             d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
             #  Train Generator
             # Condition on labels
             sampled_labels = np.random.randint(0, self.num_classes, self.batch_size).reshape(-1, 1)
-            g_l = self.combined.train_on_batch([noise, sampled_labels], valid)
+            g_l = self.combined.train_on_batch([noise, smoothing_y(sampled_labels)], valid)
 
             cv_l = np.mean(self.discriminator.evaluate(x=[x_test_cv, y_test_cv], y=ones, verbose=False))
             # evaluation = evaluate(y_true=y_test_cv, y_pred=self.predict(x=x_test_cv))
@@ -259,9 +264,10 @@ class Cgan(object):
         else:
             y_pred_one = self.discriminator.predict(x=[real_traffic, labels])
             y_pred_zero = self.discriminator.predict(x=[generated_traffic, labels])
-            eval_one, eval_zero = evaluate(y_true=ones, y_pred=[int(y) for y in y_pred_one]), \
-                                  evaluate(y_true=zeros, y_pred=[int(y) for y in y_pred_zero])
-            d_l = - (eval_one["recall"] + eval_zero["f1_score"]) / 2
+            y_true = np.concatenate([ones, zeros])
+            y_pred = [int(y) for y in np.concatenate([y_pred_one, y_pred_zero])]
+            val = evaluate(y_true=y_true, y_pred=y_pred)
+            d_l = - val["f1_score"]
 
         sampled_labels = np.random.randint(0, self.num_classes, batch_size).reshape(-1, 1)
         valid = np.ones((batch_size, 1))
