@@ -14,11 +14,11 @@ def load_data(attack_mode=None, nrows=10000000, attack=None,
 
     # DATA
     x_train, y_train, cat_col, _ = loadingKDD(nrows=nrows, attack_mode=attack_mode,
-                                           attack=attack, force_cat_col=None, place=place, log_transform=log_transform)
+                                              attack=attack, force_cat_col=None, place=place, log_transform=log_transform)
     x_test, y_test, _, _ = loadingKDD(nrows=nrows,
-                                   attack_mode=attack_mode, attack=attack,
-                                   path="/home/peseux/Desktop/gitELECOM/NSL-KDD/KDDTest+.txt",
-                                   force_cat_col=cat_col, place=place,log_transform=log_transform)
+                                      attack_mode=attack_mode, attack=attack,
+                                      path="/home/peseux/Desktop/gitELECOM/NSL-KDD/KDDTest+.txt",
+                                      force_cat_col=cat_col, place=place,log_transform=log_transform)
     if shuffle:
         idx = np.random.permutation(x_train.shape[0])
         x_train, y_train = x_train[idx], y_train[idx]

@@ -46,7 +46,7 @@ def switching_gans(list_of_gans):
 
 def smoothing_y(y_to_smooth, smooth_one, smooth_zero):
     output = [smooth_one * y * np.random.random() + smooth_zero * (1 - y) * np.random.random() for y in y_to_smooth]
-    return output
+    return np.array(output).reshape((len(output), 1))
 
 
 class Cgan(object):
@@ -56,7 +56,9 @@ class Cgan(object):
                  weight_clipping=False,
                  weight_clip=1,
                  verbose=False,
-                 activation="sigmoid"):
+                 activation="sigmoid",
+                 gan_loss="binary_crossentropy",
+                 discriminator_loss="binary_crossentropy"):
         # Input shape
         self.data_dim = data_dim
         self.num_classes = num_classes
@@ -64,6 +66,8 @@ class Cgan(object):
         self.batch_size = batch_size
         self.verbose = verbose
         self.activation = activation
+        self.gan_los = gan_loss
+        self.discriminator_loss = discriminator_loss
         self.optimizer = Adam(0.0002, 0.5)
         if self.verbose:
             print("CHOSEN OPTIMIZER IS ADAM")
@@ -75,7 +79,7 @@ class Cgan(object):
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
 
-        self.discriminator.compile(loss='binary_crossentropy',
+        self.discriminator.compile(loss=self.discriminator_loss,
                                    optimizer=self.optimizer)
 
         # Build the generator
@@ -169,7 +173,7 @@ class Cgan(object):
         traffic = self.generator([noise, label])
         valid = self.discriminator([traffic, label])
         self.combined = Model([noise, label], valid)
-        self.combined.compile(loss='binary_crossentropy',
+        self.combined.compile(loss=self.gan_los,
                               optimizer=self.optimizer)
 
     def generate(self, number, labels):
@@ -213,13 +217,19 @@ class Cgan(object):
             else:
                 generated_traffic = self.generate(number=self.batch_size, labels=labels)
             noise = np.random.normal(0, 1, (self.batch_size, self.latent_dim))
-            d_loss_real = self.discriminator.train_on_batch([real_traffic, smoothing_y(labels)], valid)
-            d_loss_fake = self.discriminator.train_on_batch([generated_traffic, smoothing_y(labels)], fake)
+            d_loss_real = self.discriminator.train_on_batch([real_traffic,
+                                                             smoothing_y(labels,
+                                                                         smooth_one=smooth_one,smooth_zero=smooth_zero)], valid)
+            d_loss_fake = self.discriminator.train_on_batch([generated_traffic,
+                                                             smoothing_y(labels,
+                                                                         smooth_one=smooth_one,smooth_zero=smooth_zero)], fake)
             d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
             #  Train Generator
             # Condition on labels
             sampled_labels = np.random.randint(0, self.num_classes, self.batch_size).reshape(-1, 1)
-            g_l = self.combined.train_on_batch([noise, smoothing_y(sampled_labels)], valid)
+            g_l = self.combined.train_on_batch([noise,
+                                                smoothing_y(sampled_labels,
+                                                            smooth_one=smooth_one,smooth_zero=smooth_zero)], valid)
 
             cv_l = np.mean(self.discriminator.evaluate(x=[x_test_cv, y_test_cv], y=ones, verbose=False))
             # evaluation = evaluate(y_true=y_test_cv, y_pred=self.predict(x=x_test_cv))
@@ -341,7 +351,7 @@ class Cgan(object):
         if self.verbose:
             print("Loaded DISCRIMINATOR from disk")
 
-        self.discriminator.compile(loss='binary_crossentropy',
+        self.discriminator.compile(loss=self.discriminator_loss,
                                    optimizer=self.optimizer)
         self.build_combined()
         if self.verbose:

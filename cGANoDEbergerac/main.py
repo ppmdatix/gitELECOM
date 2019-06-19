@@ -9,7 +9,7 @@ from utils.config import attack_mode, epochs, number_of_gans, switches, examples
 # DATA
 x_train, x_train_cv, y_train, y_train_cv, x_balanced_train, y_balanced_train, x_test, y_test = load_data(place="work",
                                                                                                          cv_size=.1,
-                                                                                                         log_transform=False)
+                                                                                                         log_transform=True)
 data_dim = x_train.shape[1]
 
 
