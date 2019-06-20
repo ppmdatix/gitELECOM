@@ -50,7 +50,7 @@ def smoothing_y(y_to_smooth, smooth_one, smooth_zero):
 
 
 class Cgan(object):
-    def __init__(self, data_dim=28, num_classes=2,
+    def __init__(self, data_dim=28,
                  latent_dim=32, batch_size=128, leaky_relu=.02,
                  dropout=.4, spectral_normalisation=False,
                  weight_clipping=False,
@@ -61,7 +61,6 @@ class Cgan(object):
                  discriminator_loss="binary_crossentropy"):
         # Input shape
         self.data_dim = data_dim
-        self.num_classes = num_classes
         self.latent_dim = latent_dim
         self.batch_size = batch_size
         self.verbose = verbose
@@ -89,7 +88,7 @@ class Cgan(object):
         self.build_combined()
 
         self.past_images = dict()
-        for i in range(self.num_classes):
+        for i in range(1):
             self.past_images[str(i)] = self.generate(number=self.batch_size, labels=np.full((self.batch_size, 1), i))
 
         self.history = {"cv_loss": [], "d_loss": [], "g_loss": []}
@@ -125,13 +124,7 @@ class Cgan(object):
             print("\n \n Generator Architecture ")
             model.summary()
 
-        noise = Input(shape=(self.latent_dim,))
-        label = Input(shape=(1,), dtype='int32')
-        label_embedding = Flatten()(Embedding(self.num_classes, self.latent_dim)(label))
-        model_input = multiply([noise, label_embedding])
-        img = model(model_input)
-
-        return Model([noise, label], img)
+        return model
 
     def build_discriminator(self):
         if self.spectral_normalisation:
@@ -158,29 +151,22 @@ class Cgan(object):
                         activation=self.activation))
         if self.activation == "tanh":
             model.add(dense(1, activation=tanh_to_zero_one))
-
-        traffic = Input(shape=(self.data_dim,))
-        label = Input(shape=(1,), dtype='int32')
-        label_embedding = Flatten()(Embedding(self.num_classes, self.data_dim)(label))
-        model_input = multiply([traffic, label_embedding])
-        validity = model(model_input)
         if self.verbose:
             print("\n \n Discriminator Architecture ")
             model.summary()
-        return Model([traffic, label], validity)
+        return model
 
     def build_combined(self):
         noise = Input(shape=(self.latent_dim,))
-        label = Input(shape=(1,))
-        traffic = self.generator([noise, label])
-        valid = self.discriminator([traffic, label])
-        self.combined = Model([noise, label], valid)
+        traffic = self.generator(noise)
+        valid = self.discriminator(traffic)
+        self.combined = Model(noise, valid)
         self.combined.compile(loss=self.gan_los,
                               optimizer=self.optimizer)
 
-    def generate(self, number, labels):
+    def generate(self, number):
         noise = np.random.normal(0, 1, (number, self.latent_dim))
-        generated_traffic = self.generator.predict([noise, labels])
+        generated_traffic = self.generator.predict([noise])
         return generated_traffic
 
     def train(self, x_train, y_train, epochs, cv_size=.2, print_recap=True,
@@ -221,10 +207,10 @@ class Cgan(object):
             noise = np.random.normal(0, 1, (self.batch_size, self.latent_dim))
             d_loss_real = self.discriminator.fit([real_traffic,
                                                   smoothing_y(labels,
-                                                              smooth_one=smooth_one,smooth_zero=smooth_zero)], valid, verbose=False).history["loss"][0]
+                                                              smooth_one=smooth_one,smooth_zero=smooth_zero)], valid).history["loss"][0]
             d_loss_fake = self.discriminator.fit([generated_traffic,
                                                   smoothing_y(labels,
-                                                              smooth_one=smooth_one,smooth_zero=smooth_zero)], fake, verbose=False).history["loss"][0]
+                                                              smooth_one=smooth_one,smooth_zero=smooth_zero)], fake).history["loss"][0]
             d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
             #  Train Generator
             # Condition on labels

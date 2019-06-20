@@ -32,7 +32,7 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
             discriminators = [discriminators[sigma[i]] for i in range(number_of_gans)]
             for i in range(number_of_gans):
                 d_l, g_l = cgans[i].evaluate(x=x_cv, y=y_cv, batch_size=eval_size, mode_d_loss=mode_d_loss)
-                d_losses[i] += float(d_l),
+                d_losses[i] += float(d_l) / (number_of_gans+1)
                 g_losses[i] = g_losses[i] + g_l / (number_of_gans+1)
         d_to_delete = np.argmax(d_losses)
         g_to_delete = np.argmax(g_losses)
@@ -41,6 +41,8 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
         print("\n"*2)
         print("best generator loss is " + str(min(g_losses)))
         print("\n"*2)
+        for d in d_losses:
+            print("f1 score is " + str(d))
         if print_mode:
             cgans[g_to_delete].plot_learning()
         del cgans[g_to_delete]

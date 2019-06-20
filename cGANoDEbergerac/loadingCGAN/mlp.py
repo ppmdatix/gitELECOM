@@ -1,11 +1,11 @@
 from __future__ import print_function, division
-from keras.layers import Input, Dense, Flatten, Dropout, multiply
+from keras.layers import Input, Dense, Flatten, Dropout
 from keras.layers.advanced_activations import LeakyReLU
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
 from tqdm import tqdm
-from sklearn.metrics import confusion_matrix as confusion_matrix
 import numpy as np
+from utils_cgan import tanh_to_zero_one
 
 
 def zero_or_one(x):
@@ -16,10 +16,11 @@ def zero_or_one(x):
 
 
 class Mlp(object):
-    def __init__(self, data_dim=28, num_classes=2):
+    def __init__(self, data_dim=28, num_classes=2, activation="tanh"):
         # Input shape
         self.data_dim = data_dim
         self.num_classes = num_classes
+        self.activation = activation
 
         optimizer = Adam(0.0002, 0.5)
 
@@ -43,7 +44,9 @@ class Mlp(object):
         model.add(Dense(10))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))
-        model.add(Dense(1, activation='sigmoid'))
+        model.add(Dense(1, activation=self.activation))
+        if self.activation == "tanh":
+            model.add(Dense(1, activation=tanh_to_zero_one))
         model.summary()
 
         return model

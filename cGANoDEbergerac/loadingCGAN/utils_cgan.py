@@ -25,7 +25,7 @@ def proba_choice(x):
         return 1 - x[0]
     elif x[0] == x[1]:
         print("FUCK")
-        return 1
+        return x[0]
     else:
         return x[1]
 
@@ -38,3 +38,6 @@ def past_labeling(traffics, lab):
         output.append(traffics[str(int(label))][i])
     return np.array(output)
 
+
+def tanh_to_zero_one(x):
+    return (1. + x) * .5

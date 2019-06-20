@@ -2,8 +2,8 @@ import numpy as np
 import sys
 from sklearn.model_selection import train_test_split
 import pandas as pd
-# sys_path = "/Users/ppx/Desktop/gitELECOM/NSL-KDD"
-sys_path = "/home/peseux/Desktop/gitELECOM/NSL-KDD/"
+sys_path = "/Users/ppx/Desktop/gitELECOM/NSL-KDD"
+# sys_path = "/home/peseux/Desktop/gitELECOM/NSL-KDD/"
 sys.path.insert(0, sys_path)
 from loading.loadingKDD import loadingKDD
 
@@ -45,8 +45,10 @@ def load_data(attack_mode=None, nrows=10000000, attack=None,
         print("\n  \n \n "*2)
         print("Train data shape is {}".format(x_balanced_train.shape))
         print("\n  \n \n "*2)
+        print("x_train overview")
         print(pd.DataFrame(x_train).head())
         print("\n  \n \n "*2)
+        print("y_train overview")
         print(pd.DataFrame(y_train).head())
         print("\n  \n \n "*2)
     if cv_size == 0.:
