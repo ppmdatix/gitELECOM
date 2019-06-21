@@ -26,7 +26,7 @@ from weight_clipping import WeightClip
 from utils_cgan import zero_or_one, false_or_true, proba_choice, past_labeling, tanh_to_zero_one
 
 
-def switching_gans(list_of_gans):
+def switching_swagans(list_of_gans):
     print("Let's switch the GANs")
     length = len(list_of_gans)
     sigma = np.random.permutation(length)
@@ -49,10 +49,14 @@ def smoothing_y(y_to_smooth, smooth_one, smooth_zero):
     return np.array(output).reshape((len(output), 1))
 
 
-class Cgan(object):
-    def __init__(self, data_dim=28,
-                 latent_dim=32, batch_size=128, leaky_relu=.02,
-                 dropout=.4, spectral_normalisation=False,
+class Swagan(object):
+    def __init__(self,
+                 data_dim=28,
+                 latent_dim=32,
+                 batch_size=128,
+                 leaky_relu=.02,
+                 dropout=.4,
+                 spectral_normalisation=False,
                  weight_clipping=False,
                  weight_clip=1,
                  verbose=False,
@@ -86,160 +90,115 @@ class Cgan(object):
         self.discriminator.trainable = False
         self.combined = None
         self.build_combined()
-
-        self.past_images = dict()
-        for i in range(1):
-            self.past_images[str(i)] = self.generate(number=self.batch_size, labels=np.full((self.batch_size, 1), i))
-
         self.history = {"cv_loss": [], "d_loss": [], "g_loss": []}
 
     def build_generator(self):
-        if self.spectral_normalisation:
-            dense = DenseSN
-        else:
-            dense = Dense
-        if self.weight_clipping:
-            kernel_constraint = WeightClip(self.weight_clip)
-        else:
-            kernel_constraint = None
+        generator = Sequential()
+        generator.add(Dense(256, input_dim=self.latent_dim,
+                            kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+        generator.add(LeakyReLU(self.leaky_relu))
+        generator.add(Dense(512))
+        generator.add(LeakyReLU(self.leaky_relu))
+        generator.add(Dense(1024))
+        generator.add(LeakyReLU(self.leaky_relu))
+        generator.add(Dense(784,
+                            activation=self.activation))
+        # generator.compile(loss="binary_crossentropy", optimizer=self.optimizer)
 
-        model = Sequential()
-
-        model.add(dense(12, input_dim=self.latent_dim,
-                        kernel_initializer=initializers.RandomNormal(stddev=0.02),
-                        W_constraint=kernel_constraint))
-        model.add(LeakyReLU(alpha=self.leaky_relu))
-        model.add(Dropout(self.dropout))
-        # model.add(BatchNormalization(momentum=0.8))
-        model.add(dense(64,
-                        kernel_initializer=initializers.RandomNormal(stddev=0.02),
-                        W_constraint=kernel_constraint))
-        model.add(LeakyReLU(alpha=self.leaky_relu))
-        model.add(Dropout(self.dropout))
-        # model.add(BatchNormalization(momentum=0.8))
-        model.add(dense(self.data_dim,
-                        kernel_initializer=initializers.RandomNormal(stddev=0.02),
-                        W_constraint=kernel_constraint))
         if self.verbose:
             print("\n \n Generator Architecture ")
-            model.summary()
+            generator.summary()
 
-        return model
+        return generator
 
     def build_discriminator(self):
-        if self.spectral_normalisation:
-            dense = DenseSN
-        else:
-            dense = Dense
-        if self.weight_clipping:
-            kernel_constraint = WeightClip(self.weight_clip)
-        else:
-            kernel_constraint = None
-
-        model = Sequential()
-
-        model.add(dense(18, input_dim=np.prod(self.data_dim), kernel_constraint=kernel_constraint))
-        model.add(LeakyReLU(alpha=self.leaky_relu))
-        model.add(dense(12, kernel_constraint=kernel_constraint))
-        model.add(LeakyReLU(alpha=self.leaky_relu))
-        model.add(Dropout(self.dropout))
-        model.add(dense(10, kernel_constraint=kernel_constraint))
-        model.add(LeakyReLU(alpha=self.leaky_relu))
-        model.add(Dropout(self.dropout))
-        model.add(dense(1,
-                        kernel_constraint=kernel_constraint,
-                        activation=self.activation))
+        discriminator = Sequential()
+        discriminator.add(Dense(1024, input_dim=784,
+                                kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+        discriminator.add(LeakyReLU(self.leaky_relu))
+        discriminator.add(Dropout(self.dropout))
+        discriminator.add(Dense(512))
+        discriminator.add(LeakyReLU(self.leaky_relu))
+        discriminator.add(Dropout(self.dropout))
+        discriminator.add(Dense(256))
+        discriminator.add(LeakyReLU(self.leaky_relu))
+        discriminator.add(Dropout(self.dropout))
+        discriminator.add(Dense(1,
+                                activation=self.activation))
+        discriminator.compile(loss="binary_crossentropy", optimizer=self.optimizer)
         if self.activation == "tanh":
-            model.add(dense(1, activation=tanh_to_zero_one))
+            discriminator.add(Dense(1, activation=tanh_to_zero_one))
         if self.verbose:
             print("\n \n Discriminator Architecture ")
-            model.summary()
-        return model
+            discriminator.summary()
+        return discriminator
 
     def build_combined(self):
-        noise = Input(shape=(self.latent_dim,))
-        traffic = self.generator(noise)
-        valid = self.discriminator(traffic)
-        self.combined = Model(noise, valid)
-        self.combined.compile(loss=self.gan_los,
-                              optimizer=self.optimizer)
+        gan_input = Input(shape=(self.latent_dim,))
+        x = self.generator(gan_input)
+        gan_output = self.discriminator(x)
+        self.combined = Model(inputs=gan_input, outputs=gan_output)
+        self.combined.compile(loss="binary_crossentropy", optimizer=self.optimizer)
 
     def generate(self, number):
         noise = np.random.normal(0, 1, (number, self.latent_dim))
-        generated_traffic = self.generator.predict([noise])
+        generated_traffic = self.generator.predict(noise)
         return generated_traffic
 
-    def train(self, x_train, y_train, epochs, cv_size=.2, print_recap=True,
-              reload_images_p=.8, show_past_p=.9, smooth_zero=.1, smooth_one=.9):
+    def train(self, x_train, epochs, print_recap=True, smooth_zero=.1, smooth_one=.9):
         """
+
         :param x_train:
-        :param y_train:
         :param epochs:
-        :param cv_size:
         :param print_recap:
-        :param reload_images_p:
-        :param show_past_p:
-        :return: cv_loss, d_loss, g_loss
+        :param smooth_zero:
+        :param smooth_one:
+        :return:
         """
-        cv_loss, d_loss, g_loss = list(), list(), list()
-        x_train_cv, x_test_cv, y_train_cv, y_test_cv = train_test_split(x_train, y_train, test_size=cv_size)
-        ones = np.ones((x_test_cv.shape[0], 1))
-        # Adversarial ground truths
-        valid = np.ones((self.batch_size, 1))
-        fake = np.zeros((self.batch_size, 1))
+        d_loss, g_loss = list(), list()
+        ones = np.ones((self.batch_size,1))
+        zeros = np.zeros((self.batch_size, 1))
+        batch_count = int(x_train.shape[0] / self.batch_size)
 
         for _ in tqdm(range(epochs)):
-            # Reload past images
-            if np.random.random() > reload_images_p:
-                for i in range(self.num_classes):
-                    self.past_images[str(i)] = self.generate(number=self.batch_size,
-                                                             labels=np.full((self.batch_size, 1), i))
-
             #  Train Discriminator
             # Select a random half batch of images
-            idx = np.random.randint(0, x_train_cv.shape[0], self.batch_size)
-            real_traffic, labels = x_train_cv[idx], y_train_cv[idx]
-            if np.random.random() > show_past_p:
-                generated_traffic = past_labeling(traffics=self.past_images,
-                                                  lab=labels)
-            else:
-                generated_traffic = self.generate(number=self.batch_size, labels=labels)
-            noise = np.random.normal(0, 1, (self.batch_size, self.latent_dim))
-            d_loss_real = self.discriminator.fit([real_traffic,
-                                                  smoothing_y(labels,
-                                                              smooth_one=smooth_one,smooth_zero=smooth_zero)], valid).history["loss"][0]
-            d_loss_fake = self.discriminator.fit([generated_traffic,
-                                                  smoothing_y(labels,
-                                                              smooth_one=smooth_one,smooth_zero=smooth_zero)], fake).history["loss"][0]
-            d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
-            #  Train Generator
-            # Condition on labels
-            sampled_labels = np.random.randint(0, self.num_classes, self.batch_size).reshape(-1, 1)
-            g_l = self.combined.fit([noise,
-                                                smoothing_y(sampled_labels,
-                                                            smooth_one=smooth_one,smooth_zero=smooth_zero)], valid).history["loss"][0]
+            d_l, g_l = 0, 0
+            for _ in (range(batch_count)):
+                idx = np.random.randint(0, x_train.shape[0], self.batch_size)
+                real_traffic = x_train[idx]
+                generated_traffic = self.generate(number=self.batch_size)
+                noise = np.random.normal(0, 1, (self.batch_size, self.latent_dim))
+                self.discriminator.trainable = True
+                d_loss_real = self.discriminator.train_on_batch(real_traffic, smoothing_y(ones,
+                                                                               smooth_one=smooth_one,
+                                                                               smooth_zero=smooth_zero))
+                d_loss_fake = self.discriminator.train_on_batch(generated_traffic, smoothing_y(zeros,
+                                                                                    smooth_one=smooth_one,
+                                                                                    smooth_zero=smooth_zero))
 
-            cv_l = np.mean(self.discriminator.evaluate(x=[x_test_cv, y_test_cv], y=ones, verbose=False))
-            # evaluation = evaluate(y_true=y_test_cv, y_pred=self.predict(x=x_test_cv))
-            # cv_l = evaluation["f1_score"]
+                d_l += 0.5 * np.add(d_loss_real, d_loss_fake)
+                self.discriminator.trainable = False
+                #  Train Generator
+                g_l += self.combined.train_on_batch(noise,smoothing_y(ones,
+                                                          smooth_one=smooth_one,
+                                                          smooth_zero=smooth_zero))
 
-            cv_loss.append(cv_l)
-            d_loss.append(d_l)
-            g_loss.append(g_l)
+            d_loss.append(d_l/batch_count)
+            g_loss.append(g_l/batch_count)
+
         if print_recap:
             plt.figure(figsize=(10, 5))
-            plt.plot(cv_loss, label="CV SCORE")
             plt.plot(d_loss, label="discriminator loss")
             plt.plot(g_loss, label="generator loss")
             plt.legend()
             plt.show()
             plt.close()
-        self.history["cv_loss"] = self.history["cv_loss"] + cv_loss
         self.history["d_loss"] = self.history["d_loss"] + d_loss
         self.history["g_loss"] = self.history["g_loss"] + g_loss
-        return cv_loss, d_loss, g_loss
+        return d_loss, g_loss
 
-    def evaluate(self, x, y, batch_size=None, mode_d_loss=True):
+    def evaluate(self, x, batch_size=None):
         """
         :param mode_d_loss:
         :param x:
@@ -250,46 +209,20 @@ class Cgan(object):
         if batch_size is None:
             batch_size = self.batch_size
         idx = np.random.randint(0, x.shape[0], batch_size)
-        real_traffic, labels = x[idx], y[idx]
-        generated_traffic = self.generate(number=batch_size, labels=labels)
+        real_traffic = x[idx]
+        generated_traffic = self.generate(number=batch_size)
         noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
         ones = np.ones((batch_size, 1))
         zeros = np.zeros((batch_size, 1))
-        if mode_d_loss:
-            d_loss_real = np.mean(self.discriminator.evaluate(x=[real_traffic, labels], y=ones))
-            d_loss_fake = np.mean(self.discriminator.evaluate(x=[generated_traffic, labels], y=zeros))
-            d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
-        else:
-            y_pred_one = self.discriminator.predict(x=[real_traffic, labels])
-            y_pred_zero = self.discriminator.predict(x=[generated_traffic, labels])
-            y_true = np.concatenate([ones, zeros])
-            y_pred = [int(y) for y in np.concatenate([y_pred_one, y_pred_zero])]
-            val = evaluate(y_true=y_true, y_pred=y_pred)
-            d_l = - val["f1_score"]
-
-        sampled_labels = np.random.randint(0, self.num_classes, batch_size).reshape(-1, 1)
+        d_loss_real = np.mean(self.discriminator.evaluate(x=real_traffic, y=ones))
+        d_loss_fake = np.mean(self.discriminator.evaluate(x=generated_traffic, y=zeros))
+        d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
         valid = np.ones((batch_size, 1))
-        g_l = self.combined.evaluate(x=[noise, sampled_labels], y=valid)
+        g_l = self.combined.evaluate(x=noise, y=valid)
         return float(d_l), float(g_l)
 
     def return_models(self):
         return self.generator, self.discriminator, self.combined
-
-    def predict(self, x):
-        ones = np.ones((x.shape[0], 1))
-        zeros = np.zeros((x.shape[0], 1))
-        y_pred_ones = self.discriminator.predict([x, ones])
-        y_pred_zeros = self.discriminator.predict([x, zeros])
-        y_pred = [false_or_true([y0[0], y1[0]]) for y0, y1 in zip(y_pred_zeros, y_pred_ones)]
-        return np.array(y_pred)
-
-    def predict_proba(self, x):
-        ones = np.ones((x.shape[0], 1))
-        zeros = np.zeros((x.shape[0], 1))
-        y_pred_ones = self.discriminator.predict([x, ones])
-        y_pred_zeros = self.discriminator.predict([x, zeros])
-        y_proba = [proba_choice([y0[0], y1[0]]) for y0, y1 in zip(y_pred_zeros, y_pred_ones)]
-        return np.array(y_proba)
 
     def plot_learning(self):
         plt.plot(self.history["cv_loss"], label="cv_loss")

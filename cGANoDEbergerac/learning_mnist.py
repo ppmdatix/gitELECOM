@@ -1,41 +1,48 @@
-from loadingCGAN.cgan import switching_gans
+from loadingCGAN.swagan import switching_swagans
 import numpy as np
+from matplotlib import pyplot as plt
 
+def plot_images(generatedImages, dim=(10,10), title="title"):
+    plt.figure(figsize=dim)
+    plt.title(title)
+    for i in range(generatedImages.shape[0]):
+        plt.subplot(dim[0], dim[1], i+1)
+        plt.imshow(generatedImages[i], interpolation='nearest', cmap='gray_r')
+        plt.axis('off')
+    plt.tight_layout()
+    plt.show()
+    plt.close()
 
-def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
-             switches=2, print_mode=False, mode_d_loss=False,
-             reload_images_p=.9, show_past_p=.9, smooth_zero=.1, smooth_one=.9,
+def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
+             switches=2, print_mode=False,smooth_zero=.1, smooth_one=.9,
              eval_size=1000):
 
     while number_of_gans > 1:
-        cv_losses, d_losses, g_losses = list(), list(), list()
+        d_losses, g_losses = list(), list()
         generators, discriminators = list(), list()
-        for cgan in cgans:
-            cv_loss, d_loss, g_loss = cgan.train(x_train=x,
-                                                 y_train=y,
+        for swagan in swagans:
+            d_loss, g_loss = swagan.train(x_train=x,
                                                  epochs=epochs,
                                                  print_recap=False,
-                                                 reload_images_p=reload_images_p,
-                                                 show_past_p=show_past_p,
                                                  smooth_zero=smooth_zero,
                                                  smooth_one=smooth_one)
-            cv_losses.append(np.mean(cv_loss))
             d_losses.append(np.mean(d_loss))
             g_losses.append(np.mean(g_loss))
-            generators.append(cgan.generator)
-            discriminators.append(cgan.discriminator)
+            generators.append(swagan.generator)
+            discriminators.append(swagan.discriminator)
         for _ in range(switches):
-            cgans, sigma = switching_gans(cgans)
-            cv_losses = [cv_losses[sigma[i]] for i in range(number_of_gans)]
+            swagans, sigma = switching_swagans(swagans)
             d_losses = [d_losses[sigma[i]] for i in range(number_of_gans)]
             g_losses = [g_losses[sigma[i]]/ (number_of_gans+1) for i in range(number_of_gans)]
             discriminators = [discriminators[sigma[i]] for i in range(number_of_gans)]
             for i in range(number_of_gans):
-                d_l, g_l = cgans[i].evaluate(x=x_cv, y=y_cv, batch_size=eval_size, mode_d_loss=mode_d_loss)
+                d_l, g_l = swagans[i].evaluate(x=x_cv, batch_size=eval_size)
                 d_losses[i] += float(d_l) / (number_of_gans+1)
-                g_losses[i] = g_losses[i] + g_l / (number_of_gans+1)
+                g_losses[i] += float(g_l) / (number_of_gans+1)
         d_to_delete = np.argmax(d_losses)
         g_to_delete = np.argmax(g_losses)
+        images = swagans[g_to_delete].generate(100)
+        plot_images(images.reshape(100, 28,28))
         del generators[g_to_delete]
         del discriminators[d_to_delete]
         print("\n"*2)
@@ -44,7 +51,7 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
         for d in d_losses:
             print("f1 score is " + str(d))
         if print_mode:
-            cgans[g_to_delete].plot_learning()
-        del cgans[g_to_delete]
+            swagans[g_to_delete].plot_learning()
+        del swagans[g_to_delete]
         number_of_gans += -1
-    return cgans
+    return swagans

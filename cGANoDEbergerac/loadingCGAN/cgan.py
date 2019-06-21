@@ -201,45 +201,50 @@ class Cgan(object):
         # Adversarial ground truths
         valid = np.ones((self.batch_size, 1))
         fake = np.zeros((self.batch_size, 1))
+        batch_count = int(x_train.shape[0] / self.batch_size)
 
         for _ in tqdm(range(epochs)):
-            # Reload past images
-            if np.random.random() > reload_images_p:
-                for i in range(self.num_classes):
-                    self.past_images[str(i)] = self.generate(number=self.batch_size,
-                                                             labels=np.full((self.batch_size, 1), i))
+            cv_l, d_l, g_l = 0., 0., 0.
+            for _ in (range(batch_count)):
+                # Reload past images
+                if np.random.random() > reload_images_p:
+                    for i in range(self.num_classes):
+                        self.past_images[str(i)] = self.generate(number=self.batch_size,
+                                                                 labels=np.full((self.batch_size, 1), i))
 
-            #  Train Discriminator
-            # Select a random half batch of images
-            idx = np.random.randint(0, x_train_cv.shape[0], self.batch_size)
-            real_traffic, labels = x_train_cv[idx], y_train_cv[idx]
-            if np.random.random() > show_past_p:
-                generated_traffic = past_labeling(traffics=self.past_images,
-                                                  lab=labels)
-            else:
-                generated_traffic = self.generate(number=self.batch_size, labels=labels)
-            noise = np.random.normal(0, 1, (self.batch_size, self.latent_dim))
-            d_loss_real = self.discriminator.fit([real_traffic,
-                                                  smoothing_y(labels,
-                                                              smooth_one=smooth_one,smooth_zero=smooth_zero)], valid, verbose=False).history["loss"][0]
-            d_loss_fake = self.discriminator.fit([generated_traffic,
-                                                  smoothing_y(labels,
-                                                              smooth_one=smooth_one,smooth_zero=smooth_zero)], fake, verbose=False).history["loss"][0]
-            d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
-            #  Train Generator
-            # Condition on labels
-            sampled_labels = np.random.randint(0, self.num_classes, self.batch_size).reshape(-1, 1)
-            g_l = self.combined.fit([noise,
-                                                smoothing_y(sampled_labels,
-                                                            smooth_one=smooth_one,smooth_zero=smooth_zero)], valid).history["loss"][0]
+                #  Train Discriminator
+                # Select a random half batch of images
+                idx = np.random.randint(0, x_train_cv.shape[0], self.batch_size)
+                real_traffic, labels = x_train_cv[idx], y_train_cv[idx]
+                if np.random.random() > show_past_p:
+                    generated_traffic = past_labeling(traffics=self.past_images,
+                                                      lab=labels)
+                else:
+                    generated_traffic = self.generate(number=self.batch_size, labels=labels)
+                noise = np.random.normal(0, 1, (self.batch_size, self.latent_dim))
+                self.discriminator.trainable = True
+                d_loss_real = self.discriminator.train_on_batch([real_traffic,
+                                                      smoothing_y(labels,
+                                                                  smooth_one=smooth_one,smooth_zero=smooth_zero)], valid)
+                d_loss_fake = self.discriminator.train_on_batch([generated_traffic,
+                                                      smoothing_y(labels,
+                                                                  smooth_one=smooth_one,smooth_zero=smooth_zero)], fake)
+                d_l += 0.5 * np.add(d_loss_real, d_loss_fake)
+                self.discriminator.trainable = False
+                #  Train Generator
+                # Condition on labels
+                sampled_labels = np.random.randint(0, self.num_classes, self.batch_size).reshape(-1, 1)
+                g_l += self.combined.train_on_batch([noise,
+                                                    smoothing_y(sampled_labels,
+                                                                smooth_one=smooth_one,smooth_zero=smooth_zero)], valid)
 
-            cv_l = np.mean(self.discriminator.evaluate(x=[x_test_cv, y_test_cv], y=ones, verbose=False))
-            # evaluation = evaluate(y_true=y_test_cv, y_pred=self.predict(x=x_test_cv))
-            # cv_l = evaluation["f1_score"]
+                cv_l += np.mean(self.discriminator.evaluate(x=[x_test_cv, y_test_cv], y=ones, verbose=False))
+                # evaluation = evaluate(y_true=y_test_cv, y_pred=self.predict(x=x_test_cv))
+                # cv_l = evaluation["f1_score"]
 
-            cv_loss.append(cv_l)
-            d_loss.append(d_l)
-            g_loss.append(g_l)
+            cv_loss.append(cv_l/batch_count)
+            d_loss.append(d_l/batch_count)
+            g_loss.append(g_l/batch_count)
         if print_recap:
             plt.figure(figsize=(10, 5))
             plt.plot(cv_loss, label="CV SCORE")
