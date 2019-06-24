@@ -9,3 +9,5 @@ smooth_zero = .1
 smooth_one = .9
 latent_dim = 50
 nrows=10000
+dropout = .4
+leaky_relu = .2

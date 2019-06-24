@@ -4,8 +4,9 @@ from evaluation.evaluation import evaluate
 from learning import learning
 import numpy as np
 from load_data.load_data import load_data
-from utils.config import epochs, number_of_gans, switches, latent_dim, nrows
+from utils.config import epochs, number_of_gans, switches, latent_dim, nrows, dropout, leaky_relu
 from utils.config import examples, reload_images_p, show_past_p, smooth_zero, smooth_one
+
 
 
 # DATA
@@ -23,7 +24,7 @@ print(y_train_cv.sum())
 cgans = [Cgan(data_dim=data_dim, latent_dim=latent_dim,
               spectral_normalisation=False,
               weight_clipping=False, verbose=True,
-              activation="tanh") for _ in range(number_of_gans)]
+              activation="tanh", dropout=dropout, leaky_relu=leaky_relu) for _ in range(number_of_gans)]
 
 
 cgans = learning(cgans=cgans, x=x_balanced_train, y=y_balanced_train, x_cv=x_train_cv,
@@ -52,13 +53,12 @@ d_loss_classical = mlp.train(x_train=x_balanced_train,
                              epochs=epochs*switches)
 
 result_mlp = evaluate(y_true=y_test, y_pred=mlp.predict(x=x_test))
-result_mlp_fooling = evaluate(y_true=np.zeros(examples+examples),
-                              y_pred=mlp.predict(np.concatenate((generated_one, generated_zero))))
-
 
 print("CGAN result")
 print(result_cgan)
 print("\n"*2 + "MLP result")
 print(result_mlp)
-print("\n"*2 + "MLP fooled by attacker")
-print(result_mlp_fooling)
+print("\n"*2 + "MLP fooled by attacker attacking")
+print((examples - sum(mlp.predict(generated_one)) ) / examples)
+print("\n"*2 + "MLP fooled by attacker not attacking")
+print((examples - sum(mlp.predict(generated_zero)) )/ examples)

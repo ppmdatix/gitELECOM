@@ -14,7 +14,7 @@ x_test = (x_test.astype(np.float32) - 127.5)/127.5
 x_train = x_train.reshape(60000, 784)
 x_test = x_test.reshape(10000, 784)
 
-epochs = 100
+epochs = 10
 randomDim = 32
 batchSize = 128
 examples = 100

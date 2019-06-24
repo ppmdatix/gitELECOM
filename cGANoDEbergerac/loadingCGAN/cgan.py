@@ -23,7 +23,7 @@ from dense_spectral_normalisation import DenseSN
 sys_path = "/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 sys.path.insert(0, sys_path)
 from weight_clipping import WeightClip
-from utils_cgan import zero_or_one, false_or_true, proba_choice, past_labeling, tanh_to_zero_one
+from utils_cgan import zero_or_one, false_or_true, proba_choice, past_labeling, tanh_to_zero_one, smoothing_y
 
 
 def switching_gans(list_of_gans):
@@ -44,14 +44,9 @@ def switching_gans(list_of_gans):
     return list_of_gans, sigma
 
 
-def smoothing_y(y_to_smooth, smooth_one, smooth_zero):
-    output = [smooth_one * y * np.random.random() + smooth_zero * (1 - y) * np.random.random() for y in y_to_smooth]
-    return np.array(output).reshape((len(output), 1))
-
-
 class Cgan(object):
     def __init__(self, data_dim=28, num_classes=2,
-                 latent_dim=32, batch_size=128, leaky_relu=.02,
+                 latent_dim=32, batch_size=128, leaky_relu=.2,
                  dropout=.4, spectral_normalisation=False,
                  weight_clipping=False,
                  weight_clip=1,
@@ -186,6 +181,7 @@ class Cgan(object):
     def train(self, x_train, y_train, epochs, cv_size=.2, print_recap=True,
               reload_images_p=.8, show_past_p=.9, smooth_zero=.1, smooth_one=.9):
         """
+
         :param x_train:
         :param y_train:
         :param epochs:
@@ -193,7 +189,9 @@ class Cgan(object):
         :param print_recap:
         :param reload_images_p:
         :param show_past_p:
-        :return: cv_loss, d_loss, g_loss
+        :param smooth_zero:
+        :param smooth_one:
+        :return:
         """
         cv_loss, d_loss, g_loss = list(), list(), list()
         x_train_cv, x_test_cv, y_train_cv, y_test_cv = train_test_split(x_train, y_train, test_size=cv_size)
@@ -223,20 +221,16 @@ class Cgan(object):
                     generated_traffic = self.generate(number=self.batch_size, labels=labels)
                 noise = np.random.normal(0, 1, (self.batch_size, self.latent_dim))
                 self.discriminator.trainable = True
-                d_loss_real = self.discriminator.train_on_batch([real_traffic,
-                                                      smoothing_y(labels,
-                                                                  smooth_one=smooth_one,smooth_zero=smooth_zero)], valid)
-                d_loss_fake = self.discriminator.train_on_batch([generated_traffic,
-                                                      smoothing_y(labels,
-                                                                  smooth_one=smooth_one,smooth_zero=smooth_zero)], fake)
+                d_loss_real = self.discriminator.train_on_batch([real_traffic, labels], smoothing_y(valid,
+                                                                                                    smooth_zero=smooth_zero,
+                                                                                                    smooth_one=smooth_one))
+                d_loss_fake = self.discriminator.train_on_batch([generated_traffic, labels], fake)
                 d_l += 0.5 * np.add(d_loss_real, d_loss_fake)
                 self.discriminator.trainable = False
                 #  Train Generator
                 # Condition on labels
                 sampled_labels = np.random.randint(0, self.num_classes, self.batch_size).reshape(-1, 1)
-                g_l += self.combined.train_on_batch([noise,
-                                                    smoothing_y(sampled_labels,
-                                                                smooth_one=smooth_one,smooth_zero=smooth_zero)], valid)
+                g_l += self.combined.train_on_batch([noise,sampled_labels], valid)
 
                 cv_l += np.mean(self.discriminator.evaluate(x=[x_test_cv, y_test_cv], y=ones, verbose=False))
                 # evaluation = evaluate(y_true=y_test_cv, y_pred=self.predict(x=x_test_cv))

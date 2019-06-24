@@ -1,17 +1,14 @@
 from __future__ import print_function, division
 from keras.layers import Input, Dense, Flatten, Dropout, multiply
-from keras.layers import BatchNormalization, Embedding
 from keras.layers.advanced_activations import LeakyReLU
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
 from keras import initializers
 from keras.models import model_from_json
 from tqdm import tqdm
-from sklearn.model_selection import train_test_split
 
 from matplotlib import pyplot as plt
 import numpy as np
-from evaluation.evaluation import evaluate
 
 import sys
 sys_path = "/Users/ppx/Desktop/gitELECOM/spectralNormalisation"
@@ -22,8 +19,7 @@ from dense_spectral_normalisation import DenseSN
 # sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 sys_path = "/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 sys.path.insert(0, sys_path)
-from weight_clipping import WeightClip
-from utils_cgan import zero_or_one, false_or_true, proba_choice, past_labeling, tanh_to_zero_one
+from utils_cgan import smoothing_y
 
 
 def switching_swagans(list_of_gans):
@@ -44,10 +40,6 @@ def switching_swagans(list_of_gans):
     return list_of_gans, sigma
 
 
-def smoothing_y(y_to_smooth, smooth_one, smooth_zero):
-    output = [smooth_one * y * np.random.random() + smooth_zero * (1 - y) * np.random.random() for y in y_to_smooth]
-    return np.array(output).reshape((len(output), 1))
-
 
 class Swagan(object):
     def __init__(self,
@@ -60,7 +52,7 @@ class Swagan(object):
                  weight_clipping=False,
                  weight_clip=1,
                  verbose=False,
-                 activation="sigmoid",
+                 activation="tanh",
                  gan_loss="binary_crossentropy",
                  discriminator_loss="binary_crossentropy"):
         # Input shape
@@ -103,7 +95,7 @@ class Swagan(object):
         generator.add(LeakyReLU(self.leaky_relu))
         generator.add(Dense(784,
                             activation=self.activation))
-        # generator.compile(loss="binary_crossentropy", optimizer=self.optimizer)
+        generator.compile(loss=self.discriminator_loss, optimizer=self.optimizer)
 
         if self.verbose:
             print("\n \n Generator Architecture ")
@@ -124,10 +116,8 @@ class Swagan(object):
         discriminator.add(LeakyReLU(self.leaky_relu))
         discriminator.add(Dropout(self.dropout))
         discriminator.add(Dense(1,
-                                activation=self.activation))
-        discriminator.compile(loss="binary_crossentropy", optimizer=self.optimizer)
-        if self.activation == "tanh":
-            discriminator.add(Dense(1, activation=tanh_to_zero_one))
+                                activation="sigmoid"))
+        discriminator.compile(loss=self.discriminator_loss, optimizer=self.optimizer)
         if self.verbose:
             print("\n \n Discriminator Architecture ")
             discriminator.summary()
@@ -138,7 +128,7 @@ class Swagan(object):
         x = self.generator(gan_input)
         gan_output = self.discriminator(x)
         self.combined = Model(inputs=gan_input, outputs=gan_output)
-        self.combined.compile(loss="binary_crossentropy", optimizer=self.optimizer)
+        self.combined.compile(loss=self.discriminator_loss, optimizer=self.optimizer)
 
     def generate(self, number):
         noise = np.random.normal(0, 1, (number, self.latent_dim))
@@ -173,9 +163,7 @@ class Swagan(object):
                 d_loss_real = self.discriminator.train_on_batch(real_traffic, smoothing_y(ones,
                                                                                smooth_one=smooth_one,
                                                                                smooth_zero=smooth_zero))
-                d_loss_fake = self.discriminator.train_on_batch(generated_traffic, smoothing_y(zeros,
-                                                                                    smooth_one=smooth_one,
-                                                                                    smooth_zero=smooth_zero))
+                d_loss_fake = self.discriminator.train_on_batch(generated_traffic, zeros)
 
                 d_l += 0.5 * np.add(d_loss_real, d_loss_fake)
                 self.discriminator.trainable = False
@@ -214,11 +202,11 @@ class Swagan(object):
         noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
         ones = np.ones((batch_size, 1))
         zeros = np.zeros((batch_size, 1))
-        d_loss_real = np.mean(self.discriminator.evaluate(x=real_traffic, y=ones))
-        d_loss_fake = np.mean(self.discriminator.evaluate(x=generated_traffic, y=zeros))
+        d_loss_real = np.mean(self.discriminator.evaluate(x=real_traffic, y=ones, verbose=False))
+        d_loss_fake = np.mean(self.discriminator.evaluate(x=generated_traffic, y=zeros, verbose=False))
         d_l = 0.5 * np.add(d_loss_real, d_loss_fake)
         valid = np.ones((batch_size, 1))
-        g_l = self.combined.evaluate(x=noise, y=valid)
+        g_l = self.combined.evaluate(x=noise, y=valid, verbose=False)
         return float(d_l), float(g_l)
 
     def return_models(self):

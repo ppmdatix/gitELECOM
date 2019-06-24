@@ -2,7 +2,7 @@ from loadingCGAN.swagan import switching_swagans
 import numpy as np
 from matplotlib import pyplot as plt
 
-def plot_images(generatedImages, dim=(10,10), title="title"):
+def plot_images(generatedImages, dim=(10,10), title="title", save_mode=False):
     plt.figure(figsize=dim)
     plt.title(title)
     for i in range(generatedImages.shape[0]):
@@ -10,8 +10,12 @@ def plot_images(generatedImages, dim=(10,10), title="title"):
         plt.imshow(generatedImages[i], interpolation='nearest', cmap='gray_r')
         plt.axis('off')
     plt.tight_layout()
-    plt.show()
-    plt.close()
+    if save_mode:
+        plt.savefig("/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/tmp/" + title)
+        plt.close()
+    else:
+        plt.show()
+        plt.close()
 
 def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
              switches=2, print_mode=False,smooth_zero=.1, smooth_one=.9,
@@ -20,6 +24,7 @@ def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
     while number_of_gans > 1:
         d_losses, g_losses = list(), list()
         generators, discriminators = list(), list()
+        j=0
         for swagan in swagans:
             d_loss, g_loss = swagan.train(x_train=x,
                                                  epochs=epochs,
@@ -30,6 +35,11 @@ def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
             g_losses.append(np.mean(g_loss))
             generators.append(swagan.generator)
             discriminators.append(swagan.discriminator)
+            if print_mode:
+                images = swagan.generate(100)
+                plot_images(images.reshape(100, 28, 28), title=str(number_of_gans) + str(j) + "GAN.png", save_mode=True)
+                j+=1
+
         for _ in range(switches):
             swagans, sigma = switching_swagans(swagans)
             d_losses = [d_losses[sigma[i]] for i in range(number_of_gans)]
@@ -41,7 +51,6 @@ def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
                 g_losses[i] += float(g_l) / (number_of_gans+1)
         d_to_delete = np.argmax(d_losses)
         g_to_delete = np.argmax(g_losses)
-        images = swagans[g_to_delete].generate(100)
 
         del generators[g_to_delete]
         del discriminators[d_to_delete]
@@ -50,9 +59,6 @@ def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
         print("\n"*2)
         for d in d_losses:
             print("f1 score is " + str(d))
-        if print_mode:
-            swagans[g_to_delete].plot_learning()
-            plot_images(images.reshape(100, 28, 28))
         del swagans[g_to_delete]
         number_of_gans += -1
     return swagans
