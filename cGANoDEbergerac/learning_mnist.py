@@ -42,7 +42,7 @@ def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
         d_to_delete = np.argmax(d_losses)
         g_to_delete = np.argmax(g_losses)
         images = swagans[g_to_delete].generate(100)
-        plot_images(images.reshape(100, 28,28))
+
         del generators[g_to_delete]
         del discriminators[d_to_delete]
         print("\n"*2)
@@ -52,6 +52,7 @@ def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
             print("f1 score is " + str(d))
         if print_mode:
             swagans[g_to_delete].plot_learning()
+            plot_images(images.reshape(100, 28, 28))
         del swagans[g_to_delete]
         number_of_gans += -1
     return swagans

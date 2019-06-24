@@ -61,13 +61,15 @@ class Mlp(object):
         :return: d_loss
         """
 
+        batch_count = int(x_train.shape[0] / batch_size)
         for epoch in tqdm(range(epochs)):
-            # Select a random half batch of images
-            idx = np.random.randint(0, x_train.shape[0], batch_size)
-            real_traffic, labels = x_train[idx], y_train[idx]
-            # Train the discriminator
-            d_loss = self.mlp.train_on_batch(real_traffic, labels)
-            return d_loss
+            for _ in range(batch_count):
+                # Select a random half batch of images
+                idx = np.random.randint(0, x_train.shape[0], batch_size)
+                real_traffic, labels = x_train[idx], y_train[idx]
+                # Train the discriminator
+                d_loss = self.mlp.train_on_batch(real_traffic, labels)
+        return d_loss
 
     def return_models(self):
         return self.mlp

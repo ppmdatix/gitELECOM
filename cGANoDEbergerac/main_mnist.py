@@ -1,7 +1,7 @@
 from loadingCGAN.swagan import Swagan
 from learning_mnist import learning_mnist
 import numpy as np
-from utils.config import epochs, number_of_gans, switches, latent_dim
+from utils.config_mnist import epochs, number_of_gans, switches, latent_dim
 from utils.config import smooth_zero, smooth_one
 from keras.datasets import mnist
 from sklearn.model_selection import train_test_split
@@ -15,6 +15,8 @@ x_train, x_train_cv = train_test_split(x_train, test_size=.1)
 x_train = x_train.reshape(int(60000*.9), 784)
 x_train_cv = x_train_cv.reshape(int(60000*.1), 784)
 x_test = x_test.reshape(10000, 784)
+x_train = x_train[:10000]
+
 
 
 data_dim = x_train.shape[1]
@@ -39,7 +41,6 @@ swagan = swagans[0]
 # cgano = cgans[number_of_gans - 1]
 # cgano.load_model(location="save_models/models/", model_name="test1")
 
-swagan.plot_learning()
 
 from matplotlib import pyplot as plt
 

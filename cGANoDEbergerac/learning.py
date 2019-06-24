@@ -1,5 +1,8 @@
 from loadingCGAN.cgan import switching_gans
 import numpy as np
+from evaluation.evaluation import evaluate
+# from joblib import Parallel, delayed
+
 
 
 def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
@@ -47,4 +50,8 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
             cgans[g_to_delete].plot_learning()
         del cgans[g_to_delete]
         number_of_gans += -1
+
+        for cgan in cgans:
+            result_cgan = evaluate(y_true=y_cv, y_pred=cgan.predict(x=x_cv))
+            print(result_cgan)
     return cgans

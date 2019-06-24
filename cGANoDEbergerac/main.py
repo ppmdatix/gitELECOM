@@ -4,12 +4,13 @@ from evaluation.evaluation import evaluate
 from learning import learning
 import numpy as np
 from load_data.load_data import load_data
-from utils.config import attack_mode, epochs, number_of_gans, switches, latent_dim
+from utils.config import epochs, number_of_gans, switches, latent_dim, nrows
 from utils.config import examples, reload_images_p, show_past_p, smooth_zero, smooth_one
 
 
 # DATA
 x_train, x_train_cv, y_train, y_train_cv, x_balanced_train, y_balanced_train, x_test, y_test = load_data(place="home",
+                                                                                                         nrows=nrows,
                                                                                                          cv_size=.1,
                                                                                                          log_transform=True)
 data_dim = x_train.shape[1]
