@@ -4,7 +4,6 @@ from evaluation.evaluation import evaluate
 # from joblib import Parallel, delayed
 
 
-
 def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
              switches=2, print_mode=False, mode_d_loss=False,
              reload_images_p=.9, show_past_p=.9, smooth_zero=.1, smooth_one=.9,
@@ -27,6 +26,10 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
             g_losses.append(np.mean(g_loss))
             generators.append(cgan.generator)
             discriminators.append(cgan.discriminator)
+        for i in range(number_of_gans):
+            d_l, g_l = cgans[i].evaluate(x=x_cv, y=y_cv, batch_size=eval_size, mode_d_loss=mode_d_loss)
+            d_losses[i] += float(d_l) / (number_of_gans + 1)
+            g_losses[i] = g_losses[i] + g_l / (number_of_gans + 1)
         for _ in range(switches):
             cgans, sigma = switching_gans(cgans)
             cv_losses = [cv_losses[sigma[i]] for i in range(number_of_gans)]

@@ -11,11 +11,12 @@ def plot_images(generatedImages, dim=(10,10), title="title", save_mode=False):
         plt.axis('off')
     plt.tight_layout()
     if save_mode:
-        plt.savefig("/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/tmp/" + title)
+        plt.savefig("tmp/" + title)
         plt.close()
     else:
         plt.show()
         plt.close()
+
 
 def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
              switches=2, print_mode=False,smooth_zero=.1, smooth_one=.9,
@@ -27,10 +28,10 @@ def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
         j=0
         for swagan in swagans:
             d_loss, g_loss = swagan.train(x_train=x,
-                                                 epochs=epochs,
-                                                 print_recap=False,
-                                                 smooth_zero=smooth_zero,
-                                                 smooth_one=smooth_one)
+                                          epochs=epochs,
+                                          print_recap=False,
+                                          smooth_zero=smooth_zero,
+                                          smooth_one=smooth_one)
             d_losses.append(np.mean(d_loss))
             g_losses.append(np.mean(g_loss))
             generators.append(swagan.generator)
@@ -38,7 +39,12 @@ def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
             if print_mode:
                 images = swagan.generate(100)
                 plot_images(images.reshape(100, 28, 28), title=str(number_of_gans) + str(j) + "GAN.png", save_mode=True)
-                j+=1
+                j += 1
+
+        for i in range(number_of_gans):
+            d_l, g_l = swagans[i].evaluate(x=x_cv, batch_size=eval_size)
+            d_losses[i] += float(d_l) / (number_of_gans + 1)
+            g_losses[i] = g_losses[i] + g_l / (number_of_gans + 1)
 
         for _ in range(switches):
             swagans, sigma = switching_swagans(swagans)

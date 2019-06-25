@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 
 
 def zero_or_one(x):
@@ -42,9 +43,22 @@ def past_labeling(traffics, lab):
 def tanh_to_zero_one(x):
     return (1. + x) * .5
 
+
 def smoothing_y(y_to_smooth, smooth_one, smooth_zero):
     output = list()
     for y in y_to_smooth:
         alpha = np.random.random()
         output.append(y*(smooth_one * alpha + (1-alpha)) + (1-y)*(smooth_zero*alpha))
     return np.array(output).reshape((len(output), 1))
+
+
+def plot_images(generatedImages, dim=(10,10), title="title"):
+    plt.figure(figsize=dim)
+    plt.title(title)
+    for i in range(generatedImages.shape[0]):
+        plt.subplot(dim[0], dim[1], i+1)
+        plt.imshow(generatedImages[i], interpolation='nearest', cmap='gray_r')
+        plt.axis('off')
+    plt.tight_layout()
+    plt.show()
+    plt.close()

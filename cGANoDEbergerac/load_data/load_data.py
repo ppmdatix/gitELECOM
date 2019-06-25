@@ -2,8 +2,8 @@ import numpy as np
 import sys
 from sklearn.model_selection import train_test_split
 import pandas as pd
-sys_path = "/Users/ppx/Desktop/gitELECOM/NSL-KDD"
-# sys_path = "/home/peseux/Desktop/gitELECOM/NSL-KDD/"
+# sys_path = "/Users/ppx/Desktop/gitELECOM/NSL-KDD"
+sys_path = "/home/peseux/Desktop/gitELECOM/NSL-KDD/"
 sys.path.insert(0, sys_path)
 from loading.loadingKDD import loadingKDD
 

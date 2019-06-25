@@ -5,15 +5,17 @@ from learning import learning
 import numpy as np
 from load_data.load_data import load_data
 from utils.config import epochs, number_of_gans, switches, latent_dim, nrows, dropout, leaky_relu
-from utils.config import examples, reload_images_p, show_past_p, smooth_zero, smooth_one
+from utils.config import examples, reload_images_p, show_past_p, smooth_zero, smooth_one, save_model
 
 
 
 # DATA
-x_train, x_train_cv, y_train, y_train_cv, x_balanced_train, y_balanced_train, x_test, y_test = load_data(place="home",
+x_train, x_train_cv, y_train, y_train_cv, x_balanced_train, y_balanced_train, x_test, y_test = load_data(place="work",
                                                                                                          nrows=nrows,
                                                                                                          cv_size=.1,
                                                                                                          log_transform=True)
+x_balanced_train, y_balanced_train = x_balanced_train[:5000], y_balanced_train[:5000]
+
 data_dim = x_train.shape[1]
 print(y_train_cv.sum())
 
@@ -29,13 +31,14 @@ cgans = [Cgan(data_dim=data_dim, latent_dim=latent_dim,
 
 cgans = learning(cgans=cgans, x=x_balanced_train, y=y_balanced_train, x_cv=x_train_cv,
                  y_cv=y_train_cv, number_of_gans=number_of_gans,
-                 epochs=epochs, switches=switches, print_mode=False, mode_d_loss=False,
+                 epochs=epochs, switches=switches, print_mode=False, mode_d_loss=True,
                  reload_images_p=reload_images_p, show_past_p=show_past_p,
                  smooth_zero=smooth_zero, smooth_one=smooth_one)
 
 
 cgan = cgans[0]
-cgan.save_model(location="save_models/models/", model_name="test1")
+if save_model:
+    cgan.save_model(location="save_models/models/", model_name="test1")
 # cgano = cgans[number_of_gans - 1]
 # cgano.load_model(location="save_models/models/", model_name="test1")
 
@@ -50,7 +53,7 @@ generated_zero = cgan.generate(number=examples, labels=np.zeros(examples))
 mlp = Mlp(data_dim=data_dim)
 d_loss_classical = mlp.train(x_train=x_balanced_train,
                              y_train=y_balanced_train,
-                             epochs=epochs*switches)
+                             epochs=epochs*(switches+1))
 
 result_mlp = evaluate(y_true=y_test, y_pred=mlp.predict(x=x_test))
 

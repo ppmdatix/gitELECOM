@@ -6,18 +6,21 @@ from keras.optimizers import Adam
 from keras import initializers
 from keras.models import model_from_json
 from tqdm import tqdm
-
 from matplotlib import pyplot as plt
 import numpy as np
-
 import sys
-sys_path = "/Users/ppx/Desktop/gitELECOM/spectralNormalisation"
-# sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
+place = "work"
+if place == "work":
+    sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
+elif place == "home":
+    sys_path = "/Users/ppx/Desktop/gitELECOM/spectralNormalisation"
+
 sys.path.insert(0, sys_path)
 from dense_spectral_normalisation import DenseSN
-
-# sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
-sys_path = "/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
+if place == "work":
+    sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
+elif place == "home":
+    sys_path = "/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 sys.path.insert(0, sys_path)
 from utils_cgan import smoothing_y
 
@@ -38,7 +41,6 @@ def switching_swagans(list_of_gans):
         list_of_gans[i].build_combined()
     print("GANs switched")
     return list_of_gans, sigma
-
 
 
 class Swagan(object):
@@ -168,9 +170,7 @@ class Swagan(object):
                 d_l += 0.5 * np.add(d_loss_real, d_loss_fake)
                 self.discriminator.trainable = False
                 #  Train Generator
-                g_l += self.combined.train_on_batch(noise,smoothing_y(ones,
-                                                          smooth_one=smooth_one,
-                                                          smooth_zero=smooth_zero))
+                g_l += self.combined.train_on_batch(noise, ones)
 
             d_loss.append(d_l/batch_count)
             g_loss.append(g_l/batch_count)
