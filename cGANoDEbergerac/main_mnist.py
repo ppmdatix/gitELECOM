@@ -2,8 +2,8 @@ from loadingCGAN.swagan import Swagan
 from loadingCGAN.utils_cgan import plot_images
 from learning_mnist import learning_mnist
 import numpy as np
-from utils.config_mnist import epochs, number_of_gans, switches, latent_dim
-from utils.config import smooth_zero, smooth_one, dropout, leaky_relu
+from utils.config_mnist import epochs, number_of_gans, switches, latent_dim, x_train_size
+from utils.config_mnist import smooth_zero, smooth_one, dropout, leaky_relu, noise, activation
 from keras.datasets import mnist
 from sklearn.model_selection import train_test_split
 
@@ -16,7 +16,8 @@ x_train, x_train_cv = train_test_split(x_train, test_size=.1)
 x_train = x_train.reshape(int(60000*.9), 784)
 x_train_cv = x_train_cv.reshape(int(60000*.1), 784)
 x_test = x_test.reshape(10000, 784)
-x_train = x_train[:20000]
+if x_train_size is not None:
+    x_train = x_train[:x_train_size]
 
 
 data_dim = x_train.shape[1]
@@ -28,13 +29,14 @@ data_dim = x_train.shape[1]
 swagans = [Swagan(data_dim=data_dim, latent_dim=latent_dim, leaky_relu=leaky_relu, dropout=dropout,
                   spectral_normalisation=False,
                   weight_clipping=False, verbose=True,
-                  activation="tanh") for _ in range(number_of_gans)]
+                  activation=activation,
+                  noise=noise) for _ in range(number_of_gans)]
 
 
 swagans = learning_mnist(swagans=swagans, x=x_train, x_cv=x_train_cv,
                          number_of_gans=number_of_gans,
                          epochs=epochs, switches=switches, print_mode=True,
-                         smooth_zero=smooth_zero, smooth_one=smooth_one)
+                         smooth_zero=smooth_zero, smooth_one=smooth_one, title="all_data_no_switch")
 
 swagan = swagans[0]
 swagan.plot_learning()
