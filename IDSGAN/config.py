@@ -42,8 +42,8 @@ Columns = ["duration",
            "attack_type",
            "difficulty"]
 
-#Data_path = "/Users/ppx/Desktop/gitELECOM/NSL-KDD/"
-Data_path = "/home/peseux/Desktop/gitELECOM/NSL-KDD/"
+Data_path = "/Users/ppx/Desktop/gitELECOM/NSL-KDD/"
+#Data_path = "/home/peseux/Desktop/gitELECOM/NSL-KDD/"
 File_name = "KDDTrain+.txt"
 
 Nrows = 100

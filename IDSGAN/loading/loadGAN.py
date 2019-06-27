@@ -6,7 +6,9 @@ from keras.optimizers import Adam
 from keras import initializers
 from keras.initializers import glorot_uniform
 import sys
-sys.path.insert(0, '/home/peseux/Desktop/gitELECOM/IDSGAN/losses/')
+# sys.path.insert(0, '/home/peseux/Desktop/gitELECOM/IDSGAN/losses/')
+sys.path.insert(0, '/Users/ppx/Desktop/gitELECOM/IDSGAN/losses/')
+
 from gan_loss import custom_loss
 
 def load_gan(data_dim, random_dim=50):

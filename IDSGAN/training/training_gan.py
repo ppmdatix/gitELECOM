@@ -2,7 +2,6 @@ import numpy as np
 from generation.generation import generation_fake_data
 from tqdm import tqdm
 
-
 def train_gan(disc, gen, GAN,
               x_train,
               random_dim,
