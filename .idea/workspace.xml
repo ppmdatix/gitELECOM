@@ -1,0 +1,833 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="4a50cac6-f22d-4d0e-a587-84f81195400e" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/cGANoDEbergerac/losses/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/peseux.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/ppx.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/ppx.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gitELECOM.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gitELECOM.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDSGAN/CVSS.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/IDSGAN/CVSS.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDSGAN/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/IDSGAN/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDSGAN/loading/loadGAN.py" beforeDir="false" afterPath="$PROJECT_DIR$/IDSGAN/loading/loadGAN.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDSGAN/loading/loadingKDD.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/IDSGAN/training/training_gan.py" beforeDir="false" afterPath="$PROJECT_DIR$/IDSGAN/training/training_gan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/draft.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/draft.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/evaluation/evaluation.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/evaluation/evaluation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/learning.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/learning.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/learning_mnist.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/learning_mnist.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/load_data/load_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/load_data/load_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/cgan.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/cgan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/mlp.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/mlp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/swagan.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/swagan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/utils_cgan.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/utils_cgan.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/main_mnist.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/main_mnist.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/utils/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/utils/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cGANoDEbergerac/utils/config_mnist.py" beforeDir="false" afterPath="$PROJECT_DIR$/cGANoDEbergerac/utils/config_mnist.py" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/main_novgan.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="75">
+              <caret line="5" selection-start-line="5" selection-end-line="5" />
+              <folding>
+                <element signature="e#0#37#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/utils/config_novgan.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="150">
+              <caret line="10" column="12" selection-start-line="10" selection-start-column="12" selection-end-line="10" selection-end-column="12" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/utils_cgan.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="354">
+              <caret line="73" column="50" selection-start-line="73" selection-start-column="50" selection-end-line="73" selection-end-column="50" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/NovGan/losses/losses.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="294">
+              <caret line="68" column="37" selection-start-line="68" selection-start-column="21" selection-end-line="68" selection-end-column="37" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/IDSGAN/loading/loadGAN.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="389">
+              <caret line="48" column="59" selection-start-line="42" selection-start-column="4" selection-end-line="48" selection-end-column="59" />
+              <folding>
+                <element signature="e#0#30#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/novgan.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="108">
+              <caret line="6" column="45" selection-start-line="6" selection-start-column="45" selection-end-line="6" selection-end-column="45" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/losses/losses_novgan.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="249">
+              <caret line="36" column="15" selection-start-line="36" selection-start-column="4" selection-end-line="36" selection-end-column="15" />
+              <folding>
+                <element signature="e#0#47#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/IDSGAN/training/training_gan.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="45">
+              <caret line="3" selection-start-line="3" selection-end-line="3" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/IDSGAN/losses/gan_loss.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="342">
+              <caret line="39" column="29" selection-start-line="39" selection-start-column="19" selection-end-line="39" selection-end-column="29" />
+              <folding>
+                <element signature="e#0#30#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/swagan.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-5">
+              <caret line="95" column="28" selection-start-line="95" selection-start-column="28" selection-end-line="95" selection-end-column="28" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>to_li</find>
+      <find>noise</find>
+      <find>label</find>
+      <find>switch</find>
+      <find>past</find>
+      <find>cgan</find>
+      <find>predict</find>
+      <find>smooth</find>
+      <find>evalua</find>
+      <find>smoo</find>
+      <find>generate</find>
+      <find>mode</find>
+      <find>def predict</find>
+      <find>colnames</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GradleLocalSettings">
+    <option name="externalProjectsViewState">
+      <projects_view />
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/NovGan/testingParameters.py" />
+        <option value="$PROJECT_DIR$/NovGan/losses/losses.py" />
+        <option value="$PROJECT_DIR$/draft/loadingKDD.py" />
+        <option value="$PROJECT_DIR$/draft/config.py" />
+        <option value="$PROJECT_DIR$/IDSGAN/loading/loadData.py" />
+        <option value="$PROJECT_DIR$/IDSGAN/loading/loadIDS.py" />
+        <option value="$PROJECT_DIR$/IDSGAN/main.py" />
+        <option value="$PROJECT_DIR$/IDSGAN/loading/loadingKDD.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/utils/roc.py" />
+        <option value="$PROJECT_DIR$/NSL-KDD/loading/config.py" />
+        <option value="$PROJECT_DIR$/NSL-KDD/loading/loadingKDD.py" />
+        <option value="$PROJECT_DIR$/NovGan/main.py" />
+        <option value="$PROJECT_DIR$/NovGan/mnist_gan.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/learning.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/learning_mnist.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/config.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/utils/config_mnist.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/main_mnist.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/swagan.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/evaluation/evaluation.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/mlp.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/cgan.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/utils/config.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/main.py" />
+        <option value="$PROJECT_DIR$/IDSGAN/loading/loadGAN.py" />
+        <option value="$PROJECT_DIR$/IDSGAN/config.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/load_data/load_data.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/utils_cgan.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/utils/config_novgan.py" />
+        <option value="$PROJECT_DIR$/IDSGAN/training/training_gan.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/losses/losses_novgan.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/main_novgan.py" />
+        <option value="$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/novgan.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" fullScreen="true">
+    <option name="width" value="1440" />
+    <option name="height" value="900" />
+  </component>
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="cGANoDEbergerac" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="cGANoDEbergerac" type="462c0819:PsiDirectoryNode" />
+              <item name="load_data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="cGANoDEbergerac" type="462c0819:PsiDirectoryNode" />
+              <item name="loadingCGAN" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="cGANoDEbergerac" type="462c0819:PsiDirectoryNode" />
+              <item name="losses" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="cGANoDEbergerac" type="462c0819:PsiDirectoryNode" />
+              <item name="utils" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="IDSGAN" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="IDSGAN" type="462c0819:PsiDirectoryNode" />
+              <item name="loading" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="IDSGAN" type="462c0819:PsiDirectoryNode" />
+              <item name="losses" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="IDSGAN" type="462c0819:PsiDirectoryNode" />
+              <item name="training" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="NovGan" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="NovGan" type="462c0819:PsiDirectoryNode" />
+              <item name="losses" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="NSL-KDD" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gitELECOM" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gitELECOM" type="462c0819:PsiDirectoryNode" />
+              <item name="NSL-KDD" type="462c0819:PsiDirectoryNode" />
+              <item name="loading" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+      <pane id="AndroidView" />
+      <pane id="PackagesPane" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cGANoDEbergerac/losses" />
+      <recent name="$PROJECT_DIR$/NSL-KDD" />
+      <recent name="$PROJECT_DIR$/NSL-KDD/loading" />
+      <recent name="$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/pics" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/NSL-KDD/loading" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <module />
+    </configuration>
+    <configuration default="true" type="Application" factoryName="Application">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="" />
+      <envs />
+    </configuration>
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <envs />
+      <patterns />
+    </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+    </configuration>
+    <configuration default="true" type="TestNG" factoryName="TestNG">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="SUITE_NAME" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="GROUP_NAME" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="%MODULE_WORKING_DIR%" />
+      <option name="OUTPUT_DIRECTORY" />
+      <option name="ANNOTATION_TYPE" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="singleModule" />
+      </option>
+      <option name="USE_DEFAULT_REPORTERS" value="false" />
+      <option name="PROPERTIES_FILE" />
+      <envs />
+      <properties />
+      <listeners />
+    </configuration>
+    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
+      <module name="" />
+      <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
+      <option name="PROGRAM_PARAMETERS" />
+      <predefined_log_file id="idea.log" enabled="true" />
+    </configuration>
+  </component>
+  <component name="SbtLocalSettings">
+    <option name="externalProjectsViewState">
+      <projects_view />
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4a50cac6-f22d-4d0e-a587-84f81195400e" name="Default" comment="" />
+      <created>1557476094961</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1557476094961</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.27836505" />
+      <window_info id="Structure" order="1" weight="0.24964234" />
+      <window_info id="Capture Tool" order="2" />
+      <window_info id="Designer" order="3" />
+      <window_info id="UI Designer" order="4" />
+      <window_info id="Favorites" order="5" side_tool="true" />
+      <window_info id="Image Layers" order="6" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32891566" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3286908" />
+      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
+      <window_info anchor="bottom" id="Messages" order="8" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.39036146" />
+      <window_info anchor="bottom" id="Version Control" order="10" />
+      <window_info anchor="bottom" id="Python Console" order="11" />
+      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Maven Projects" order="4" />
+      <window_info anchor="right" id="Capture Analysis" order="5" />
+      <window_info anchor="right" id="Theme Preview" order="6" />
+      <window_info anchor="right" id="Palette&#9;" order="7" />
+    </layout>
+    <layout-to-restore>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.27836505" />
+      <window_info id="Structure" order="1" weight="0.24964234" />
+      <window_info id="Capture Tool" order="2" />
+      <window_info id="Designer" order="3" />
+      <window_info id="UI Designer" order="4" />
+      <window_info id="Favorites" order="5" side_tool="true" />
+      <window_info id="Image Layers" order="6" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32891566" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.3286908" />
+      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
+      <window_info anchor="bottom" id="Messages" order="8" />
+      <window_info anchor="bottom" id="Terminal" order="9" visible="true" weight="0.39036146" />
+      <window_info anchor="bottom" id="Version Control" order="10" />
+      <window_info anchor="bottom" id="Python Console" order="11" />
+      <window_info anchor="right" id="Commander" order="0" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Maven Projects" order="4" />
+      <window_info anchor="right" id="Capture Analysis" order="5" />
+      <window_info anchor="right" id="Theme Preview" order="6" />
+      <window_info anchor="right" id="Palette&#9;" order="7" />
+    </layout-to-restore>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/NovGan/load_gan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="865">
+          <caret line="73" column="42" lean-forward="true" selection-start-line="60" selection-start-column="4" selection-end-line="73" selection-end-column="42" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.6/site-packages/pip-19.0.3-py3.6.egg/pip/_vendor/packaging/markers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4035">
+          <caret line="281" lean-forward="true" selection-start-line="281" selection-end-line="281" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NovGan/main2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="10" selection-start-line="10" selection-end-line="14" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NovGan/train_gan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="279">
+          <caret line="20" column="4" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NovGan/mnistGANmodified.ipynb">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/tmp/21GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/tmp/32GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/tmp/30GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/tmp/31GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/tmp/81GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/tmp/80GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/tmp/83GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NovGan/mnist_gan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2145">
+          <caret line="143" column="17" selection-start-line="143" selection-start-column="17" selection-end-line="143" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/tmp/20GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/learning_mnist.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="630">
+          <caret line="42" column="20" lean-forward="true" selection-start-line="42" selection-start-column="20" selection-end-line="42" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#48#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/pics/all_data_no_switch40GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/pics/all_data_no_switch50GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/pics/all_data_no_switch41GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/pics/all_data_no_switch51GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/pics/all_data_no_switch52GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/pics/all_data_no_switch53GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/pics/all_data_no_switch54GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/pics/all_data_no_switch21GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/pics/all_data_no_switch20GAN.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/utils/config_mnist.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="18" selection-start-line="11" selection-start-column="18" selection-end-line="11" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/resultsOK/swagan_learning_1/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="17" lean-forward="true" selection-start-line="12" selection-start-column="17" selection-end-line="12" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/main_mnist.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="125">
+          <caret line="31" column="39" selection-start-line="31" selection-start-column="39" selection-end-line="31" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/evaluation/evaluation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/learning.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-377">
+          <caret line="5" column="4" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IDSGAN/CVSS.ipynb">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IDSGAN/loading/loadingKDD.py" />
+    <entry file="file://$PROJECT_DIR$/NovGan/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="23" column="18" selection-start-line="23" selection-start-column="18" selection-end-line="23" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IDSGAN/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="660">
+          <caret line="44" selection-start-line="44" selection-end-line="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="218">
+          <caret line="20" lean-forward="true" selection-start-line="20" selection-end-line="20" />
+          <folding>
+            <element signature="e#0#33#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/mlp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="765">
+          <caret line="51" column="4" selection-end-line="83" />
+          <folding>
+            <element signature="e#0#47#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IDSGAN/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="64">
+          <caret line="54" column="41" lean-forward="true" selection-start-line="54" selection-start-column="41" selection-end-line="54" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#45#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/cgan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2774">
+          <caret line="292" column="31" selection-start-line="292" selection-start-column="31" selection-end-line="292" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#47#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NovGan/losses.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NSL-KDD/loading/loadingKDD.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="380">
+          <caret line="86" column="44" selection-start-line="86" selection-start-column="36" selection-end-line="86" selection-end-column="44" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/utils/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="20" column="13" lean-forward="true" selection-end-line="20" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/load_data/load_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="296">
+          <caret line="61" column="121" selection-start-line="61" selection-start-column="121" selection-end-line="61" selection-end-column="121" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/utils_cgan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="354">
+          <caret line="73" column="50" selection-start-line="73" selection-start-column="50" selection-end-line="73" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/utils/config_novgan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="12" selection-start-line="10" selection-start-column="12" selection-end-line="10" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IDSGAN/training/training_gan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/swagan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5">
+          <caret line="95" column="28" selection-start-line="95" selection-start-column="28" selection-end-line="95" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/NovGan/losses/losses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="294">
+          <caret line="68" column="37" selection-start-line="68" selection-start-column="21" selection-end-line="68" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IDSGAN/loading/loadGAN.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="389">
+          <caret line="48" column="59" selection-start-line="42" selection-start-column="4" selection-end-line="48" selection-end-column="59" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IDSGAN/losses/gan_loss.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="39" column="29" selection-start-line="39" selection-start-column="19" selection-end-line="39" selection-end-column="29" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/losses/losses_novgan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="249">
+          <caret line="36" column="15" selection-start-line="36" selection-start-column="4" selection-end-line="36" selection-end-column="15" />
+          <folding>
+            <element signature="e#0#47#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/main_novgan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cGANoDEbergerac/loadingCGAN/novgan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="6" column="45" selection-start-line="6" selection-start-column="45" selection-end-line="6" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
