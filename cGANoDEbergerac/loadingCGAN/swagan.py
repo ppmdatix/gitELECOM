@@ -9,14 +9,13 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 import numpy as np
 import sys
-place = "work"
+place = "home"
 if place == "work":
     sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
 elif place == "home":
     sys_path = "/Users/ppx/Desktop/gitELECOM/spectralNormalisation"
 
 sys.path.insert(0, sys_path)
-from dense_spectral_normalisation import DenseSN
 if place == "work":
     sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 elif place == "home":
@@ -36,7 +35,6 @@ def switching_swagans(list_of_gans):
         generators.append(list_of_gans[i].generator)
         discriminators.append(list_of_gans[i].discriminator)
     for i in range(length):
-        # list_of_gans[i].generator = generators[sigma[i]]
         list_of_gans[i].discriminator = discriminators[sigma[i]]
         list_of_gans[i].build_combined()
     print("GANs switched")
@@ -56,7 +54,8 @@ class Swagan(object):
                  verbose=False,
                  activation="tanh",
                  gan_loss="binary_crossentropy",
-                 discriminator_loss="binary_crossentropy"):
+                 discriminator_loss="binary_crossentropy",
+                 noise="normal"):
         # Input shape
         self.data_dim = data_dim
         self.latent_dim = latent_dim
@@ -73,6 +72,7 @@ class Swagan(object):
         self.spectral_normalisation = spectral_normalisation
         self.weight_clipping = weight_clipping
         self.weight_clip = weight_clip
+        self.noise = noise
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
 
@@ -133,7 +133,10 @@ class Swagan(object):
         self.combined.compile(loss=self.discriminator_loss, optimizer=self.optimizer)
 
     def generate(self, number):
-        noise = np.random.normal(0, 1, (number, self.latent_dim))
+        if self.noise == "normal":
+            noise = np.random.normal(0, 1, (number, self.latent_dim))
+        elif self.noise == "logistic":
+            noise = np.random.logistic(0, 1, (number, self.latent_dim))
         generated_traffic = self.generator.predict(noise)
         return generated_traffic
 
@@ -166,33 +169,25 @@ class Swagan(object):
                                                                                smooth_one=smooth_one,
                                                                                smooth_zero=smooth_zero))
                 d_loss_fake = self.discriminator.train_on_batch(generated_traffic, zeros)
-
                 d_l += 0.5 * np.add(d_loss_real, d_loss_fake)
                 self.discriminator.trainable = False
-                #  Train Generator
                 g_l += self.combined.train_on_batch(noise, ones)
 
             d_loss.append(d_l/batch_count)
             g_loss.append(g_l/batch_count)
 
-        if print_recap:
-            plt.figure(figsize=(10, 5))
-            plt.plot(d_loss, label="discriminator loss")
-            plt.plot(g_loss, label="generator loss")
-            plt.legend()
-            plt.show()
-            plt.close()
         self.history["d_loss"] = self.history["d_loss"] + d_loss
         self.history["g_loss"] = self.history["g_loss"] + g_loss
+        if print_recap:
+            self.plot_learning()
         return d_loss, g_loss
 
     def evaluate(self, x, batch_size=None):
         """
-        :param mode_d_loss:
+
         :param x:
-        :param y:
         :param batch_size:
-        :return: d_l, g_l
+        :return:
         """
         if batch_size is None:
             batch_size = self.batch_size
@@ -213,9 +208,10 @@ class Swagan(object):
         return self.generator, self.discriminator, self.combined
 
     def plot_learning(self):
-        plt.plot(self.history["cv_loss"], label="cv_loss")
         plt.plot(self.history["d_loss"], label="discriminator loss")
         plt.plot(self.history["g_loss"], label="generator loss")
+        plt.xlabel("epochs")
+        plt.title("Learning evolution")
         plt.legend()
         plt.show()
         plt.close()

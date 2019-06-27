@@ -16,15 +16,16 @@ def zero_or_one(x):
 
 
 class Mlp(object):
-    def __init__(self, data_dim=28, num_classes=2, activation="tanh"):
+    def __init__(self, data_dim=28, num_classes=2, activation="tanh", verbose=True):
         # Input shape
         self.data_dim = data_dim
         self.num_classes = num_classes
         self.activation = activation
+        self.verbose = verbose
 
         optimizer = Adam(0.0002, 0.5)
-
-        print("CHOSEN OPTIMIZER IS ADAM")
+        if self.verbose:
+            print("CHOSEN OPTIMIZER IS ADAM")
 
         # Build and compile the discriminator
         self.mlp = self.build_mlp()
@@ -47,7 +48,8 @@ class Mlp(object):
         model.add(Dense(1, activation=self.activation))
         if self.activation == "tanh":
             model.add(Dense(1, activation=tanh_to_zero_one))
-        model.summary()
+        if self.verbose:
+            model.summary()
 
         return model
 

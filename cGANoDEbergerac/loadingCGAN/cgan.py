@@ -13,17 +13,22 @@ from matplotlib import pyplot as plt
 import numpy as np
 from evaluation.evaluation import evaluate
 
+place = "home"
 import sys
-# sys_path = "/Users/ppx/Desktop/gitELECOM/spectralNormalisation"
-sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
+if place == "home":
+    sys_path = "/Users/ppx/Desktop/gitELECOM/spectralNormalisation"
+elif place == "work":
+    sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
 sys.path.insert(0, sys_path)
 from dense_spectral_normalisation import DenseSN
 
-sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
-# sys_path = "/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
+if place == "work":
+    sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
+elif place == "home":
+    sys_path = "/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 sys.path.insert(0, sys_path)
 from weight_clipping import WeightClip
-from utils_cgan import zero_or_one, false_or_true, proba_choice, past_labeling, tanh_to_zero_one, smoothing_y
+from utils_cgan import false_or_true, proba_choice, past_labeling, tanh_to_zero_one, smoothing_y
 
 
 def switching_gans(list_of_gans):
@@ -37,7 +42,6 @@ def switching_gans(list_of_gans):
         generators.append(list_of_gans[i].generator)
         discriminators.append(list_of_gans[i].discriminator)
     for i in range(length):
-        # list_of_gans[i].generator = generators[sigma[i]]
         list_of_gans[i].discriminator = discriminators[sigma[i]]
         list_of_gans[i].build_combined()
     print("GANs switched")
@@ -53,7 +57,8 @@ class Cgan(object):
                  verbose=False,
                  activation="sigmoid",
                  gan_loss="binary_crossentropy",
-                 discriminator_loss="binary_crossentropy"):
+                 discriminator_loss="binary_crossentropy",
+                 noise="normal"):
         # Input shape
         self.data_dim = data_dim
         self.num_classes = num_classes
@@ -71,6 +76,7 @@ class Cgan(object):
         self.spectral_normalisation = spectral_normalisation
         self.weight_clipping = weight_clipping
         self.weight_clip = weight_clip
+        self.noise = noise
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
 
@@ -106,13 +112,11 @@ class Cgan(object):
                         W_constraint=kernel_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(Dropout(self.dropout))
-        # model.add(BatchNormalization(momentum=0.8))
         model.add(dense(64,
                         kernel_initializer=initializers.RandomNormal(stddev=0.02),
                         W_constraint=kernel_constraint))
         model.add(LeakyReLU(alpha=self.leaky_relu))
         model.add(Dropout(self.dropout))
-        # model.add(BatchNormalization(momentum=0.8))
         model.add(dense(self.data_dim,
                         kernel_initializer=initializers.RandomNormal(stddev=0.02),
                         W_constraint=kernel_constraint))
@@ -174,7 +178,11 @@ class Cgan(object):
                               optimizer=self.optimizer)
 
     def generate(self, number, labels):
-        noise = np.random.normal(0, 1, (number, self.latent_dim))
+
+        if self.noise == "normal":
+            noise = np.random.normal(0, 1, (number, self.latent_dim))
+        elif self.noise == "logistic":
+            noise = np.random.logistic(0, 1, (number, self.latent_dim))
         generated_traffic = self.generator.predict([noise, labels])
         return generated_traffic
 
@@ -231,25 +239,16 @@ class Cgan(object):
                 # Condition on labels
                 sampled_labels = np.random.randint(0, self.num_classes, self.batch_size).reshape(-1, 1)
                 g_l += self.combined.train_on_batch([noise,sampled_labels], valid)
-
                 cv_l += np.mean(self.discriminator.evaluate(x=[x_test_cv, y_test_cv], y=ones, verbose=False))
-                # evaluation = evaluate(y_true=y_test_cv, y_pred=self.predict(x=x_test_cv))
-                # cv_l = evaluation["f1_score"]
 
             cv_loss.append(cv_l/batch_count)
             d_loss.append(d_l/batch_count)
             g_loss.append(g_l/batch_count)
-        if print_recap:
-            plt.figure(figsize=(10, 5))
-            plt.plot(cv_loss, label="CV SCORE")
-            plt.plot(d_loss, label="discriminator loss")
-            plt.plot(g_loss, label="generator loss")
-            plt.legend()
-            plt.show()
-            plt.close()
         self.history["cv_loss"] = self.history["cv_loss"] + cv_loss
         self.history["d_loss"] = self.history["d_loss"] + d_loss
         self.history["g_loss"] = self.history["g_loss"] + g_loss
+        if print_recap:
+            self.plot_learning()
         return cv_loss, d_loss, g_loss
 
     def evaluate(self, x, y, batch_size=None, mode_d_loss=True):
@@ -288,12 +287,9 @@ class Cgan(object):
     def return_models(self):
         return self.generator, self.discriminator, self.combined
 
-    def predict(self, x):
-        ones = np.ones((x.shape[0], 1))
-        zeros = np.zeros((x.shape[0], 1))
-        y_pred_ones = self.discriminator.predict([x, ones])
-        y_pred_zeros = self.discriminator.predict([x, zeros])
-        y_pred = [false_or_true([y0[0], y1[0]]) for y0, y1 in zip(y_pred_zeros, y_pred_ones)]
+    def predict(self, x, threshold=.5):
+        y_pred = self.predict_proba(x)
+        y_pred = [int(y > threshold) for y in y_pred]
         return np.array(y_pred)
 
     def predict_proba(self, x):
@@ -305,9 +301,10 @@ class Cgan(object):
         return np.array(y_proba)
 
     def plot_learning(self):
-        plt.plot(self.history["cv_loss"], label="cv_loss")
         plt.plot(self.history["d_loss"], label="discriminator loss")
         plt.plot(self.history["g_loss"], label="generator loss")
+        plt.xlabel("epochs")
+        plt.title("Learning evolution")
         plt.legend()
         plt.show()
         plt.close()

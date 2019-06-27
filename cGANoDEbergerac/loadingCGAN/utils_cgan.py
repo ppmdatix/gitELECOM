@@ -62,3 +62,14 @@ def plot_images(generatedImages, dim=(10,10), title="title"):
     plt.tight_layout()
     plt.show()
     plt.close()
+
+
+def creating_dico_index(colnames):
+    features = ["num_access_files", "num_shells", "src_bytes",
+                "dst_bytes", "root_shell", "num_root", "su_attempted",
+                "num_file_creations"]
+    output = dict()
+    length = len(colnames)
+    for feature in features:
+        output[feature] = [i for i in range(length) if colnames[i] == feature][0]
+    return output
