@@ -1,7 +1,6 @@
 from loadingCGAN.cgan import switching_gans
 import numpy as np
 from evaluation.evaluation import evaluate
-# from joblib import Parallel, delayed
 
 
 def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
@@ -42,6 +41,9 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
                 g_losses[i] = g_losses[i] + g_l / (number_of_gans+1)
         d_to_delete = np.argmax(d_losses)
         g_to_delete = np.argmax(g_losses)
+        result_cgan = evaluate(y_true=y_cv, y_pred=cgans[g_to_delete].predict(x=x_cv))
+        print("Results of the deleted generator : ")
+        print(result_cgan)
         del generators[g_to_delete]
         del discriminators[d_to_delete]
         print("\n"*2)
