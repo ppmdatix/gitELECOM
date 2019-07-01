@@ -1,5 +1,4 @@
 from __future__ import print_function, division
-import numpy as np
 from keras.layers import Input, Dense, Flatten, Dropout
 from keras.layers.advanced_activations import LeakyReLU
 from keras.models import Sequential, Model
@@ -124,7 +123,10 @@ class Novgan(object):
         zeros = np.zeros((self.batch_size, 1))
         batch_count = int(x_train.shape[0] / self.batch_size)
 
-        for _ in range(epochs):
+        for epoch in range(epochs):
+            if print_recap:
+                sys.stdout.flush()
+                print("# Epoch " + str(epoch) + "/"+str(epochs), flush=True)
             d_l, g_l, h = 0, 0, 0
             for _ in (range(batch_count)):
                 idx = np.random.randint(0, x_train.shape[0], self.batch_size)
