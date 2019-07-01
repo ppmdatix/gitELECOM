@@ -29,7 +29,7 @@ print(dico_index)
 
 novgan = Novgan(data_dim=data_dim, activation=activation, verbose=True,
                 latent_dim=latent_dim,
-                leaky_relu=leaky_relu, offset=0, alpha=0, dropout=.2,
+                leaky_relu=leaky_relu, offset=offset, alpha=alpha, dropout=.2,
                 dico_index=dico_index,
                 noise="normal",
                 smooth_one=smooth_one, smooth_zero=smooth_zero, batch_size=batch_size)
@@ -37,4 +37,10 @@ novgan = Novgan(data_dim=data_dim, activation=activation, verbose=True,
 learned = novgan.train(x_train=x_train, epochs=10, print_recap=False)
 
 
+############
+# Plotting #
+############
+
 novgan.plot_learning()
+novgan.hurting(x=x_test, print_mode=True,title="Real Data")
+novgan.hurting(x=novgan.generate(number=len(x_test)), print_mode=True,title="Real Data")

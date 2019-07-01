@@ -1,4 +1,5 @@
 from __future__ import print_function, division
+import numpy as np
 from keras.layers import Input, Dense, Flatten, Dropout
 from keras.layers.advanced_activations import LeakyReLU
 from keras.models import Sequential, Model
@@ -8,7 +9,7 @@ from keras.initializers import glorot_uniform
 import sys
 from matplotlib import pyplot as plt
 sys.path.append("..")
-from losses.losses_novgan import custom_loss, loss_function_discriminator
+from losses.losses_novgan import custom_loss, loss_function_discriminator, hurting_raw
 import sys
 place = "work"
 if place == "work":
@@ -29,7 +30,7 @@ def zero_or_one(x):
 class Novgan(object):
     def __init__(self, data_dim=28, activation="tanh", verbose=True,
                  latent_dim=32,
-                 leaky_relu=.1, offset=0, alpha=0, dropout=.2,
+                 leaky_relu=.1, offset=0, alpha=1., dropout=.2,
                  dico_index=None,
                  noise="normal",
                  smooth_one=.9, smooth_zero=.1, batch_size=128):
@@ -59,7 +60,7 @@ class Novgan(object):
         self.gan = None
         self.gan = self.build_combined()
 
-        self.history = {"d_loss": [], "g_loss": []}
+        self.history = {"d_loss": [], "g_loss": [], "hurting": []}
 
     def build_generator(self):
         generator = Sequential()
@@ -118,13 +119,13 @@ class Novgan(object):
         :param print_recap:
         :return:
         """
-        d_loss, g_loss = list(), list()
+        d_loss, g_loss, h_evolution = list(), list(), list()
         ones = np.ones((self.batch_size,1))
         zeros = np.zeros((self.batch_size, 1))
         batch_count = int(x_train.shape[0] / self.batch_size)
 
         for _ in range(epochs):
-            d_l, g_l = 0, 0
+            d_l, g_l, h = 0, 0, 0
             for _ in (range(batch_count)):
                 idx = np.random.randint(0, x_train.shape[0], self.batch_size)
                 real_traffic = x_train[idx]
@@ -138,17 +139,27 @@ class Novgan(object):
                 d_l += 0.5 * np.add(d_loss_real, d_loss_fake)
                 self.discriminator.trainable = False
                 g_l += self.gan.train_on_batch(noise, ones)
+                h += np.mean(self.hurting(self.generate(number=self.batch_size)))
 
             d_loss.append(d_l/batch_count)
             g_loss.append(g_l/batch_count)
-            print(d_l)
-            print(g_l)
+            h_evolution.append(h/batch_count)
 
         self.history["d_loss"] = self.history["d_loss"] + d_loss
         self.history["g_loss"] = self.history["g_loss"] + g_loss
+        self.history["hurting"] = self.history["hurting"] + h_evolution
         if print_recap:
             self.plot_learning()
         return d_loss, g_loss
+
+    def hurting(self, x, print_mode=False, title="title"):
+        output = [hurting_raw(xi, dico=self.dico_index, mode="numpy") for xi in x]
+        if print_mode:
+            plt.hist(output, label="malveillance")
+            plt.title(title)
+            plt.show()
+            plt.close()
+        return np.array(output)
 
     def plot_learning(self):
         print(self.history["d_loss"])
