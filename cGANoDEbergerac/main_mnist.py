@@ -39,7 +39,7 @@ swagans = learning_mnist(swagans=swagans, x=x_train, x_cv=x_train_cv,
                          smooth_zero=smooth_zero, smooth_one=smooth_one, title="all_data_no_switch")
 
 swagan = swagans[0]
-swagan.plot_learning()
+swagan.plot_learning(save_mode=True, title="learning_history")
 # cgano = cgans[number_of_gans - 1]
 # cgano.load_model(location="save_models/models/", model_name="test1")
 

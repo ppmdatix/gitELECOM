@@ -163,13 +163,15 @@ class Novgan(object):
             plt.close()
         return np.array(output)
 
-    def plot_learning(self):
-        print(self.history["d_loss"])
+    def plot_learning(self, save_mode=False, title=None):
         plt.plot(self.history["d_loss"], label="discriminator loss")
         plt.plot(self.history["g_loss"], label="generator loss")
+        plt.plot(self.history["hurting"], label="hurting generation")
         plt.xlabel("epochs")
-        plt.title("Learning evolution")
+        plt.title("SWAGAN on KDD99 : Learning evolution")
         plt.legend()
+        if save_mode:
+            plt.savefig("tmp/" + title + ".png")
         plt.show()
         plt.close()
         return True

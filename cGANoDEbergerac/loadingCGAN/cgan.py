@@ -300,12 +300,14 @@ class Cgan(object):
         y_proba = [proba_choice([y0[0], y1[0]]) for y0, y1 in zip(y_pred_zeros, y_pred_ones)]
         return np.array(y_proba)
 
-    def plot_learning(self):
+    def plot_learning(self, save_mode=False, title=None):
         plt.plot(self.history["d_loss"], label="discriminator loss")
         plt.plot(self.history["g_loss"], label="generator loss")
         plt.xlabel("epochs")
-        plt.title("Learning evolution")
+        plt.title("CGAN : Learning evolution")
         plt.legend()
+        if save_mode:
+            plt.savefig("tmp/" + title + ".png")
         plt.show()
         plt.close()
         return True

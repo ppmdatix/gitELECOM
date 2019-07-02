@@ -9,7 +9,7 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 import numpy as np
 import sys
-place = "home"
+place = "work"
 if place == "work":
     sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
 elif place == "home":
@@ -207,12 +207,14 @@ class Swagan(object):
     def return_models(self):
         return self.generator, self.discriminator, self.combined
 
-    def plot_learning(self):
+    def plot_learning(self, save_mode=False, title=None):
         plt.plot(self.history["d_loss"], label="discriminator loss")
         plt.plot(self.history["g_loss"], label="generator loss")
         plt.xlabel("epochs")
         plt.title("Learning evolution")
         plt.legend()
+        if save_mode:
+            plt.savefig("tmp/" + title + ".png")
         plt.show()
         plt.close()
         return True

@@ -1,6 +1,6 @@
-epochs = 20
-number_of_gans = 5
-switches = 8
+epochs = 25
+number_of_gans = 10
+switches = 10
 examples = 100
 smooth_zero = .1
 smooth_one = .9

@@ -33,11 +33,11 @@ novgan = Novgan(data_dim=data_dim, activation=activation, verbose=True,
 ############
 learned = novgan.train(x_train=x_train, epochs=epochs, print_recap=True)
 
-
+novgan.plot_learning(save_mode=True, title="novgan")
 ############
 # Plotting #
 ############
-novgan.hurting(x=x_test, print_mode=True,title="Real Data")
-novgan.hurting(x=novgan.generate(number=len(x_test)),
-               print_mode=True,
-               title="Generated Data")
+# novgan.hurting(x=x_test, print_mode=True,title="Real Data")
+# novgan.hurting(x=novgan.generate(number=len(x_test)),
+#                print_mode=True,
+#                title="Generated Data")
