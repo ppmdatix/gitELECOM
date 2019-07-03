@@ -9,7 +9,7 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 import numpy as np
 import sys
-place = "work"
+place = "home"
 if place == "work":
     sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
 elif place == "home":
@@ -24,12 +24,19 @@ sys.path.insert(0, sys_path)
 from utils_cgan import smoothing_y
 
 
-def switching_swagans(list_of_gans):
-    print("Let's switch the GANs")
+def switching_swagans(list_of_gans, verbose=True):
+    """
+
+    :param list_of_gans: - - -
+    :return: switch generators and discriminator connections RANDOMLY
+    """
+    if verbose:
+        print("Let's switch the GANs")
     length = len(list_of_gans)
     sigma = np.random.permutation(length)
     fixed_points = sum([i == sigma[i] for i in range(length)])
-    print("There are "+str(fixed_points)+" fixed points")
+    if verbose:
+        print("There are "+str(fixed_points)+" fixed points")
     generators, discriminators = list(), list()
     for i in range(length):
         generators.append(list_of_gans[i].generator)
@@ -37,7 +44,8 @@ def switching_swagans(list_of_gans):
     for i in range(length):
         list_of_gans[i].discriminator = discriminators[sigma[i]]
         list_of_gans[i].build_combined()
-    print("GANs switched")
+    if verbose:
+        print("GANs switched")
     return list_of_gans, sigma
 
 

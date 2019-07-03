@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 sys.path.append("..")
 from losses.losses_novgan import custom_loss, loss_function_discriminator, hurting_raw
 import sys
-place = "work"
+place = "home"
 if place == "work":
     sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 elif place == "home":

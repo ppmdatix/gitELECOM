@@ -1,14 +1,24 @@
 from loadingCGAN.swagan import switching_swagans
 import numpy as np
 from matplotlib import pyplot as plt
-import os
 
-def plot_images(generatedImages, dim=(10,10), title="title", save_mode=False):
+def plot_images(generated_images,
+                dim=(10,10),
+                title="title",
+                save_mode=False):
+    """
+
+    :param generated_images: data to plot
+    :param dim: size of the displayed pictures
+    :param title: - - -
+    :param save_mode: - - -
+    :return:
+    """
     plt.figure(figsize=dim)
     plt.title(title)
-    for i in range(generatedImages.shape[0]):
+    for i in range(generated_images.shape[0]):
         plt.subplot(dim[0], dim[1], i+1)
-        plt.imshow(generatedImages[i], interpolation='nearest', cmap='gray_r')
+        plt.imshow(generated_images[i], interpolation='nearest', cmap='gray_r')
         plt.axis('off')
     plt.tight_layout()
     if save_mode:
@@ -17,11 +27,14 @@ def plot_images(generatedImages, dim=(10,10), title="title", save_mode=False):
     else:
         plt.show()
         plt.close()
+    return True
 
 
-def learning_mnist(swagans, x, x_cv, number_of_gans, epochs,
-             switches=2, print_mode=False,smooth_zero=.1, smooth_one=.9,
-             eval_size=1000, title="all_data"):
+def learning_mnist(swagans, x, x_cv,
+                   number_of_gans, epochs,
+                   switches=2, print_mode=False,
+                   smooth_zero=.1, smooth_one=.9,
+                   eval_size=1000, title="all_data"):
 
     while number_of_gans > 1:
         d_losses, g_losses = list(), list()
