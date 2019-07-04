@@ -23,4 +23,4 @@ shuffle = True
 title = "neptune_attack"
 log_transform = True
 weight_clipping = False
-evaluation = True
+evaluation = False

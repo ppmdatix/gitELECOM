@@ -142,7 +142,8 @@ class Cgan(object):
         model.add(Dropout(self.dropout))
         model.add(dense(self.data_dim,
                         kernel_initializer=initializers.RandomNormal(stddev=0.02),
-                        W_constraint=kernel_constraint))
+                        W_constraint=kernel_constraint,
+                        activation="tanh"))
         if self.verbose:
             print("\n \n Generator Architecture ")
             model.summary()

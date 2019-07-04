@@ -168,7 +168,7 @@ class Novgan(object):
         plt.plot(self.history["g_loss"], label="generator loss")
         plt.plot(self.history["hurting"], label="hurting generation")
         plt.xlabel("epochs")
-        plt.title("SWAGAN on KDD99 : Learning evolution")
+        plt.title("NOVGAN on KDD99 : Learning evolution")
         plt.legend()
         if save_mode:
             plt.savefig("tmp/" + title + ".png")
