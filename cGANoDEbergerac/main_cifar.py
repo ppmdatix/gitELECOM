@@ -2,14 +2,14 @@ from loadingCGAN.swagan import Swagan
 from learning_mnist import learning_mnist
 from utils.config_mnist import epochs, number_of_gans, switches, latent_dim, x_train_size, title
 from utils.config_mnist import smooth_zero, smooth_one, dropout, leaky_relu, noise, activation, save_model
-from load_data.load_mnist import load_mnist
+from load_data.load_cifar import load_cifar
 from time import time
 from loadingCGAN.utils_cgan import save_time
 
 ########
 # DATA #
 ########
-x_train, x_test, x_train_cv, data_dim = load_mnist(x_train_size=x_train_size)
+x_train, x_test, x_train_cv, data_dim = load_cifar(x_train_size=x_train_size)
 
 
 ##########

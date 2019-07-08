@@ -73,3 +73,8 @@ def creating_dico_index(colnames):
     for feature in features:
         output[feature] = [i for i in range(length) if colnames[i] == feature][0]
     return output
+
+def save_time(duration, location, title):
+    with open(location + title + "duration.txt", "w") as text_file:
+        text_file.write("Duration: %s" % str(duration))
+    return True

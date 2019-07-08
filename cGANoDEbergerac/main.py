@@ -1,10 +1,12 @@
 from loadingCGAN.cgan import Cgan
 from loadingCGAN.mlp import Mlp
+from loadingCGAN.utils_cgan import save_time
 from evaluation.evaluation import evaluate
 from learning import learning
 import numpy as np
 from load_data.load_data import load_data
 from utils.config import  *
+from time import time
 
 ########
 # DATA #
@@ -32,6 +34,7 @@ cgans = [Cgan(data_dim=data_dim, latent_dim=latent_dim,
 ############
 # LEARNING #
 ############
+start = time()
 cgans = learning(cgans=cgans,
                  x=x_train,# x_balanced_train
                  y=y_train,# y_balanced_train
@@ -40,7 +43,9 @@ cgans = learning(cgans=cgans,
                  epochs=epochs, switches=switches, print_mode=False, mode_d_loss=True,
                  reload_images_p=reload_images_p, show_past_p=show_past_p,
                  smooth_zero=smooth_zero, smooth_one=smooth_one)
-
+end = time()
+duration = end - start
+save_time(duration=duration, location="tmp/", title=title)
 
 cgan = cgans[0]
 if save_model:

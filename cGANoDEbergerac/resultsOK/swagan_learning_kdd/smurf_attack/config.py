@@ -1,5 +1,5 @@
 attack_mode = None
-attack = "satan"
+attack = "smurf"
 epochs = 10
 number_of_gans = 5
 switches = 10
@@ -20,7 +20,7 @@ noise = "normal"
 activation = "tanh"
 spectral_normalisation = False
 shuffle = True
-title = "satan"
+title = "smurf_attack"
 log_transform = True
 weight_clipping = False
 evaluation = True

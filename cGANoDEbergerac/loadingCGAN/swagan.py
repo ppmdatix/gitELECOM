@@ -103,8 +103,7 @@ class Swagan(object):
         generator.add(LeakyReLU(self.leaky_relu))
         generator.add(Dense(1024))
         generator.add(LeakyReLU(self.leaky_relu))
-        generator.add(Dense(784,
-                            activation=self.activation))
+        generator.add(Dense(784, activation=self.activation))
         generator.compile(loss=self.discriminator_loss, optimizer=self.optimizer)
 
         if self.verbose:

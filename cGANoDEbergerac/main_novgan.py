@@ -3,6 +3,8 @@ from load_data.load_data import load_data
 from utils.config_novgan import nrows, place, activation, latent_dim, leaky_relu, alpha, offset, dropout
 from utils.config_novgan import epochs, balanced_train_size, shuffle, cv_size, smooth_one, smooth_zero, batch_size
 from loadingCGAN.utils_cgan import creating_dico_index
+from time import time
+from loadingCGAN.utils_cgan import save_time
 
 
 ########
@@ -31,7 +33,11 @@ novgan = Novgan(data_dim=data_dim, activation=activation, verbose=True,
 ############
 # Training #
 ############
+start = time()
 learned = novgan.train(x_train=x_train, epochs=epochs, print_recap=True)
+end = time()
+duration = end - start
+save_time(duration=duration, location="tmp/", title=title)
 
 novgan.plot_learning(save_mode=True, title="novgan")
 ############
