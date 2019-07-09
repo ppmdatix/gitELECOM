@@ -49,6 +49,9 @@ def switching_gans(list_of_gans):
 
 
 class Cgan(object):
+    """
+    Conditional Gan implementation
+    """
     def __init__(self, data_dim=28, num_classes=2,
                  latent_dim=32, batch_size=128, leaky_relu=.2,
                  dropout=.4, spectral_normalisation=False,
@@ -59,6 +62,23 @@ class Cgan(object):
                  gan_loss="binary_crossentropy",
                  discriminator_loss="binary_crossentropy",
                  noise="normal"):
+        """
+
+        :param data_dim: - - -
+        :param num_classes: number of class for conditional GAN
+        :param latent_dim: noise dimension
+        :param batch_size: - - -
+        :param leaky_relu: - - -
+        :param dropout: - - -
+        :param spectral_normalisation: boolean
+        :param weight_clipping: boolean
+        :param weight_clip: threshold for clipping
+        :param verbose: boolean
+        :param activation: activation function of the discriminator
+        :param gan_loss: loss used for complete model
+        :param discriminator_loss: loss used for the discriminator
+        :param noise: type of noise (random, logistic ...)
+        """
         # Input shape
         self.data_dim = data_dim
         self.num_classes = num_classes
@@ -96,6 +116,9 @@ class Cgan(object):
         self.history = {"cv_loss": [], "d_loss": [], "g_loss": []}
 
     def build_generator(self):
+        """
+        construction of the generator
+        """
         if self.spectral_normalisation:
             dense = DenseSN
         else:
@@ -119,7 +142,8 @@ class Cgan(object):
         model.add(Dropout(self.dropout))
         model.add(dense(self.data_dim,
                         kernel_initializer=initializers.RandomNormal(stddev=0.02),
-                        W_constraint=kernel_constraint))
+                        W_constraint=kernel_constraint,
+                        activation="tanh"))
         if self.verbose:
             print("\n \n Generator Architecture ")
             model.summary()
@@ -133,6 +157,9 @@ class Cgan(object):
         return Model([noise, label], img)
 
     def build_discriminator(self):
+        """
+        construction of the conditional discriminator
+        """
         if self.spectral_normalisation:
             dense = DenseSN
         else:
@@ -169,6 +196,9 @@ class Cgan(object):
         return Model([traffic, label], validity)
 
     def build_combined(self):
+        """
+        construction of the full model
+        """
         noise = Input(shape=(self.latent_dim,))
         label = Input(shape=(1,))
         traffic = self.generator([noise, label])
@@ -178,6 +208,12 @@ class Cgan(object):
                               optimizer=self.optimizer)
 
     def generate(self, number, labels):
+        """
+
+        :param number: number of traffic generated
+        :param labels: labels wanted
+        :return:
+        """
 
         if self.noise == "normal":
             noise = np.random.normal(0, 1, (number, self.latent_dim))
@@ -190,15 +226,15 @@ class Cgan(object):
               reload_images_p=.8, show_past_p=.9, smooth_zero=.1, smooth_one=.9):
         """
 
-        :param x_train:
-        :param y_train:
-        :param epochs:
-        :param cv_size:
-        :param print_recap:
-        :param reload_images_p:
-        :param show_past_p:
-        :param smooth_zero:
-        :param smooth_one:
+        :param x_train: - - -
+        :param y_train: - - -
+        :param epochs: - - -
+        :param cv_size: - - -
+        :param print_recap: boolean
+        :param reload_images_p: proba that we reload stored images
+        :param show_past_p:proba we show past images to the discriminator
+        :param smooth_zero: label smoothing
+        :param smooth_one: label smoothing
         :return:
         """
         cv_loss, d_loss, g_loss = list(), list(), list()
@@ -257,7 +293,7 @@ class Cgan(object):
         :param x:
         :param y:
         :param batch_size:
-        :return: d_l, g_l
+        :return: d_l, g_l (discriminator loss evaluation , generator loss evaluation)
         """
         if batch_size is None:
             batch_size = self.batch_size

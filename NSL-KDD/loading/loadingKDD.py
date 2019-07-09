@@ -39,7 +39,7 @@ def loadingKDD(path=None, nrows=Nrows, attack_mode=True,
         if attack is None:
             pass
         else:
-            df = df[(df.attack_type == attack) | (df.attack_type != "normal")]
+            df = df[(df.attack_type == attack) | (df.attack_type == "normal")]
     elif attack_mode:
         if attack is None:
             df = df[(df.attack_type != "normal")]

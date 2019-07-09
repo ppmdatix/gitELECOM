@@ -2,8 +2,11 @@ import numpy as np
 import sys
 from sklearn.model_selection import train_test_split
 import pandas as pd
-# sys_path = "/Users/ppx/Desktop/gitELECOM/NSL-KDD"
-sys_path = "/home/peseux/Desktop/gitELECOM/NSL-KDD/"
+place = "home"
+if place == "home":
+    sys_path = "/Users/ppx/Desktop/gitELECOM/NSL-KDD"
+elif place == "work":
+    sys_path = "/home/peseux/Desktop/gitELECOM/NSL-KDD/"
 sys.path.insert(0, sys_path)
 from loading.loadingKDD import loadingKDD
 
@@ -14,7 +17,8 @@ def load_data(attack_mode=None, nrows=10000000, attack=None,
 
     # DATA
     x_train, y_train, cat_col, colnames = loadingKDD(nrows=nrows, attack_mode=attack_mode,
-                                              attack=attack, force_cat_col=None, place=place, log_transform=log_transform)
+                                                     attack=attack, force_cat_col=None,
+                                                     place=place, log_transform=log_transform)
     x_test, y_test, _, _ = loadingKDD(nrows=nrows,
                                       attack_mode=attack_mode, attack=attack,
                                       path="/home/peseux/Desktop/gitELECOM/NSL-KDD/KDDTest+.txt",

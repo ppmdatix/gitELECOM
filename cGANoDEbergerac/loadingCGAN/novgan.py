@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 sys.path.append("..")
 from losses.losses_novgan import custom_loss, loss_function_discriminator, hurting_raw
 import sys
-place = "work"
+place = "home"
 if place == "work":
     sys_path = "/home/peseux/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 elif place == "home":
@@ -168,7 +168,7 @@ class Novgan(object):
         plt.plot(self.history["g_loss"], label="generator loss")
         plt.plot(self.history["hurting"], label="hurting generation")
         plt.xlabel("epochs")
-        plt.title("SWAGAN on KDD99 : Learning evolution")
+        plt.title("NOVGAN on KDD99 : Learning evolution")
         plt.legend()
         if save_mode:
             plt.savefig("tmp/" + title + ".png")
