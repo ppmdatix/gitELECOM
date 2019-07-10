@@ -1,5 +1,5 @@
 from __future__ import print_function, division
-from keras.layers import Input, Dense, Flatten, Dropout
+from keras.layers import Input, Dense, Flatten, Dropout, BatchNormalization
 from keras.layers.advanced_activations import LeakyReLU
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
@@ -68,6 +68,10 @@ class Novgan_trafic_input(object):
                             kernel_initializer=glorot_uniform()))
         generator.add(LeakyReLU(self.leaky_rely))
         generator.add(Dense(128))
+        generator.add(BatchNormalization())
+        generator.add(Dropout(self.dropout))
+        generator.add(LeakyReLU(self.leaky_rely))
+        generator.add(Dense(128))
         generator.add(LeakyReLU(self.leaky_rely))
         generator.add(Dense(self.data_dim, activation=self.activation))
         # generator.compile(loss="binary_crossentropy", optimizer=self.optimizer)
@@ -90,6 +94,9 @@ class Novgan_trafic_input(object):
         discriminator.add(Dropout(self.dropout))
         discriminator.add(Dense(1, activation='sigmoid'))
         discriminator.compile(loss=loss_function_discriminator, optimizer=self.optimizer)
+        if self.verbose:
+            print("\n \n Discriminator Architecture ")
+            discriminator.summary()
         return discriminator
 
     def build_combined(self):

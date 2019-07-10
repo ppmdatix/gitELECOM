@@ -1,7 +1,6 @@
 from loadingCGAN.novgan_trafic_input import Novgan_trafic_input
 from load_data.load_data import load_data
-from utils.config_novgan_trafic_input import nrows, place, activation, noise_dim, leaky_relu, alpha, offset, dropout, title
-from utils.config_novgan_trafic_input import epochs, balanced_train_size, shuffle, cv_size, smooth_one, smooth_zero, batch_size
+from utils.config_novgan_trafic_input import *
 from loadingCGAN.utils_cgan import creating_dico_index
 from time import time
 import numpy as np
@@ -10,6 +9,7 @@ from loadingCGAN.utils_cgan import save_time
 # DATA #
 ########
 x_train, _, y_train, _, x_balanced_train, _, x_test, y_test, colnames = load_data(place=place,
+                                                                                  attack_mode=attack_mode,attack=attack
                                                                                 nrows=nrows,
                                                                                 cv_size=cv_size,
                                                                                 log_transform=True,
