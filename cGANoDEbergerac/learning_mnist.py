@@ -1,6 +1,8 @@
 from loadingCGAN.swagan import switching_swagans
 import numpy as np
 from matplotlib import pyplot as plt
+from copy.deepcopy import deepcopy
+
 
 def plot_images(generated_images,
                 dim=(10,10),
@@ -35,6 +37,14 @@ def learning_mnist(swagans, x, x_cv,
                    switches=2, print_mode=False,
                    smooth_zero=.1, smooth_one=.9,
                    eval_size=1000, title="all_data"):
+
+    swagan_base = deepcopy(swagans[0])
+    d_loss_base, g_loss_base = swagan_base.train(x_train=x,
+                                  epochs=epochs*number_of_gans,
+                                  print_recap=False,
+                                  smooth_zero=smooth_zero,
+                                  smooth_one=smooth_one)
+
 
     while number_of_gans > 1:
         d_losses, g_losses = list(), list()
@@ -83,4 +93,4 @@ def learning_mnist(swagans, x, x_cv,
             print("f1 score is " + str(d))
         del swagans[g_to_delete]
         number_of_gans += -1
-    return swagans
+    return swagans, swagan_base

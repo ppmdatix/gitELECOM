@@ -63,15 +63,13 @@ class Novgan_trafic_input(object):
 
     def build_generator(self):
         generator = Sequential()
-        generator.add(Dense(64,
+        generator.add(Dense(256,
                             input_dim=self.noise_dim + self.data_dim,
                             kernel_initializer=glorot_uniform()))
         generator.add(LeakyReLU(self.leaky_rely))
         generator.add(Dense(128))
         generator.add(BatchNormalization())
         generator.add(Dropout(self.dropout))
-        generator.add(LeakyReLU(self.leaky_rely))
-        generator.add(Dense(128))
         generator.add(LeakyReLU(self.leaky_rely))
         generator.add(Dense(self.data_dim, activation=self.activation))
         # generator.compile(loss="binary_crossentropy", optimizer=self.optimizer)

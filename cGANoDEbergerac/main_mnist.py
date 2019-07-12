@@ -25,10 +25,10 @@ swagans = [Swagan(data_dim=data_dim, latent_dim=latent_dim, leaky_relu=leaky_rel
 # LEARNING #
 ############
 start = time()
-swagans = learning_mnist(swagans=swagans, x=x_train, x_cv=x_train_cv,
-                         number_of_gans=number_of_gans,
-                         epochs=epochs, switches=switches, print_mode=True,
-                         smooth_zero=smooth_zero, smooth_one=smooth_one, title=title)
+swagans, swagan_base = learning_mnist(swagans=swagans, x=x_train, x_cv=x_train_cv,
+                                      number_of_gans=number_of_gans,
+                                      epochs=epochs, switches=switches, print_mode=True,
+                                      smooth_zero=smooth_zero, smooth_one=smooth_one, title=title)
 end = time()
 duration = end - start
 save_time(duration=duration, location="tmp/", title=title)

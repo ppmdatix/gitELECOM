@@ -9,12 +9,13 @@ from loadingCGAN.utils_cgan import save_time
 # DATA #
 ########
 x_train, _, y_train, _, x_balanced_train, _, x_test, y_test, colnames = load_data(place=place,
-                                                                                  attack_mode=attack_mode,attack=attack
-                                                                                nrows=nrows,
-                                                                                cv_size=cv_size,
-                                                                                log_transform=True,
-                                                                                shuffle=shuffle,
-                                                                                return_colnames=True)
+                                                                                  attack_mode=attack_mode,
+                                                                                  attack=attack,
+                                                                                  nrows=nrows,
+                                                                                  cv_size=cv_size,
+                                                                                  log_transform=True,
+                                                                                  shuffle=shuffle,
+                                                                                  return_colnames=True)
 x_train_bad = np.array([x for x, y in zip(x_train, y_train) if int(y) == 1])
 x_train = np.array([x for x, y in zip(x_train, y_train) if int(y) == 0])
 
@@ -49,15 +50,12 @@ end = time()
 duration = end - start
 save_time(duration=duration, location="tmp/", title=title)
 
-novgan_trafic_input.hurting(x=x_test, title="benin test", print_mode=True)
-novgan_trafic_input.hurting(x=x_test_bad, title="malveillant test", print_mode=True)
-novgan_trafic_input.hurting(x=novgan_trafic_input.generate(number=100, x_bad=x_test_bad[:100]),
-                            title="malveillant test", print_mode=True)
+
 
 ############
 # Plotting #
 ############
-# novgan.hurting(x=x_test, print_mode=True,title="Real Data")
-# novgan.hurting(x=novgan.generate(number=len(x_test)),
-#                print_mode=True,
-#                title="Generated Data")
+# novgan_trafic_input.hurting(x=x_test, title="benin test", print_mode=True)
+# novgan_trafic_input.hurting(x=x_test_bad, title="malveillant test", print_mode=True)
+# novgan_trafic_input.hurting(x=novgan_trafic_input.generate(number=100, x_bad=x_test_bad[:100]),
+#                            title="malveillant test", print_mode=True)
