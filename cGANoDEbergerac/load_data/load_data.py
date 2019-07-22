@@ -2,7 +2,7 @@ import numpy as np
 import sys
 from sklearn.model_selection import train_test_split
 import pandas as pd
-place = "work"
+place = "home"
 if place == "home":
     sys_path = "/Users/ppx/Desktop/gitELECOM/NSL-KDD"
 elif place == "work":

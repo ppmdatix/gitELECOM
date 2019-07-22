@@ -38,7 +38,7 @@ class Novgan_trafic_input(object):
         self.activation = activation
         self.verbose = verbose
         self.noise_dim = noise_dim
-        self.leaky_rely = leaky_relu
+        self.leaky_relu = leaky_relu
         self.offset = offset
         self.alpha = alpha
         self.dropout = dropout
@@ -66,11 +66,11 @@ class Novgan_trafic_input(object):
         generator.add(Dense(256,
                             input_dim=self.noise_dim + self.data_dim,
                             kernel_initializer=glorot_uniform()))
-        generator.add(LeakyReLU(self.leaky_rely))
+        generator.add(LeakyReLU(self.leaky_relu))
         generator.add(Dense(128))
         generator.add(BatchNormalization())
         generator.add(Dropout(self.dropout))
-        generator.add(LeakyReLU(self.leaky_rely))
+        generator.add(LeakyReLU(self.leaky_relu))
         generator.add(Dense(self.data_dim, activation=self.activation))
         # generator.compile(loss="binary_crossentropy", optimizer=self.optimizer)
 
@@ -82,13 +82,13 @@ class Novgan_trafic_input(object):
     def build_discriminator(self):
         discriminator = Sequential()
         discriminator.add(Dense(18, input_dim=self.data_dim))
-        discriminator.add(LeakyReLU(self.leaky_rely))
+        discriminator.add(LeakyReLU(self.leaky_relu))
         discriminator.add(Dropout(self.dropout))
         discriminator.add(Dense(12))
-        discriminator.add(LeakyReLU(self.leaky_rely))
+        discriminator.add(LeakyReLU(self.leaky_relu))
         discriminator.add(Dropout(self.dropout))
         discriminator.add(Dense(10))
-        discriminator.add(LeakyReLU(self.leaky_rely))
+        discriminator.add(LeakyReLU(self.leaky_relu))
         discriminator.add(Dropout(self.dropout))
         discriminator.add(Dense(1, activation='sigmoid'))
         discriminator.compile(loss=loss_function_discriminator, optimizer=self.optimizer)
@@ -116,7 +116,6 @@ class Novgan_trafic_input(object):
             noise = np.random.logistic(0, 1, (number, self.noise_dim))
         idx = np.random.randint(0, x_bad.shape[0], number)
         bad_trafic = x_bad[idx]
-        print
         input = np.concatenate((bad_trafic, noise), axis=1)
         generated_traffic = self.generator.predict(input)
         return generated_traffic
