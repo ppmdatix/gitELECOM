@@ -153,10 +153,11 @@ class Swagan_trafic_input(object):
         return generated_traffic
 
 
-    def train(self, x_train, x_train_bad,epochs, print_recap=True, smooth_zero=.1, smooth_one=.9):
+    def train(self, x_train, x_train_bad, epochs, print_recap=True, smooth_zero=.1, smooth_one=.9):
         """
 
         :param x_train:
+        :param x_train_bad:
         :param epochs:
         :param print_recap:
         :param smooth_zero:
@@ -278,3 +279,8 @@ class Swagan_trafic_input(object):
         self.build_combined()
         if self.verbose:
             print("MODEL COMPILED")
+
+    def predict(self, x, threshold=.5):
+        y_pred = self.discriminator.predict(x)
+        y_pred = [int(y > threshold) for y in y_pred]
+        return np.array(y_pred)

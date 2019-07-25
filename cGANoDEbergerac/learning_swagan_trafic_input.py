@@ -1,7 +1,5 @@
 from loadingCGAN.swagan_trafic_input import switching_swagans_trafic_input
 import numpy as np
-from copy import deepcopy as deepcopy
-
 
 
 def learning_swagan_trafic_input(swagans, x, x_bad, x_cv, x_bad_cv,

@@ -38,4 +38,4 @@ save_time(duration=duration, location="tmp/", title=title)
 swagan = swagans[0]
 swagan.plot_learning(save_mode=True, title=title)
 if save_model:
-    swagan.save_model(model_name="title")
+    swagan.save_model(model_name=title)

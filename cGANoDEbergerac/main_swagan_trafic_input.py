@@ -67,7 +67,7 @@ save_time(duration=duration, location="tmp/", title=title)
 swagan = swagans[0]
 swagan.plot_learning(save_mode=True, title=title)
 if save_model:
-    swagan.save_model(model_name="title")
+    swagan.save_model(model_name=title)
 
 
 
@@ -76,23 +76,21 @@ if save_model:
 ##############
 evaluation = True
 if evaluation:
-    result_swagan = evaluate(y_true=[0. for _ in x_test] + [1. for _ in x_test_bad],
-                             y_pred=swagan.discriminator.predict(x=np.concatenate(x_test+x_test_bad)))
+    x_eval = np.concatenate((x_test, x_test_bad))
+
+    result_swagan = evaluate(y_true=np.array([0. for _ in x_test] + [1. for _ in x_test_bad]),
+                             y_pred=swagan.predict(x=x_eval))
     print("\n"*4 + "="*15 + "\n" + "SWAGAN result")
     print(result_swagan)
-
-
     #################
     # Classical MLP #
     #################
     mlp = Mlp(data_dim=data_dim, verbose=False)
-    d_loss_classical = mlp.train(x_train=np.concatenate(x_train + x_train_bad),# x_balanced_train
-                                 y_train=[0. for _ in x_train] + [1. for _ in x_train_bad],# y_balanced_train
+    d_loss_classical = mlp.train(x_train=np.concatenate((x_train, x_train_bad)),# x_balanced_train
+                                 y_train=np.array([0. for _ in x_train] + [1. for _ in x_train_bad]),# y_balanced_train
                                  epochs=epochs*(switches+1))
-
-    result_mlp = evaluate(y_true=[0. for _ in x_test] + [1. for _ in x_test_bad],
-                          y_pred=mlp.predict(x=np.concatenate(x_test+x_test_bad)))
+    result_mlp = evaluate(y_true=np.array([0. for _ in x_test] + [1. for _ in x_test_bad]),
+                          y_pred=mlp.predict(x=x_eval))
 
     print("\n"*2 + "="*15 + "\n" + "MLP result")
     print(result_mlp)
-
