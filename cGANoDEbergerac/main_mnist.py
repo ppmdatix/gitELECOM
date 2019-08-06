@@ -9,12 +9,14 @@ from loadingCGAN.utils_cgan import save_time
 ########
 # DATA #
 ########
+# Loading MNIST dataset
 x_train, x_test, x_train_cv, data_dim = load_mnist(x_train_size=x_train_size)
 
 
 ##########
 # SWAGAN #
 ##########
+# Loading list of GANs to apply SWGAN learning
 swagans = [Swagan(data_dim=data_dim, latent_dim=latent_dim, leaky_relu=leaky_relu, dropout=dropout,
                   spectral_normalisation=False,
                   weight_clipping=False, verbose=True,
@@ -25,10 +27,14 @@ swagans = [Swagan(data_dim=data_dim, latent_dim=latent_dim, leaky_relu=leaky_rel
 # LEARNING #
 ############
 start = time()
+# learning function is the implementaion of the SWAGAN algorithm
+# It starts with a liste of conditional GANs and ends with one duo
+# More info on report
 swagans, swagan_base = learning_mnist(swagans=swagans, x=x_train, x_cv=x_train_cv,
                                       number_of_gans=number_of_gans,
                                       epochs=epochs, switches=switches, print_mode=True,
                                       smooth_zero=smooth_zero, smooth_one=smooth_one, title=title)
+# We save image generated over learning in order to see quality generation improvement
 end = time()
 duration = end - start
 save_time(duration=duration, location="tmp/", title=title)

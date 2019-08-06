@@ -26,6 +26,9 @@ from utils_cgan import smoothing_y
 
 def switching_swagans(list_of_gans, verbose=True):
     """
+    Method used to switch GANs links
+    We use (pseudo) random to shuffle, as depicted in the SWAGAN algorithm
+    We keep track of the permutation is (because it this shuffle is the permutation)
 
     :param list_of_gans: - - -
     :return: switch generators and discriminator connections RANDOMLY
@@ -50,6 +53,10 @@ def switching_swagans(list_of_gans, verbose=True):
 
 
 class Swagan(object):
+    """
+    Regular GAN for MNIST dataset
+    Built to fit SWAGAN shuffle
+    """
     def __init__(self,
                  data_dim=28,
                  latent_dim=32,
@@ -78,9 +85,9 @@ class Swagan(object):
         self.leaky_relu = leaky_relu
         self.dropout = dropout
         self.spectral_normalisation = spectral_normalisation
-        self.weight_clipping = weight_clipping
+        self.weight_clipping = weight_clipping # Wasserstein loss
         self.weight_clip = weight_clip
-        self.noise = noise
+        self.noise = noise # Noise choice
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
 
@@ -95,6 +102,10 @@ class Swagan(object):
         self.history = {"cv_loss": [], "d_loss": [], "g_loss": []}
 
     def build_generator(self):
+        """
+        Classical architecture for such task
+        We do not use Convolution layer to be able to transpose this work to NSLKDD
+        """
         generator = Sequential()
         generator.add(Dense(256, input_dim=self.latent_dim,
                             kernel_initializer=initializers.RandomNormal(stddev=0.02)))
@@ -103,7 +114,7 @@ class Swagan(object):
         generator.add(LeakyReLU(self.leaky_relu))
         generator.add(Dense(1024))
         generator.add(LeakyReLU(self.leaky_relu))
-        generator.add(Dense(784, activation=self.activation))
+        generator.add(Dense(self.data_dim, activation=self.activation))
         generator.compile(loss=self.discriminator_loss, optimizer=self.optimizer)
 
         if self.verbose:
@@ -113,8 +124,12 @@ class Swagan(object):
         return generator
 
     def build_discriminator(self):
+        """
+        Construction of the Discriminator
+        We rather use sigmoid as final activation function as we work with (0-1) label
+        """
         discriminator = Sequential()
-        discriminator.add(Dense(1024, input_dim=784,
+        discriminator.add(Dense(1024, input_dim=self.data_dim,
                                 kernel_initializer=initializers.RandomNormal(stddev=0.02)))
         discriminator.add(LeakyReLU(self.leaky_relu))
         discriminator.add(Dropout(self.dropout))
@@ -133,6 +148,11 @@ class Swagan(object):
         return discriminator
 
     def build_combined(self):
+        """
+        construction of the full model
+        We link the Generator to the Discriminator which is fundamental in GANs
+        Then it is reused when GANs are shuffled during SWAGAN algorithm
+        """
         gan_input = Input(shape=(self.latent_dim,))
         x = self.generator(gan_input)
         gan_output = self.discriminator(x)
@@ -140,22 +160,37 @@ class Swagan(object):
         self.combined.compile(loss=self.discriminator_loss, optimizer=self.optimizer)
 
     def generate(self, number):
+        """
+        The Generative power of GAN remains in this function
+        One can choose the number of generated samples by the Generator
+
+        Output is (when the model is trained) a sample close to digit
+
+        We let the Generator choose which digit it wants to create
+        The random input is in charge of this choice (totally blind to us)
+
+        :param number: number of images generated
+        :return:
+        """
+        assert self.noise in ["normal", "logistic"], "noise should be either normal or logistic"
         if self.noise == "normal":
             noise = np.random.normal(0, 1, (number, self.latent_dim))
         elif self.noise == "logistic":
             noise = np.random.logistic(0, 1, (number, self.latent_dim))
-        generated_traffic = self.generator.predict(noise)
-        return generated_traffic
+        generated_images = self.generator.predict(noise)
+        return generated_images
 
     def train(self, x_train, epochs, print_recap=True, smooth_zero=.1, smooth_one=.9):
         """
+        We follow the basic way to train GAN
+        Through batches we train D-G-D-G-... with same trainig size (according to GAN good habits)
 
         :param x_train:
         :param epochs:
         :param print_recap:
         :param smooth_zero:
         :param smooth_one:
-        :return:
+        :return: d_loss, g_loss (discriminator loss history and generator loss history)
         """
         d_loss, g_loss = list(), list()
         ones = np.ones((self.batch_size,1))
@@ -191,6 +226,11 @@ class Swagan(object):
 
     def evaluate(self, x, batch_size=None):
         """
+        This function is fundamental for SWAGAN elimination step.
+        One has to rank discriminator and generators to eliminate the worst ones
+        - To evaluate D we average accuracy on real sample and generated ones by G
+        - To evaluate G we measure how much G fools D
+        (if D maps every sample to 0, every G will be evaluated to 0)
 
         :param x:
         :param batch_size:

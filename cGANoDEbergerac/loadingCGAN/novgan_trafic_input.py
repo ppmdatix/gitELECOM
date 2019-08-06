@@ -27,6 +27,10 @@ def zero_or_one(x):
 
 
 class Novgan_trafic_input(object):
+    """
+    AN EXTENSION of Novgan object
+    Sadly I did not know how to inherit from another class
+    """
     def __init__(self, data_dim=28, activation="tanh", verbose=True,
                  noise_dim=32,
                  leaky_relu=.1, offset=0, alpha=1., dropout=.2,

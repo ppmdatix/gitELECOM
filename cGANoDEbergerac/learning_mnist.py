@@ -1,7 +1,7 @@
 from loadingCGAN.swagan import switching_swagans
 import numpy as np
 from matplotlib import pyplot as plt
-from copy.deepcopy import deepcopy
+from copy import deepcopy as deepcopy
 
 
 def plot_images(generated_images,
@@ -37,8 +37,17 @@ def learning_mnist(swagans, x, x_cv,
                    switches=2, print_mode=False,
                    smooth_zero=.1, smooth_one=.9,
                    eval_size=1000, title="all_data"):
+    """
+    The exact implementation of SWAGAN algorithm
+    Presented in the report (link in README)
+    We keep the Generators fixed and shuffle Discriminators (easier to implement) :
+    - generator of the first item of cgans will always be the same
+    - discriminators are assigned according to the random permutation
 
-    swagan_base = deepcopy(swagans[0])
+    Quite similar to learning.py but adapted to MNIST dataset
+    """
+
+    swagan_base = swagans[0]
     d_loss_base, g_loss_base = swagan_base.train(x_train=x,
                                   epochs=epochs*number_of_gans,
                                   print_recap=False,

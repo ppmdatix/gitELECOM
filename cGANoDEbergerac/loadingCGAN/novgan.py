@@ -27,6 +27,11 @@ def zero_or_one(x):
 
 
 class Novgan(object):
+    """
+    Novgan GAN where loss can be choosed in order to fit the report description
+
+    Working on NSLKDD data
+    """
     def __init__(self, data_dim=28, activation="tanh", verbose=True,
                  latent_dim=32,
                  leaky_relu=.1, offset=0, alpha=1., dropout=.2,
@@ -76,6 +81,12 @@ class Novgan(object):
         return generator
 
     def build_discriminator(self):
+        """
+        The most important part is the custom loss definition
+        We redefine the Discriminator loss in order to fit our Novgan proposition
+
+        More info on losses_novgan.py file
+        """
         discriminator = Sequential()
         discriminator.add(Dense(18, input_dim=self.data_dim))
         discriminator.add(LeakyReLU(self.leaky_rely))
@@ -91,6 +102,12 @@ class Novgan(object):
         return discriminator
 
     def build_combined(self):
+        """
+        The most important part is the custom loss definition
+        We redefine the Generator loss in order to fit our Novgan proposition
+
+        More info on losses_novgan.py file
+        """
 
         gan_input = Input(shape=(self.latent_dim,))
         x = self.generator(gan_input)
@@ -111,13 +128,7 @@ class Novgan(object):
         return generated_traffic
 
     def train(self, x_train, epochs, print_recap=True):
-        """
 
-        :param x_train:
-        :param epochs:
-        :param print_recap:
-        :return:
-        """
         d_loss, g_loss, h_evolution = list(), list(), list()
         ones = np.ones((self.batch_size,1))
         zeros = np.zeros((self.batch_size, 1))

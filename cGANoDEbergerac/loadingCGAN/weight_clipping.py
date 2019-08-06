@@ -3,6 +3,10 @@ from keras import backend as K
 
 
 class WeightClip(Constraint):
+    """
+    Weight Clipping for Wasserstein loss
+    Set weights values between c and -c once it reaches one limit
+    """
     def __init__(self, c=2):
         self.c = c
 

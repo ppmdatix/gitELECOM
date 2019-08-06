@@ -13,6 +13,8 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
     We keep the Generators fixed and shuffle Discriminators (easier to implement) :
     - generator of the first item of cgans will always be the same
     - discriminators are assigned according to the random permutation
+
+    Cross validation data is used to evaluate Generators and Discriminators
     """
 
     while number_of_gans > 1:
@@ -52,7 +54,11 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
         print("Results of the deleted generator : ")
         print(result_cgan)
         del generators[g_to_delete]
+        ####################
+        # removing worst D #
+        ####################
         del discriminators[d_to_delete]
+
         print("\n"*2)
         print("best generator loss is " + str(min(g_losses)))
         print("\n"*2)
@@ -60,9 +66,16 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
             print("f1 score is " + str(d))
         if print_mode:
             cgans[g_to_delete].plot_learning()
+
+        ####################
+        # removing worst G #
+        ####################
         del cgans[g_to_delete]
         number_of_gans += -1
 
+        ###############################
+        # checking learning evolution #
+        ###############################
         for cgan in cgans:
             result_cgan = evaluate(y_true=y_cv, y_pred=cgan.predict(x=x_cv))
             print(result_cgan)

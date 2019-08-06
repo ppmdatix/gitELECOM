@@ -250,7 +250,7 @@ class Cgan(object):
               reload_images_p=.8, show_past_p=.9, smooth_zero=.1, smooth_one=.9):
         """
         We follow the basic way to train GAN
-        Through batches we train D-G-D-G-... with same trainnig size (according to GAN good habits)
+        Through batches we train D-G-D-G-... with same trainig size (according to GAN good habits)
 
         :param x_train: - - -
         :param y_train: - - -
@@ -318,7 +318,7 @@ class Cgan(object):
         This function is fundamental for SWAGAN elimination step.
         One has to rank discriminator and generators to eliminate the worst ones
         - To evaluate D we average accuracy on real sample and generated ones by G
-        - To evaluate G we measures how much G fools D
+        - To evaluate G we measure how much G fools D
         (if D maps every sample to 0, every G will be evaluated to 0)
 
         :param mode_d_loss:

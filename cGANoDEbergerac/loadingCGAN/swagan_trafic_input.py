@@ -50,6 +50,10 @@ def switching_swagans_trafic_input(list_of_gans, verbose=True):
 
 
 class Swagan_trafic_input(object):
+    """
+    AN EXTENSION of Swagan object
+    Sadly I did not know how to inherit from another class
+    """
     def __init__(self,
                  data_dim=28,
                  noise_dim=32,
