@@ -8,6 +8,7 @@ from loadingCGAN.utils_cgan import save_time
 from loadingCGAN.utils_cgan import creating_dico_index
 from evaluation.evaluation import evaluate
 from loadingCGAN.mlp import Mlp
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 ########
@@ -88,9 +89,20 @@ if evaluation:
     mlp = Mlp(data_dim=data_dim, verbose=False)
     d_loss_classical = mlp.train(x_train=np.concatenate((x_train, x_train_bad)),# x_balanced_train
                                  y_train=np.array([0. for _ in x_train] + [1. for _ in x_train_bad]),# y_balanced_train
-                                 epochs=epochs*(switches+1))
+                                 epochs=epochs*(number_of_gans+1))
     result_mlp = evaluate(y_true=np.array([0. for _ in x_test] + [1. for _ in x_test_bad]),
                           y_pred=mlp.predict(x=x_eval))
 
     print("\n"*2 + "="*15 + "\n" + "MLP result")
     print(result_mlp)
+    #################
+    # Random Forest #
+    #################
+    RFC = RandomForestClassifier()
+    RFC.fit(X=np.concatenate((x_train, x_train_bad)),# x_balanced_train
+            y=np.array([0. for _ in x_train] + [1. for _ in x_train_bad]))
+    result_rfc = evaluate(y_true=np.array([0. for _ in x_test] + [1. for _ in x_test_bad]),
+                          y_pred=RFC.predict(X=x_eval))
+
+    print("\n"*2 + "="*15 + "\n" + "Random Forest result")
+    print(result_rfc)

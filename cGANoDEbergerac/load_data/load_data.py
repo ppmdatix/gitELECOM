@@ -47,7 +47,7 @@ def load_data(attack_mode=None, nrows=10000000, attack=None,
         print("Train data shape is " + str(x_train.shape))
         print("Test data shape is " + str(x_test.shape))
         print("\n  \n \n "*2)
-        print("Train data shape is {}".format(x_balanced_train.shape))
+        print("Balanced train data shape is {}".format(x_balanced_train.shape))
         print("\n  \n \n "*2)
         print("x_train overview")
         print(pd.DataFrame(x_train).head())
