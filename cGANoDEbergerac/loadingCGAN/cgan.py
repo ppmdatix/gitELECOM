@@ -28,10 +28,18 @@ elif place == "home":
     sys_path = "/Users/ppx/Desktop/gitELECOM/cGANoDEbergerac/loadingCGAN"
 sys.path.insert(0, sys_path)
 from weight_clipping import WeightClip
-from utils_cgan import false_or_true, proba_choice, past_labeling, tanh_to_zero_one, smoothing_y
+from utils_cgan import proba_choice, past_labeling, tanh_to_zero_one, smoothing_y
 
 
 def switching_gans(list_of_gans):
+    """
+    Method used to switch GANs links
+    We use (pseudo) random to shuffle, as depicted in the SWAGAN algorithm
+    We keep track of the permutation is (because it this shuffle is the permutation)
+
+    :param list_of_gans:
+    :return: shuffled list_of_gans & permutation sigma
+    """
     print("Let's switch the GANs")
     length = len(list_of_gans)
     sigma = np.random.permutation(length)
@@ -51,6 +59,8 @@ def switching_gans(list_of_gans):
 class Cgan(object):
     """
     Conditional Gan implementation
+    Every parameters is attributed to the object, to simplify access
+
     """
     def __init__(self, data_dim=28, num_classes=2,
                  latent_dim=32, batch_size=128, leaky_relu=.2,
@@ -118,6 +128,12 @@ class Cgan(object):
     def build_generator(self):
         """
         construction of the generator
+        - Spectral Normalisation in one GAN trick presented in the report
+          We use the Keras implementation, which slows learning
+
+        - Conditional GANs are presented in the report, input is noise+label
+
+        - We use a small architecture as we are dealing with NSLKDD data.
         """
         if self.spectral_normalisation:
             dense = DenseSN
@@ -159,6 +175,8 @@ class Cgan(object):
     def build_discriminator(self):
         """
         construction of the conditional discriminator
+        - Spectral Normalisation in one GAN trick presented in the report
+          We use the Keras implementation, which slows learning
         """
         if self.spectral_normalisation:
             dense = DenseSN
@@ -198,6 +216,8 @@ class Cgan(object):
     def build_combined(self):
         """
         construction of the full model
+        We link the Generator to the Discriminator which is fundamental in GANs
+        Then it is reused when GANs are shuffled
         """
         noise = Input(shape=(self.latent_dim,))
         label = Input(shape=(1,))
@@ -209,6 +229,10 @@ class Cgan(object):
 
     def generate(self, number, labels):
         """
+        The Generative power of GAN remains in this function
+        One can choose the number and the labels of generated samples by the Generator
+
+        Output is (when the model is trained) a sample close to NSLKDD sample
 
         :param number: number of traffic generated
         :param labels: labels wanted
@@ -225,6 +249,8 @@ class Cgan(object):
     def train(self, x_train, y_train, epochs, cv_size=.2, print_recap=True,
               reload_images_p=.8, show_past_p=.9, smooth_zero=.1, smooth_one=.9):
         """
+        We follow the basic way to train GAN
+        Through batches we train D-G-D-G-... with same trainnig size (according to GAN good habits)
 
         :param x_train: - - -
         :param y_train: - - -
@@ -235,7 +261,7 @@ class Cgan(object):
         :param show_past_p:proba we show past images to the discriminator
         :param smooth_zero: label smoothing
         :param smooth_one: label smoothing
-        :return:
+        :return: cv_loss, d_loss, g_loss
         """
         cv_loss, d_loss, g_loss = list(), list(), list()
         x_train_cv, x_test_cv, y_train_cv, y_test_cv = train_test_split(x_train, y_train, test_size=cv_size)
@@ -289,6 +315,12 @@ class Cgan(object):
 
     def evaluate(self, x, y, batch_size=None, mode_d_loss=True):
         """
+        This function is fundamental for SWAGAN elimination step.
+        One has to rank discriminator and generators to eliminate the worst ones
+        - To evaluate D we average accuracy on real sample and generated ones by G
+        - To evaluate G we measures how much G fools D
+        (if D maps every sample to 0, every G will be evaluated to 0)
+
         :param mode_d_loss:
         :param x:
         :param y:
@@ -321,14 +353,32 @@ class Cgan(object):
         return float(d_l), float(g_l)
 
     def return_models(self):
+        """
+        Eventhough every function should be documented, this one seems clear
+        Not even sure that some one will read these lines one day
+        if yes : send me an email @ paul.peseux@gmail.com
+        """
         return self.generator, self.discriminator, self.combined
 
     def predict(self, x, threshold=.5):
+        """
+        relies on predict_proba
+
+        if training goes well, appropriate threshold is 0.5
+        :param x:
+        :param threshold: higher than threshold : example is predicted ad 1
+        :return: y_pred
+        """
         y_pred = self.predict_proba(x)
         y_pred = [int(y > threshold) for y in y_pred]
         return np.array(y_pred)
 
     def predict_proba(self, x):
+        """
+        estimates probability that sample are benign and
+        :param x:
+        :return: y_pred_proba
+        """
         ones = np.ones((x.shape[0], 1))
         zeros = np.zeros((x.shape[0], 1))
         y_pred_ones = self.discriminator.predict([x, ones])
@@ -337,6 +387,9 @@ class Cgan(object):
         return np.array(y_proba)
 
     def plot_learning(self, save_mode=False, title=None):
+        """
+        Learning visualisation is helpful to try to understand what happens
+        """
         plt.plot(self.history["d_loss"], label="discriminator loss")
         plt.plot(self.history["g_loss"], label="generator loss")
         plt.xlabel("epochs")
@@ -349,6 +402,9 @@ class Cgan(object):
         return True
 
     def save_model(self, location="models/", model_name="test1.0"):
+        """
+        WARNING : cannot save models if Spectral normalization is implemented (pickles issue)
+        """
         # generator
         generator_json = self.generator.to_json()
         generator_path = location + model_name + "GENERATOR"
@@ -366,6 +422,9 @@ class Cgan(object):
         return True
 
     def load_model(self, location, model_name):
+        """
+        WARNING : cannot load models if Spectral normalization is implemented (pickles issue)
+        """
         # generator
         generator_path = location + model_name + "GENERATOR"
         generator_file = open(generator_path + ".json", 'r')

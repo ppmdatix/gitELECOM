@@ -14,6 +14,14 @@ from loading.loadingKDD import loadingKDD
 def load_data(attack_mode=None, nrows=10000000, attack=None,
               verbose=True, shuffle=False,
               cv_size=0., place="work", log_transform=True, return_colnames=False):
+    """
+    Loading NSLKDD data according to the tricks presented in the report
+    - For continous features we apply min max to log transformed columns
+    - For categorical data we apply one-hot encoding
+
+    The force_cat_col is a trick to have same columns in train and test dataset.
+    As we work with fixed size neural networks, it is absolutely necessary
+    """
 
     # DATA
     x_train, y_train, cat_col, colnames = loadingKDD(nrows=nrows, attack_mode=attack_mode,

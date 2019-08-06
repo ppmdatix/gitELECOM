@@ -1,6 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+# Basic functions that are helpful
+# Documentation not needed (?)
 
 def zero_or_one(x):
     if x < .5:

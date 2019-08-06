@@ -11,6 +11,9 @@ from time import time
 ########
 # DATA #
 ########
+# Loading NSLKDD data with given parameters
+# Data shape depends on nrows, due to one hot encoding
+# on y_data 0 means benign sample while 1 means malicious
 x_train, x_train_cv, y_train, y_train_cv, x_balanced_train, y_balanced_train, x_test, y_test = load_data(place=place,
                                                                                                          attack_mode=attack_mode,
                                                                                                          attack=attack,
@@ -34,7 +37,11 @@ cgans = [Cgan(data_dim=data_dim, latent_dim=latent_dim,
 ############
 # LEARNING #
 ############
+# We measure learning time to compare methods
 start = time()
+# learning function is the implementaion of the SWAGAN algorithm
+# It starts with a liste of conditional GANs and ends with one duo
+# More info on report
 cgans = learning(cgans=cgans,
                  x=x_train,# x_balanced_train
                  y=y_train,# y_balanced_train
@@ -56,6 +63,8 @@ cgan.plot_learning(save_mode=True, title=title)
 ##############
 # EVALUATION #
 ##############
+# We compare our result to basic models such as Perceptron
+# We try to fool those basic models with our Generator
 if evaluation:
     result_cgan = evaluate(y_true=y_test, y_pred=cgan.predict(x=x_test))
     print("\n"*4 + "="*15 + "\n" + "CGAN result")

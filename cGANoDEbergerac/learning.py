@@ -7,6 +7,13 @@ def learning(cgans, x, y, x_cv, y_cv, number_of_gans, epochs,
              switches=2, print_mode=False, mode_d_loss=False,
              reload_images_p=.9, show_past_p=.9, smooth_zero=.1, smooth_one=.9,
              eval_size=1000):
+    """
+    The exact implementation of SWAGAN algorithm
+    Presented in the report (link in README)
+    We keep the Generators fixed and shuffle Discriminators (easier to implement) :
+    - generator of the first item of cgans will always be the same
+    - discriminators are assigned according to the random permutation
+    """
 
     while number_of_gans > 1:
         cv_losses, d_losses, g_losses = list(), list(), list()
