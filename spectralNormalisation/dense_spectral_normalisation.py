@@ -6,6 +6,10 @@ import tensorflow as tf
 
 
 class DenseSN(Dense):
+    """
+    Spectral Normalization on Dense layers implementation on Keras
+    Based on approximation as Spectral Norm is heavy to compute
+    """
     def build(self, input_shape):
         assert len(input_shape) >= 2
         input_dim = input_shape[-1]

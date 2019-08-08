@@ -177,6 +177,9 @@ class Swagan(object):
             noise = np.random.normal(0, 1, (number, self.latent_dim))
         elif self.noise == "logistic":
             noise = np.random.logistic(0, 1, (number, self.latent_dim))
+        elif self.noise == "uniform":
+            noise = np.random.random((number, self.latent_dim))
+            noise = 2*noise + 2
         generated_images = self.generator.predict(noise)
         return generated_images
 
