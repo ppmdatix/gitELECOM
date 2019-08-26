@@ -36,7 +36,8 @@ def learning_mnist(swagans, x, x_cv,
                    number_of_gans, epochs,
                    switches=2, print_mode=False,
                    smooth_zero=.1, smooth_one=.9,
-                   eval_size=1000, title="all_data"):
+                   eval_size=1000, title="all_data",
+                   selection="remove_worst"):
     """
     The exact implementation of SWAGAN algorithm
     Presented in the report (link in README)
@@ -46,14 +47,13 @@ def learning_mnist(swagans, x, x_cv,
 
     Quite similar to learning.py but adapted to MNIST dataset
     """
-
+    assert  selection in {"remove_worst", "random"}
     swagan_base = swagans[0]
     d_loss_base, g_loss_base = swagan_base.train(x_train=x,
                                   epochs=epochs*number_of_gans,
                                   print_recap=False,
                                   smooth_zero=smooth_zero,
                                   smooth_one=smooth_one)
-
 
     while number_of_gans > 1:
         d_losses, g_losses = list(), list()
@@ -90,8 +90,12 @@ def learning_mnist(swagans, x, x_cv,
                 d_l, g_l = swagans[i].evaluate(x=x_cv, batch_size=eval_size)
                 d_losses[i] += float(d_l) / (number_of_gans+1)
                 g_losses[i] += float(g_l) / (number_of_gans+1)
-        d_to_delete = np.argmax(d_losses)
-        g_to_delete = np.argmax(g_losses)
+        if selection == "remove_worst":
+            d_to_delete = np.argmax(d_losses)
+            g_to_delete = np.argmax(g_losses)
+        elif selection == "random":
+            d_to_delete = np.random.randint(0, number_of_gans)
+            g_to_delete = np.random.randint(0, number_of_gans)
 
         del generators[g_to_delete]
         del discriminators[d_to_delete]

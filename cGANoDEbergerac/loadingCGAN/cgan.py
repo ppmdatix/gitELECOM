@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from evaluation.evaluation import evaluate
 
-place = "home"
+place = "work"
 import sys
 if place == "home":
     sys_path = "/Users/ppx/Desktop/gitELECOM/spectralNormalisation"

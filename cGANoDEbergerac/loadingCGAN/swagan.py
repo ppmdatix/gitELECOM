@@ -9,7 +9,7 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 import numpy as np
 import sys
-place = "home"
+place = "work"
 if place == "work":
     sys_path = "/home/peseux/Desktop/gitELECOM/spectralNormalisation/"
 elif place == "home":

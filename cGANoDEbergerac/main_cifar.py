@@ -12,7 +12,6 @@ import numpy as np
 ########
 x_train, x_test, y_train, y_test, x_train_cv, data_dim = load_cifar(cv_size=.1)
 
-draw_img(x_train=x_train, i=np.random.randint(1000))
 
 
 ##########
